@@ -19,7 +19,8 @@ public class ConexionDatabase {
             Properties properties = new Properties();
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                properties.load(new FileInputStream(new File("config.properties")));
+                properties.load(new FileInputStream("config.properties"));
+ 
                 // variables de conexion
                 String url = properties.getProperty("URL").toString();
                 String user = properties.getProperty("USER").toString();
