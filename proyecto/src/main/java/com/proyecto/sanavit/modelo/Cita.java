@@ -13,6 +13,8 @@ public class Cita {
     private Date fechaCita;
     private Time horaCita;
 
+
+    // Constructor completo
     public Cita(int idCita, int idMedico, int idPaciente, int idEstadoCita, int idModalidad, int idPortafolio, Date fechaCita, Time horaCita) {
         this.idCita = idCita;
         this.idMedico = idMedico;
@@ -22,6 +24,9 @@ public class Cita {
         this.idPortafolio = idPortafolio;
         this.fechaCita = fechaCita;
         this.horaCita = horaCita;
+    }
+    // Constructor vacío
+    public Cita() {
     }
 
     // Métodos get y set de cada atributo
@@ -74,5 +79,22 @@ public class Cita {
         this.horaCita = horaCita;
     }
     
+
+    // metodos para pedir, cancelar y actualizar estado
+    public void pedirCita (Date fechaCita, Time horaCita, int modalidad){
+        this.fechaCita = fechaCita;
+        this.horaCita = horaCita;
+        this.idModalidad = modalidad;
+        this.idEstadoCita = 1;
+    }
+    public void cancelarCita (){
+        this.idEstadoCita = 3;
+    }
+    public void confirmarCita (){
+        this.idEstadoCita = 2;
+    }
+    public void finalizarCita (){
+        this.idEstadoCita = 4;
+    }
 
 }

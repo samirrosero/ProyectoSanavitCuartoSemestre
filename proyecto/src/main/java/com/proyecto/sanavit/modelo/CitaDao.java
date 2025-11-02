@@ -39,6 +39,20 @@ public class CitaDao {
 
         return state;
     }
+    // ACTUALIZAR ESTADO DE UNA CITA (CONFIRMAR, CANCELAR, ETC)
+        public boolean actualizarEstadoCita(int idCita, int nuevoEstado) {
+            String sql = "UPDATE cita SET id_estado_cita = ? WHERE id_cita = ?";
+            try (Connection conn = ConexionDatabase.getConnection();
+                    PreparedStatement pst = conn.prepareStatement(sql)) {
+                pst.setInt(1, nuevoEstado);
+                pst.setInt(2, idCita);
+                
+                return pst.executeUpdate() > 0;
+            } catch (SQLException e) {
+                System.out.println("Error al actualizar estado de la cita: " + e.getMessage());
+                return false;
+            }
+        }
 
     // === ACTUALIZAR ===
     public boolean updateCita(Cita cita) {
@@ -220,4 +234,18 @@ public class CitaDao {
 
         return lista;
     }
+
+    private Cita mapCita(ResultSet rs) throws SQLException {
+    return new Cita(
+        rs.getInt("id_cita"),
+        rs.getInt("id_medico"),
+        rs.getInt("id_paciente"),
+        rs.getInt("id_estado_cita"),
+        rs.getInt("id_modalidad"),
+        rs.getInt("id_portafolio"),
+        rs.getDate("fecha_cita"),
+        rs.getTime("hora_cita")
+    );
+}
+
 }

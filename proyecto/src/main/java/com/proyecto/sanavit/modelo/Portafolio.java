@@ -13,6 +13,9 @@ public class Portafolio {
         this.afiliaciones = afiliaciones;
     }
 
+    // Constructor vacío
+    public Portafolio() {
+    }
     // Métodos get y set de cada atributo
     public int getIdPortafolio() {
         return idPortafolio;
