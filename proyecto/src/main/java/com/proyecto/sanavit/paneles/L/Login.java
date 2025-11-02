@@ -1,8 +1,7 @@
 package com.proyecto.sanavit.paneles.L;
 import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.*; 
 
 public class Login extends JFrame {
 

@@ -3,9 +3,6 @@ import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 public class RegistroFrame extends JFrame {
     private JTextField txtUsuario, txtNombreMedico, txtEspecialidadMedico;
     private JTextField txtNombrePaciente, txtCorreo, txtEdad, txtTelefono, txtSexo, txtDireccion, txtIdentificacion;
