@@ -80,4 +80,20 @@ public class Paciente {
     public void setIdUsuario(int idUsuario){
         this.idUsuario= idUsuario;
     }
+
+    // =======================
+// Métodos de comportamiento
+// =======================
+
+public boolean solicitarCita(Cita cita) {
+    CitaDao citaDao = new CitaDao();
+    cita.pedirCita(cita.getFechaCita(), cita.getHoraCita(), cita.getIdModalidad());
+    return citaDao.insertarCita(cita);
+}
+
+public boolean cancelarCita(int idCita) {
+    CitaDao citaDao = new CitaDao();
+    return citaDao.actualizarEstadoCita(idCita, 3); // 3 = Cancelada
+}
+
 }

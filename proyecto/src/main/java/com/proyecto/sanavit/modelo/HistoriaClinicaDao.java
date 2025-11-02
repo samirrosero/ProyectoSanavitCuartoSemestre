@@ -18,7 +18,7 @@ public class HistoriaClinicaDao {
             pst.setString(4, h.getAntecedentes());
             pst.setString(5, h.getDiagnostico());
             pst.setString(6, h.getTratamiento());
-            pst.setString(7, h.getEvaluacion());
+            pst.setString(7, h.getevolucion());
             pst.setString(8, h.getObservaciones());
 
             int res = pst.executeUpdate();
@@ -50,7 +50,7 @@ public class HistoriaClinicaDao {
                     h.setAntecedentes(rs.getString("antecedentes"));
                     h.setDiagnostico(rs.getString("diagnostico"));
                     h.setTratamiento(rs.getString("tratamiento"));
-                    h.setEvaluacion(rs.getString("evolucion"));
+                    h.setevolucion(rs.getString("evolucion"));
                     h.setObservaciones(rs.getString("observaciones"));
                 }
             }
@@ -75,7 +75,7 @@ public class HistoriaClinicaDao {
                 h.setAntecedentes(rs.getString("antecedentes"));
                 h.setDiagnostico(rs.getString("diagnostico"));
                 h.setTratamiento(rs.getString("tratamiento"));
-                h.setEvaluacion(rs.getString("evolucion"));
+                h.setevolucion(rs.getString("evolucion"));
                 h.setObservaciones(rs.getString("observaciones"));
                 lista.add(h);
             }
@@ -96,7 +96,7 @@ public class HistoriaClinicaDao {
             pst.setString(4, h.getAntecedentes());
             pst.setString(5, h.getDiagnostico());
             pst.setString(6, h.getTratamiento());
-            pst.setString(7, h.getEvaluacion());
+            pst.setString(7, h.getevolucion());
             pst.setString(8, h.getObservaciones());
             pst.setInt(9, h.getIdHistoriaClinica());
 

@@ -8,10 +8,10 @@ public class HistoriaClinica {
     private String antecedentes;
     private String diagnostico;
     private String tratamiento; 
-    private String evaluacion;
+    private String evolucion;
     private String observaciones;
 
-    public HistoriaClinica(int idHistoriaClinica, int idEjecucionCita, String motivoConsulta, String enfermedadActual, String antecedentes, String diagnostico, String tratamiento, String evaluacion, String observaciones) {
+    public HistoriaClinica(int idHistoriaClinica, int idEjecucionCita, String motivoConsulta, String enfermedadActual, String antecedentes, String diagnostico, String tratamiento, String evolucion, String observaciones) {
         this.idHistoriaClinica = idHistoriaClinica;
         this.idEjecucionCita = idEjecucionCita;
         this.motivoConsulta = motivoConsulta;
@@ -19,7 +19,7 @@ public class HistoriaClinica {
         this.antecedentes = antecedentes;
         this.diagnostico = diagnostico;
         this.tratamiento = tratamiento;
-        this.evaluacion = evaluacion;
+        this.evolucion = evolucion;
         this.observaciones = observaciones;
     }
 
@@ -67,11 +67,11 @@ public class HistoriaClinica {
     public void setTratamiento(String tratamiento) {
         this.tratamiento = tratamiento;
     }
-    public String getEvaluacion() {
-        return evaluacion;
+    public String getevolucion() {
+        return evolucion;
     }
-    public void setEvaluacion(String evaluacion) {
-        this.evaluacion = evaluacion;
+    public void setevolucion(String evolucion) {
+        this.evolucion = evolucion;
     }
     public String getObservaciones() {
         return observaciones;

@@ -38,7 +38,7 @@ public class DocumentoAnexoDao {
             pst.setInt(1, idDocumentoAnexo);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                d = new DocumentoAnexo(idDocumentoAnexo, idDocumentoAnexo, sql, sql);
+                d = new DocumentoAnexo(0, 0, null, null);
                 d.setIdDocumentoAnexo(rs.getInt("id_documento"));
                 d.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
                 d.setTipo(rs.getString("tipo"));
@@ -51,15 +51,15 @@ public class DocumentoAnexoDao {
         return d;
     }
 
-    public List<DocumentoAnexo> listarDocumentosPorHistoria(int idHistoria) {
+    public List<DocumentoAnexo> listarDocumentosPorHistoria(int idHistoriaClinica) {
         List<DocumentoAnexo> lista = new ArrayList<>();
         String sql = "SELECT * FROM documento_anexo WHERE id_historia_clinica = ?";
         try (Connection conn = ConexionDatabase.getConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idHistoria);
+            pst.setInt(1, idHistoriaClinica);
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
-                    DocumentoAnexo d = new DocumentoAnexo(idHistoria, idHistoria, sql, sql);
+                    DocumentoAnexo d = new DocumentoAnexo(0, 0, null, null);
                     d.setIdDocumentoAnexo(rs.getInt("id_documento"));
                     d.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
                     d.setTipo(rs.getString("tipo"));
@@ -90,7 +90,7 @@ public class DocumentoAnexoDao {
         return state;
     }
 
-    public boolean deleteDocumento(int idDocumento) {
+    public boolean deleteDocumento(int idDocumentoAnexo) {
         boolean state = false;
         Connection connect = null;
         PreparedStatement pst = null;
@@ -99,7 +99,7 @@ public class DocumentoAnexoDao {
             if (connect != null) {
                 String sql = "DELETE FROM documento_anexo WHERE id_documento = ?";
                 pst = connect.prepareStatement(sql);
-                pst.setInt(1, idDocumento);
+                pst.setInt(1, idDocumentoAnexo);
                 int res = pst.executeUpdate();
                 state = res > 0;
             } else {
