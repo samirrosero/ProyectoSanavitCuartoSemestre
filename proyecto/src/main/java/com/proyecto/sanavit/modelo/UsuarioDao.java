@@ -119,6 +119,20 @@ public class UsuarioDao {
 
         return idRol;
     }
+    // Cambiar la contraseña de un usuario
+    public boolean cambiarContraseña(int idUsuario, String nuevaContraseña) {
+    String sql = "UPDATE usuario SET contraseña = ? WHERE id_usuario = ?";
+    try (Connection conn = ConexionDatabase.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+        pst.setString(1, nuevaContraseña);
+        pst.setInt(2, idUsuario);
+        return pst.executeUpdate() > 0;
+    } catch (SQLException e) {
+        System.err.println("Error al cambiar contraseña: " + e.getMessage());
+        return false;
+    }
+}
+
 
     // === OBTENER TODOS LOS ROLES ===
     public Map<String, Integer> obtenerRoles() {

@@ -51,12 +51,10 @@ public class Medico {
         cita.setIdEstadoCita(2); 
     }
 
-    public RecetaMedica emitirReceta(Cita cita, String medicamento, String indicaciones) {
-        RecetaMedica receta = new RecetaMedica(idMedico, idMedico, indicaciones, indicaciones);
-        receta.setIdReceta(cita.getIdCita());
-        receta.setMedicamento(medicamento);
-        receta.setIndicaciones(indicaciones);
-        System.out.println("Receta emitida por el Dr. " + nombre);
-        return receta;
-    }
+public RecetaMedica emitirReceta(Cita cita, String medicamento, String indicaciones) {
+    // Usa el id de historia clínica o cita según tu flujo
+    RecetaMedica receta = new RecetaMedica(0, cita.getIdCita(), medicamento, indicaciones);
+    System.out.println("Receta emitida por el Dr. " + nombre);
+    return receta;
+}
 }

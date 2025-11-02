@@ -8,7 +8,7 @@ public class PortafolioDao {
 
     public boolean insertarPortafolio(Portafolio p) {
         boolean state = false;
-        String sql = "INSERT INTO portafolio (salud, convenio, afiliaciones) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO portafolio (salud, convenios, afiliaciones) VALUES (?, ?, ?)";
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, p.getSalud());
@@ -30,16 +30,16 @@ public class PortafolioDao {
 
     public Portafolio obtenerPorId(int idPortafolio) {
         Portafolio p = null;
-        String sql = "SELECT * FROM portafolio WHERE idPortafolio = ?";
+        String sql = "SELECT * FROM portafolio WHERE id_portafolio = ?";
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setInt(1, idPortafolio);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     p = new Portafolio(0, null, null, null);
-                    p.setIdPortafolio(rs.getInt("idPortafolio"));
+                    p.setIdPortafolio(rs.getInt("id_portafolio"));
                     p.setSalud(rs.getString("salud"));
-                    p.setConvenios(rs.getString("convenio"));
+                    p.setConvenios(rs.getString("convenios"));
                     p.setAfiliaciones(rs.getString("afiliaciones"));
                 }
             }
@@ -57,9 +57,9 @@ public class PortafolioDao {
              ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
                 Portafolio p = new Portafolio(0, null, null, null);
-                p.setIdPortafolio(rs.getInt("idPortafolio"));
+                p.setIdPortafolio(rs.getInt("id_portafolio"));
                 p.setSalud(rs.getString("salud"));
-                p.setConvenios(rs.getString("convenio"));
+                p.setConvenios(rs.getString("convenios"));
                 p.setAfiliaciones(rs.getString("afiliaciones"));
                 lista.add(p);
             }
@@ -71,7 +71,7 @@ public class PortafolioDao {
 
     public boolean updatePortafolio(Portafolio p) {
         boolean state = false;
-        String sql = "UPDATE portafolio SET salud=?, convenio=?, afiliaciones=? WHERE idPortafolio=?";
+        String sql = "UPDATE portafolio SET salud=?, convenios=?, afiliaciones=? WHERE id_portafolio=?";
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, p.getSalud());
@@ -88,14 +88,14 @@ public class PortafolioDao {
 
     public boolean deletePortafolio(int idPortafolio) {
         boolean state = false;
-        String sql = "DELETE FROM portafolio WHERE idPortafolio = ?";
+        String sql = "DELETE FROM portafolio WHERE id_portafolio = ?";
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setInt(1, idPortafolio);
             int res = pst.executeUpdate();
             state = res > 0;
         } catch (SQLException e) {
-            System.out.println("Error deletePortafolio: " + e.getMessage());
+            System.out.println("Error delete Portafolio: " + e.getMessage());
         }
         return state;
     }
@@ -104,7 +104,7 @@ public class PortafolioDao {
         return new Portafolio(
             rs.getInt("id_portafolio"),
             rs.getString("salud"),
-            rs.getString("convenios"),
+            rs.getString("convenioss"),
             rs.getString("afiliaciones")
         );
     }
