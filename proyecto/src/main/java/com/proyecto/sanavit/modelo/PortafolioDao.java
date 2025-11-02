@@ -99,4 +99,13 @@ public class PortafolioDao {
         }
         return state;
     }
+    // 🔹 Mapeo del ResultSet → Objeto Portafolio
+    private Portafolio mapPortafolio(ResultSet rs) throws SQLException {
+        return new Portafolio(
+            rs.getInt("id_portafolio"),
+            rs.getString("salud"),
+            rs.getString("convenios"),
+            rs.getString("afiliaciones")
+        );
+    }
 }
