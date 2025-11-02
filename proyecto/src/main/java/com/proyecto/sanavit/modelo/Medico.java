@@ -26,17 +26,7 @@ public class Medico {
     public String getNombre() {
         return nombre;
     }
-<<<<<<< HEAD
-
-    @Override
-    public String toString() {
-        return this.nombre;
-    }
-
-    public void setNombre(String nombre) {
-=======
     public void setNombre(String nombre){
->>>>>>> master
         this.nombre = nombre;
     }
 

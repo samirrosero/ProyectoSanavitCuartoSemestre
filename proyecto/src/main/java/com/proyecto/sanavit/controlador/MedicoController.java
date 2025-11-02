@@ -67,11 +67,6 @@ public class MedicoController {
         return medicoDao.deleteMedico(idMedico);
     }
 
-    public void atenderCita(Medico medico, Cita cita) {
-        medico.atender(cita);
-        new CitaDao().actualizarEstado(cita); // ejemplo, si tienes un CitaDao
-    }
-
     public RecetaMedica emitirReceta(Medico medico, Cita cita, String medicamento, String indicaciones) {
         RecetaMedica receta = medico.emitirReceta(cita, medicamento, indicaciones);
         new RecetaMedicaDao().insertarReceta(receta); // si la guardas en BD
