@@ -77,7 +77,7 @@ public class Paciente {
         public int getIdUsuario(){
         return idUsuario;
     }
-    public void setIdUsuario(int id_usuario){
+    public void setIdUsuario(int idUsuario){
         this.idUsuario= idUsuario;
     }
 }

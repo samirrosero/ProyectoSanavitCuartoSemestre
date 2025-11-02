@@ -26,14 +26,14 @@ public Usuario( int idUsuario, int idRol, String nombreUsuario, String contrase√
                 public int getIdRol (){
                 return idRol;
             }
-            public void setIdRol( int id_rol){
+            public void setIdRol( int idRol){
                 this.idRol = idRol;
 
             }    public String getNombreUsuario(){
                 return nombreUsuario;
             }            
             
-            public void setNombreUsuario( String nombre_usuario){
+            public void setNombreUsuario( String nombreUsuario){
                 this.nombreUsuario= nombreUsuario;
             }
                 public String getContrase√±a (){

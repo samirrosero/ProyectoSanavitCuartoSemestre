@@ -6,7 +6,7 @@ public class DocumentoAnexo {
     private String tipo;
     private String rutaArchivo;
 
-    public DocumentoAnexo(int idHistoria, int idHistoria2, String sql, String sql2) {
+    public DocumentoAnexo(int idDocumentoAnexo, int idHistoriaClinica, String tipo, String rutaArchivo) {
         this.idDocumentoAnexo = idDocumentoAnexo;
         this.idHistoriaClinica = idHistoriaClinica;
         this.tipo = tipo;

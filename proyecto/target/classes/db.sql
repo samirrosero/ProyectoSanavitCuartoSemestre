@@ -1,5 +1,5 @@
-CREATE DATABASE historia_clinica_sanavit_proyecto;
-use historia_clinica_sanavit_proyecto;
+CREATE DATABASE historia_clinica_sanavit_proyec;
+use historia_clinica_sanavit_proyec;
 
 CREATE TABLE rol 
 (id_rol INT PRIMARY KEY auto_increment, 
