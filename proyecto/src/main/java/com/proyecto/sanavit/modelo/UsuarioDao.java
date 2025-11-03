@@ -9,10 +9,10 @@ public class UsuarioDao {
     public Usuario autenticarUsuario(String nombreUsuario, String contrasena) {
         Usuario u = null;
         String sql = """
-            SELECT u.id_Usuario, u.id_rol, u.nombre_Usuario, u.contraseña, r.nombre_rol AS nombreRol
-            FROM Usuario u
+            SELECT u.id_usuario, u.id_rol, u.nombre_usuario, u.contraseña, r.nombre_rol AS nombreRol
+            FROM usuario u
             JOIN rol r ON u.id_rol = r.id_rol
-            WHERE u.nombre_Usuario = ? AND u.contraseña = ?
+            WHERE u.nombre_usuario = ? AND u.contraseña = ?
         """;
 
         try (Connection conn = ConexionDatabase.getConnection();
@@ -24,9 +24,9 @@ public class UsuarioDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     u = new Usuario(
-                        rs.getInt("id_Usuario"),
+                        rs.getInt("id_usuario"),
                         rs.getInt("id_rol"),
-                        rs.getString("nombre_Usuario"),
+                        rs.getString("nombre_usuario"),
                         rs.getString("contraseña"),
                         rs.getString("nombreRol")
                     );
@@ -43,7 +43,7 @@ public class UsuarioDao {
     // === INSERTAR USUARIO ===
     public int insertarUsuario(Usuario u) {
         int idGenerado = -1;
-        String sql = "INSERT INTO Usuario (id_rol, nombre_Usuario, contraseña) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO usuario (id_rol, nombre_usuario, contraseña) VALUES (?, ?, ?)";
 
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -72,7 +72,7 @@ public class UsuarioDao {
     // === OBTENER USUARIO POR CREDENCIALES ===
     public Usuario obtenerUsuario(String nombre, String contrasena) {
         Usuario u = null;
-        String sql = "SELECT * FROM Usuario WHERE nombre_Usuario = ? AND contraseña = ?";
+        String sql = "SELECT * FROM usuario WHERE nombre_usuario = ? AND contraseña = ?";
 
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -83,9 +83,9 @@ public class UsuarioDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     u = new Usuario(0, 0, null, null, null);
-                    u.setIdUsuario(rs.getInt("id_Usuario"));
+                    u.setIdUsuario(rs.getInt("id_usuario"));
                     u.setIdRol(rs.getInt("id_rol"));
-                    u.setNombreUsuario(rs.getString("nombre_Usuario"));
+                    u.setNombreUsuario(rs.getString("nombre_usuario"));
                     u.setContraseña(rs.getString("contraseña"));
 
                   }
@@ -102,7 +102,7 @@ public class UsuarioDao {
     public Usuario buscarUsuarioPorNombre(String nombre) {
 
         Usuario u = null;
-        String sql = "SELECT * FROM Usuario WHERE nombre_Usuario = ?";
+        String sql = "SELECT * FROM usuario WHERE nombre_usuario = ?";
 
         try (Connection conn = ConexionDatabase.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -112,9 +112,9 @@ public class UsuarioDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     u = new Usuario(0, 0, null, null, null);
-                    u.setIdUsuario(rs.getInt("id_Usuario"));
+                    u.setIdUsuario(rs.getInt("id_usuario"));
                     u.setIdRol(rs.getInt("id_rol"));
-                    u.setNombreUsuario(rs.getString("nombre_Usuario"));
+                    u.setNombreUsuario(rs.getString("nombre_usuario"));
                     u.setContraseña(rs.getString("contraseña"));
 
                   }

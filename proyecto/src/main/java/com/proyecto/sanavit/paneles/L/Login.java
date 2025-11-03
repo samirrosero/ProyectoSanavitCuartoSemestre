@@ -92,7 +92,7 @@ public class Login extends JFrame {
 
             switch (rol) {
                 case "medico" -> abrirVentana(() -> new VentanaMedico(u));
-                // case "paciente" -> abrirVentana(() -> new VentanaPaciente(u));
+                case "paciente" -> abrirVentana(() -> new VentanaPaciente(u));
                 // case "gestor" -> abrirVentana(() -> new VentanaGestorCitas(u));
                 // case "administrador" -> abrirVentana(() -> new VentanaAdministrador(u));
                 default -> JOptionPane.showMessageDialog(this, "Rol no reconocido: '" + rol + "'");
