@@ -3,143 +3,272 @@ package com.proyecto.sanavit.paneles.L;
 import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
+import java.awt.event.*;
 
 public class RegistroFrame extends JFrame {
 
-    private JTextField txtNombreUsuario, txtNombre, txtApellido, txtTelefono, txtEmail;
-    private JPasswordField txtContrasena;
-    private JButton btnRegistrar, btnCancelar;
+    private JTextField txtUsuario, txtNombreMedico, txtNombrePaciente, txtCorreo, txtEdad, txtTelefono, txtDireccion,
+            txtIdentificacion;
+    private JPasswordField txtContraseña;
+    private JComboBox<String> comboRol, comboSexo, comboEspecialidad;
+    private JButton btnRegistrar, btnAtras;
 
     public RegistroFrame() {
-        setTitle("Registro de Usuario - Sanavit");
-        setSize(600, 500);
+        setTitle("Registro de Usuario");
+        setSize(980, 760);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         JPanel fondo = new JPanel(new BorderLayout());
         fondo.setBackground(new Color(35, 210, 43));
         setContentPane(fondo);
 
-        JLabel titulo = new JLabel("Registro de Paciente", SwingConstants.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 22));
-        titulo.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
-        fondo.add(titulo, BorderLayout.NORTH);
+        // LOGO
+        ImageIcon logo = new ImageIcon(
+                "C:\\Users\\samir\\OneDrive\\Escritorio\\OneDrive\\Documentos\\prototipo\\logo.png");
+        JLabel labellogo = new JLabel();
+        labellogo.setHorizontalAlignment(SwingConstants.CENTER);
+        labellogo.setVerticalAlignment(SwingConstants.CENTER);
+        labellogo.setIcon(new ImageIcon(logo.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
+        fondo.add(labellogo, BorderLayout.NORTH);
 
-        JPanel panelCampos = new JPanel(new GridBagLayout());
-        panelCampos.setOpaque(false);
+        // ========================
+        // PANEL PRINCIPAL DE REGISTRO
+        // ========================
+        JPanel registro = new JPanel(new GridBagLayout());
+        registro.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(10, 10, 10, 20);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0; gbc.gridy = 0;
 
-        // Campos del formulario
-        panelCampos.add(new JLabel("Nombre de usuario:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        registro.add(new JLabel("Usuario:"), gbc);
         gbc.gridx = 1;
-        txtNombreUsuario = new JTextField(20);
-        panelCampos.add(txtNombreUsuario, gbc);
+        txtUsuario = new JTextField(20);
+        registro.add(txtUsuario, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panelCampos.add(new JLabel("Contraseña:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        registro.add(new JLabel("Contraseña:"), gbc);
         gbc.gridx = 1;
-        txtContrasena = new JPasswordField(20);
-        panelCampos.add(txtContrasena, gbc);
+        txtContraseña = new JPasswordField(20);
+        registro.add(txtContraseña, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panelCampos.add(new JLabel("Nombre:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        registro.add(new JLabel("Rol:"), gbc);
         gbc.gridx = 1;
-        txtNombre = new JTextField(20);
-        panelCampos.add(txtNombre, gbc);
+        comboRol = new JComboBox<>(new String[] { "Administrador", "Medico", "Gestor de Citas", "Paciente" });
+        registro.add(comboRol, gbc);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panelCampos.add(new JLabel("Apellido:"), gbc);
-        gbc.gridx = 1;
-        txtApellido = new JTextField(20);
-        panelCampos.add(txtApellido, gbc);
+        // ========================
+        // PANEL MÉDICO
+        // ========================
+        JPanel panelMedico = new JPanel(new GridBagLayout());
+        panelMedico.setOpaque(false);
+        GridBagConstraints gbcM = new GridBagConstraints();
+        gbcM.insets = new Insets(10, 10, 10, 20);
+        gbcM.fill = GridBagConstraints.HORIZONTAL;
+        gbcM.gridx = 0;
+        gbcM.gridy = 0;
 
-        gbc.gridx = 0; gbc.gridy++;
-        panelCampos.add(new JLabel("Teléfono:"), gbc);
-        gbc.gridx = 1;
+        panelMedico.add(new JLabel("Nombre:"), gbcM);
+        gbcM.gridx = 1;
+        txtNombreMedico = new JTextField(20);
+        panelMedico.add(txtNombreMedico, gbcM);
+
+        gbcM.gridx = 0;
+        gbcM.gridy++;
+        panelMedico.add(new JLabel("Especialidad:"), gbcM);
+        gbcM.gridx = 1;
+        comboEspecialidad = new JComboBox<>(new String[] {
+                "Medicina General", "Pediatría", "Ginecología", "Cardiología", "Odontología", "Oftalmología"
+        });
+        panelMedico.add(comboEspecialidad, gbcM);
+
+        // ========================
+        // PANEL PACIENTE
+        // ========================
+        JPanel panelPaciente = new JPanel(new GridBagLayout());
+        panelPaciente.setOpaque(false);
+        GridBagConstraints gbcP = new GridBagConstraints();
+        gbcP.insets = new Insets(5, 5, 5, 5);
+        gbcP.fill = GridBagConstraints.HORIZONTAL;
+        gbcP.gridx = 0;
+        gbcP.gridy = 0;
+
+        panelPaciente.add(new JLabel("Nombre:"), gbcP);
+        gbcP.gridx = 1;
+        txtNombrePaciente = new JTextField(20);
+        panelPaciente.add(txtNombrePaciente, gbcP);
+
+        gbcP.gridx = 0;
+        gbcP.gridy++;
+        panelPaciente.add(new JLabel("Correo:"), gbcP);
+        gbcP.gridx = 1;
+        txtCorreo = new JTextField(20);
+        panelPaciente.add(txtCorreo, gbcP);
+
+        gbcP.gridx = 0;
+        gbcP.gridy++;
+        panelPaciente.add(new JLabel("Edad:"), gbcP);
+        gbcP.gridx = 1;
+        txtEdad = new JTextField(20);
+        panelPaciente.add(txtEdad, gbcP);
+
+        gbcP.gridx = 0;
+        gbcP.gridy++;
+        panelPaciente.add(new JLabel("Teléfono:"), gbcP);
+        gbcP.gridx = 1;
         txtTelefono = new JTextField(20);
-        panelCampos.add(txtTelefono, gbc);
+        panelPaciente.add(txtTelefono, gbcP);
 
-        gbc.gridx = 0; gbc.gridy++;
-        panelCampos.add(new JLabel("Correo electrónico:"), gbc);
-        gbc.gridx = 1;
-        txtEmail = new JTextField(20);
-        panelCampos.add(txtEmail, gbc);
+        gbcP.gridx = 0;
+        gbcP.gridy++;
+        panelPaciente.add(new JLabel("Sexo:"), gbcP);
+        gbcP.gridx = 1;
+        comboSexo = new JComboBox<>(new String[] { "Masculino", "Femenino", "Otro" });
+        panelPaciente.add(comboSexo, gbcP);
 
-        // Botones
-        gbc.gridx = 0; gbc.gridy++;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        JPanel panelBotones = new JPanel();
-        panelBotones.setOpaque(false);
+        gbcP.gridx = 0;
+        gbcP.gridy++;
+        panelPaciente.add(new JLabel("Dirección:"), gbcP);
+        gbcP.gridx = 1;
+        txtDireccion = new JTextField(20);
+        panelPaciente.add(txtDireccion, gbcP);
+
+        gbcP.gridx = 0;
+        gbcP.gridy++;
+        panelPaciente.add(new JLabel("Identificación:"), gbcP);
+        gbcP.gridx = 1;
+        txtIdentificacion = new JTextField(20);
+        panelPaciente.add(txtIdentificacion, gbcP);
+
+        // Por defecto ocultos
+        panelMedico.setVisible(false);
+        panelPaciente.setVisible(false);
+
+        // Mostrar dinámicamente el formulario según rol
+        comboRol.addActionListener(e -> {
+            String rol = comboRol.getSelectedItem().toString().toLowerCase();
+            panelMedico.setVisible(rol.equals("medico"));
+            panelPaciente.setVisible(rol.equals("paciente"));
+            revalidate();
+            repaint();
+        });
+
+        // ========================
+        // BOTONES
+        // ========================
+        JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panelInferior.setOpaque(false);
         btnRegistrar = new JButton("Registrar");
-        btnCancelar = new JButton("Cancelar");
-        panelBotones.add(btnRegistrar);
-        panelBotones.add(btnCancelar);
-        panelCampos.add(panelBotones, gbc);
+        btnAtras = new JButton("Atrás");
+        panelInferior.add(btnRegistrar);
+        panelInferior.add(btnAtras);
 
-        fondo.add(panelCampos, BorderLayout.CENTER);
+        btnAtras.addActionListener(e -> {
+            dispose();
+            new Login();
+        });
 
-        // Listeners
         btnRegistrar.addActionListener(e -> registrarUsuario());
-        btnCancelar.addActionListener(e -> dispose());
+
+        // ========================
+        // ENSAMBLAR PANELES
+        // ========================
+        JPanel panelCentro = new JPanel(new BorderLayout());
+        panelCentro.setOpaque(false);
+        panelCentro.add(registro, BorderLayout.NORTH);
+        panelCentro.add(panelMedico, BorderLayout.CENTER);
+        panelCentro.add(panelPaciente, BorderLayout.SOUTH);
+
+        fondo.add(panelCentro, BorderLayout.CENTER);
+        fondo.add(panelInferior, BorderLayout.SOUTH);
 
         setVisible(true);
     }
 
     private void registrarUsuario() {
-        String nombreUsuario = txtNombreUsuario.getText().trim();
-        String contrasena = new String(txtContrasena.getPassword()).trim();
-        String nombre = txtNombre.getText().trim();
-        String apellido = txtApellido.getText().trim();
-        String telefono = txtTelefono.getText().trim();
-        String email = txtEmail.getText().trim();
+        String usuario = txtUsuario.getText().trim();
+        String contraseña = new String(txtContraseña.getPassword());
+        String rolSeleccionado = comboRol.getSelectedItem().toString().toLowerCase();
 
-        if (nombreUsuario.isEmpty() || contrasena.isEmpty() || nombre.isEmpty() || apellido.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, complete los campos obligatorios.");
+        if (usuario.isEmpty() || contraseña.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Usuario y contraseña son obligatorios.");
             return;
         }
 
         try {
-            UsuarioDao usuarioDao = new UsuarioDao();
-            PacienteDao pacienteDao = new PacienteDao();
+            UsuarioDao usuarioDAO = new UsuarioDao();
+            Usuario nuevoUsuario = new Usuario(0,0, null, null, null);
+            nuevoUsuario.setNombreUsuario(usuario);
+            nuevoUsuario.setContraseña(contraseña);
 
-            // 🔹 Asignar rol de paciente directamente (ID según tu catálogo en MySQL)
-            int idRolPaciente = 3; // Cambia este número si tu tabla rol tiene otro ID
+            // Asignar ID de rol según selección
+            int idRol = switch (rolSeleccionado) {
+                case "administrador" -> 1;
+                case "medico" -> 2;
+                case "gestor de citas" -> 3;
+                case "paciente" -> 4;
+                default -> -1;
+            };
+            nuevoUsuario.setIdRol(idRol);
+            System.out.println("Registrando usuario con rol ID: " + idRol);
 
-            // Crear usuario
-            Usuario usuario = new Usuario(idRolPaciente, idRolPaciente, nombreUsuario, contrasena, nombreRol);
-            usuario.setNombreUsuario(n ombreUsuario);
-            usuario.setContraseña(contrasena);
-            usuario.setIdRol(idRolPaciente);
-
-            if (!usuarioDao.insertarUsuario(usuario)) {
-                JOptionPane.showMessageDialog(this, "Error al registrar el usuario.");
+            int idUsuario = usuarioDAO.insertarUsuario(nuevoUsuario);
+            if (idUsuario == -1) {
+                JOptionPane.showMessageDialog(this, "Error al registrar usuario.");
                 return;
             }
+            nuevoUsuario.setIdUsuario(idUsuario);
 
-            // Crear paciente vinculado al usuario recién creado
-            Paciente paciente = new Paciente();
-            paciente.setNombre(nombre);
-            paciente.setTelefono(telefono);
-            paciente.setCorreo(email);
-            paciente.setIdUsuario(usuario.getIdUsuario());
+            // Crear médico o paciente según rol
+            if (idRol == 2) { // MÉDICO
+                String nombre = txtNombreMedico.getText().trim();
+                String especialidad = comboEspecialidad.getSelectedItem().toString();
+                if (nombre.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "El nombre es obligatorio para médicos.");
+                    return;
+                }
 
-            if (pacienteDao.insertarPaciente(paciente)) {
-                JOptionPane.showMessageDialog(this, "Registro exitoso. Ya puedes iniciar sesión.");
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al registrar paciente.");
+                MedicoDao medicoDAO = new MedicoDao();
+                if (medicoDAO.insertarMedico(new Medico(0, nombre, especialidad, nuevoUsuario.getIdUsuario()))) {
+                    JOptionPane.showMessageDialog(this, "Médico registrado con éxito.");
+                    System.out.println("Médico registrado con éxito.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error al registrar médico.");
+                    return;
+                }
+            } else if (idRol == 4) { // PACIENTE
+                String nombre = txtNombrePaciente.getText().trim();
+                String correo = txtCorreo.getText().trim();
+                String edadStr = txtEdad.getText().trim();
+                int edad = Integer.parseInt(edadStr.isEmpty() ? "0" : edadStr);
+                String telefono = txtTelefono.getText().trim();
+                String sexo = comboSexo.getSelectedItem().toString();
+                String direccion = txtDireccion.getText().trim();
+                String identificacion = txtIdentificacion.getText().trim();
+
+                if(nombre.isEmpty() || correo.isEmpty() || telefono.isEmpty() || direccion.isEmpty() || identificacion.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Todos los campos del paciente son obligatorios.");
+                    return;
+                }
+
+                PacienteDao pacienteDAO = new PacienteDao();
+                pacienteDAO.insertarPaciente(new Paciente(0, nombre, correo, edad, telefono, sexo, direccion,
+                        identificacion, nuevoUsuario.getIdUsuario()));
             }
 
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error de base de datos: " + ex.getMessage());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Registro exitoso. Ya puedes iniciar sesión.");
+            dispose();
+            new Login();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al registrar usuario: " + ex.getMessage());
         }
     }
 
