@@ -98,6 +98,34 @@ public class UsuarioDao {
         return u;
     }
 
+    //buscarUsuarioPorNombre
+    public Usuario buscarUsuarioPorNombre(String nombre) {
+
+        Usuario u = null;
+        String sql = "SELECT * FROM Usuario WHERE nombre_Usuario = ?";
+
+        try (Connection conn = ConexionDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nombre);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    u = new Usuario(0, 0, null, null, null);
+                    u.setIdUsuario(rs.getInt("id_Usuario"));
+                    u.setIdRol(rs.getInt("id_rol"));
+                    u.setNombreUsuario(rs.getString("nombre_Usuario"));
+                    u.setContraseña(rs.getString("contraseña"));
+
+                  }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al buscar usuario por nombre: " + e.getMessage());
+        }
+
+        return u;
+    }
     // === OBTENER ID DE ROL POR NOMBRE ===
     public int obtenerIdRolPorNombre(String nombreRol) {
         int idRol = -1;
