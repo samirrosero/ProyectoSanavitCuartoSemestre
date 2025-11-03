@@ -104,6 +104,33 @@ public class PacienteDao {
         }
         return null;
     }
+// Obtener paciente por ID de usuario
+    public Paciente obtenerPacientePorIdUsuario(int idUsuario) {
+        String sql = "SELECT * FROM paciente WHERE id_usuario = ?";
+        try (Connection conn = ConexionDatabase.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUsuario);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Paciente(
+                        rs.getInt("id_paciente"),
+                        rs.getString("nombre"),
+                        rs.getString("correo"),
+                        rs.getInt("edad"),
+                        rs.getString("telefono"),
+                        rs.getString("sexo"),
+                        rs.getString("direccion"),
+                        rs.getString("identificacion"),
+                        rs.getInt("id_usuario")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener paciente por ID de usuario: " + e.getMessage());
+        }
+        return null;
+    }
 
     // Listar todos los pacientes
     public List<Paciente> obtenerTodosLosPacientes() {
