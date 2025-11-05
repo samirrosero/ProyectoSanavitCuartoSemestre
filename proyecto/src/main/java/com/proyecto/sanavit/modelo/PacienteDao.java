@@ -193,4 +193,31 @@ public class PacienteDao {
         }
         return lista;
     }
+
+    public static Paciente obtenerPorIdentificacion(String identificacion) {
+        Paciente paciente = null;
+        String sql = "SELECT * FROM paciente WHERE identificacion = ?";
+        try (Connection conn = ConexionDatabase.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setString(1, identificacion);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    paciente = new Paciente(
+                        rs.getInt("id_paciente"),
+                        rs.getString("nombre"),
+                        rs.getString("correo"),
+                        rs.getInt("edad"),
+                        rs.getString("telefono"),
+                        rs.getString("sexo"),
+                        rs.getString("direccion"),
+                        rs.getString("identificacion"),
+                        rs.getInt("id_usuario")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error obtenerPorIdentificacion: " + e.getMessage());
+        }
+        return paciente;
+    }
 }

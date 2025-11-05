@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 public class MedicoDao {
 
     // Insertar
@@ -12,7 +14,7 @@ public class MedicoDao {
         String sql = "INSERT INTO medico (nombre, especialidad, id_usuario) VALUES (?, ?, ?)";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pst.setString(1, medico.getNombre());
             pst.setString(2, medico.getEspecialidad());
@@ -34,12 +36,12 @@ public class MedicoDao {
     }
 
     // Listar todos
-    public List<Medico> listarMedicos() {
+    public static List<Medico> listarMedicos() {
         List<Medico> lista = new ArrayList<>();
         String sql = "SELECT * FROM medico";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql);
-             ResultSet rs = pst.executeQuery()) {
+                PreparedStatement pst = conn.prepareStatement(sql);
+                ResultSet rs = pst.executeQuery()) {
 
             while (rs.next()) {
                 Medico m = new Medico(0, null, null, 0);
@@ -60,7 +62,7 @@ public class MedicoDao {
         Medico m = null;
         String sql = "SELECT * FROM medico WHERE id_medico = ?";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
+                PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setInt(1, idMedico);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
@@ -82,7 +84,7 @@ public class MedicoDao {
         Medico m = null;
         String sql = "SELECT * FROM medico WHERE id_usuario = ?";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
+                PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setInt(1, idUsuario);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
@@ -104,7 +106,7 @@ public class MedicoDao {
         boolean state = false;
         String sql = "UPDATE medico SET nombre = ?, especialidad = ? WHERE id_medico = ?";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
+                PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, medico.getNombre());
             pst.setString(2, medico.getEspecialidad());
             pst.setInt(3, medico.getIdMedico());
@@ -121,7 +123,7 @@ public class MedicoDao {
         boolean state = false;
         String sql = "DELETE FROM medico WHERE id_medico = ?";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
+                PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setInt(1, idMedico);
             int res = pst.executeUpdate();
             state = res > 0;
@@ -130,4 +132,32 @@ public class MedicoDao {
         }
         return state;
     }
+
+    public Medico obtenerPorNombre(String nombreMedico) {
+        Medico medico = null;
+        String sql = "SELECT * FROM medico WHERE nombre = ?";
+
+        try (Connection conn = ConexionDatabase.getConnection();
+                PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setString(1, nombreMedico);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    medico = new Medico(0, sql, sql, 0);
+                    medico.setIdMedico(rs.getInt("id_medico"));
+                    medico.setNombre(rs.getString("nombre"));
+                    medico.setEspecialidad(rs.getString("especialidad"));
+                    medico.setIdUsuario(rs.getInt("id_usuario"));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al buscar médico por nombre: " + e.getMessage());
+        }
+
+        return medico;
+    }
+
 }
