@@ -9,8 +9,8 @@ public class CitaDao {
     // === INSERTAR ===
     public boolean insertarCita(Cita cita) {
         boolean state = false;
-        String sql = "INSERT INTO cita (id_medico, id_paciente, id_estado_cita, id_modalidad, id_portafolio, fecha_cita, hora_cita) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO cita (id_medico, id_paciente, id_estado_cita, id_modalidad, fecha_cita, hora_cita) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionDatabase.getConnection();
                 PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -19,9 +19,8 @@ public class CitaDao {
             pst.setInt(2, cita.getIdPaciente());
             pst.setInt(3, cita.getIdEstadoCita());
             pst.setInt(4, cita.getIdModalidad());
-            pst.setInt(5, cita.getIdPortafolio());
-            pst.setDate(6, new java.sql.Date(cita.getFechaCita().getTime()));
-            pst.setTime(7, cita.getHoraCita());
+            pst.setDate(5, new java.sql.Date(cita.getFechaCita().getTime()));
+            pst.setTime(6, cita.getHoraCita());
 
             int res = pst.executeUpdate();
             if (res > 0) {
@@ -57,7 +56,7 @@ public class CitaDao {
     // === ACTUALIZAR ===
     public boolean updateCita(Cita cita) {
         boolean state = false;
-        String sql = "UPDATE cita SET id_medico=?, id_paciente=?, id_estado_cita=?, id_modalidad=?, id_portafolio=?, fecha_cita=?, hora_cita=? "
+        String sql = "UPDATE cita SET id_medico=?, id_paciente=?, id_estado_cita=?, id_modalidad=?, fecha_cita=?, hora_cita=? "
                 + "WHERE id_cita=?";
 
         try (Connection conn = ConexionDatabase.getConnection();
@@ -67,10 +66,9 @@ public class CitaDao {
             pst.setInt(2, cita.getIdPaciente());
             pst.setInt(3, cita.getIdEstadoCita());
             pst.setInt(4, cita.getIdModalidad());
-            pst.setInt(5, cita.getIdPortafolio());
-            pst.setDate(6, new java.sql.Date(cita.getFechaCita().getTime()));
-            pst.setTime(7, cita.getHoraCita());
-            pst.setInt(8, cita.getIdCita());
+            pst.setDate(5, new java.sql.Date(cita.getFechaCita().getTime()));
+            pst.setTime(6, cita.getHoraCita());
+            pst.setInt(7, cita.getIdCita());
 
             int res = pst.executeUpdate();
             state = res > 0;
@@ -111,13 +109,12 @@ public class CitaDao {
                 ResultSet rs = pst.executeQuery()) {
 
             while (rs.next()) {
-                Cita c = new Cita(0, 0, 0, 0, 0, 0, null, null);
+                Cita c = new Cita( 0, 0, 0, 0, 0, null, null);
                 c.setIdCita(rs.getInt("id_cita"));
                 c.setIdMedico(rs.getInt("id_medico"));
                 c.setIdPaciente(rs.getInt("id_paciente"));
                 c.setIdEstadoCita(rs.getInt("id_estado_cita"));
                 c.setIdModalidad(rs.getInt("id_modalidad"));
-                c.setIdPortafolio(rs.getInt("id_portafolio"));
                 c.setFechaCita(rs.getDate("fecha_cita"));
                 c.setHoraCita(rs.getTime("hora_cita"));
                 lista.add(c);
@@ -142,13 +139,12 @@ public class CitaDao {
             ResultSet rs = pst.executeQuery();
 
             if (rs.next()) {
-                cita = new Cita(0, 0, 0, 0, 0, 0, null, null);
+                cita = new Cita(0, 0, 0, 0, 0, null, null);
                 cita.setIdCita(rs.getInt("id_cita"));
                 cita.setIdMedico(rs.getInt("id_medico"));
                 cita.setIdPaciente(rs.getInt("id_paciente"));
                 cita.setIdEstadoCita(rs.getInt("id_estado_cita"));
                 cita.setIdModalidad(rs.getInt("id_modalidad"));
-                cita.setIdPortafolio(rs.getInt("id_portafolio"));
                 cita.setFechaCita(rs.getDate("fecha_cita"));
                 cita.setHoraCita(rs.getTime("hora_cita"));
             }
@@ -172,13 +168,12 @@ public class CitaDao {
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
-                Cita c = new Cita(0, 0, 0, 0, 0, 0, null, null);
+                Cita c = new Cita(0, 0, 0, 0, 0, null, null);
                 c.setIdCita(rs.getInt("id_cita"));
                 c.setIdMedico(rs.getInt("id_medico"));
                 c.setIdPaciente(rs.getInt("id_paciente"));
                 c.setIdEstadoCita(rs.getInt("id_estado_cita"));
                 c.setIdModalidad(rs.getInt("id_modalidad"));
-                c.setIdPortafolio(rs.getInt("id_portafolio"));
                 c.setFechaCita(rs.getDate("fecha_cita"));
                 c.setHoraCita(rs.getTime("hora_cita"));
                 lista.add(c);
@@ -211,7 +206,6 @@ public class CitaDao {
                         rs.getInt("id_paciente"),
                         rs.getInt("id_estado_cita"),
                         rs.getInt("id_modalidad"),
-                        rs.getInt("id_portafolio"),
                         rs.getDate("fecha_cita"),
                         rs.getTime("hora_cita"));
                 lista.add(cita);
@@ -242,7 +236,6 @@ public class CitaDao {
         rs.getInt("id_paciente"),
         rs.getInt("id_estado_cita"),
         rs.getInt("id_modalidad"),
-        rs.getInt("id_portafolio"),
         rs.getDate("fecha_cita"),
         rs.getTime("hora_cita")
     );
