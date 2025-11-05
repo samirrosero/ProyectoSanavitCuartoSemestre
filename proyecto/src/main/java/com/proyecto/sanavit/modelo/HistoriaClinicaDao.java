@@ -59,6 +59,33 @@ public class HistoriaClinicaDao {
         }
         return h;
     }
+    //Obtener Historias clínicas por paciente
+    public List<HistoriaClinica> obtenerPorPaciente(int idPaciente) {
+        List<HistoriaClinica> lista = new ArrayList<>();
+        String sql= "SELECT * FROM historia_clinica WHERE id_paciente = ?";
+        try (Connection conn = ConexionDatabase.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, idPaciente);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    HistoriaClinica h = new HistoriaClinica(0, 0, null, null, null, null, null, null, null);
+                    h.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
+                    h.setIdEjecucionCita(rs.getInt("id_ejecucionCita"));
+                    h.setMotivoConsulta(rs.getString("motivo_consulta"));
+                    h.setEnfermedadActual(rs.getString("enfermedad_actual"));
+                    h.setAntecedentes(rs.getString("antecedentes"));
+                    h.setDiagnostico(rs.getString("diagnostico"));
+                    h.setTratamiento(rs.getString("tratamiento"));
+                    h.setevolucion(rs.getString("evolucion"));
+                    h.setObservaciones(rs.getString("observaciones"));
+                    lista.add(h);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error obtenerPorPaciente: " + e.getMessage());
+        }
+        return lista;
+    }
 
     public List<HistoriaClinica> listarHistorias() {
         List<HistoriaClinica> lista = new ArrayList<>();
