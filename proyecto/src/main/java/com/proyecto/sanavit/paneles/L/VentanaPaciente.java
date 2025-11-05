@@ -7,8 +7,7 @@ import java.awt.*;
 public class VentanaPaciente extends JFrame {
 
     private JLabel lblNombre, lblCorreo, lblEdad, lblTelefono, lblSexo, lblDireccion, lblIdentificacion;
-    private JLabel lblSalud, lblAfiliacion; // 👈 nuevos campos del portafolio
-    private JButton btnAgendarCita, btnCerrarSesion;
+    private JButton btnAgendarCita, btnVerHistoriaClinica, btnCerrarSesion;
 
     public VentanaPaciente(Usuario usuarioActual) {
         setTitle("Panel del Paciente");
@@ -17,18 +16,11 @@ public class VentanaPaciente extends JFrame {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
-        // === OBTENER DATOS DEL PACIENTE ===
+        // Obtener información del paciente
         PacienteDao pacienteDAO = new PacienteDao();
         Paciente pacienteActual = pacienteDAO.obtenerPacientePorIdUsuario(usuarioActual.getIdUsuario());
 
-        // === OBTENER PORTAFOLIO (EPS / AFILIACIÓN) ===
-        Portafolio portafolioActual = null;
-        if (pacienteActual != null) {
-            PortafolioDao portafolioDAO = new PortafolioDao();
-            portafolioActual = portafolioDAO.obtenerPortafolioPorIdPaciente(pacienteActual.getIdPaciente());
-        }
-
-        // === ENCABEZADO ===
+        // ENCABEZADO
         JPanel fondo = new JPanel(new BorderLayout());
         fondo.setBackground(new Color(110, 180, 255));
 
@@ -47,59 +39,64 @@ public class VentanaPaciente extends JFrame {
 
         add(fondo, BorderLayout.NORTH);
 
-        // === PANEL DE INFORMACIÓN ===
+        // PANEL CENTRAL
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
         panel.setBackground(new Color(230, 245, 255));
         panel.setBorder(BorderFactory.createEmptyBorder(40, 80, 50, 80));
 
-        lblNombre = new JLabel("Nombre: " + safe(pacienteActual != null ? pacienteActual.getNombre() : null));
-        lblCorreo = new JLabel("Correo: " + safe(pacienteActual != null ? pacienteActual.getCorreo() : null));
-        lblEdad = new JLabel("Edad: " + safeInt(pacienteActual != null ? pacienteActual.getEdad() : 0));
-        lblTelefono = new JLabel("Teléfono: " + safe(pacienteActual != null ? pacienteActual.getTelefono() : null));
-        lblSexo = new JLabel("Sexo: " + safe(pacienteActual != null ? pacienteActual.getSexo() : null));
-        lblDireccion = new JLabel("Dirección: " + safe(pacienteActual != null ? pacienteActual.getDireccion() : null));
-        lblIdentificacion = new JLabel("Identificación: " + safe(pacienteActual != null ? pacienteActual.getIdentificacion() : null));
+        lblNombre = new JLabel("Nombre: " + (pacienteActual != null ? pacienteActual.getNombre() : "No encontrado"));
+        lblCorreo = new JLabel("Correo: " + (pacienteActual != null ? pacienteActual.getCorreo() : "No encontrado"));
+        lblEdad = new JLabel("Edad: " + (pacienteActual != null ? pacienteActual.getEdad() : "No encontrada"));
+        lblTelefono = new JLabel("Teléfono: " + (pacienteActual != null ? pacienteActual.getTelefono() : "No encontrado"));
+        lblSexo = new JLabel("Sexo: " + (pacienteActual != null ? pacienteActual.getSexo() : "No encontrado"));
+        lblDireccion = new JLabel("Dirección: " + (pacienteActual != null ? pacienteActual.getDireccion() : "No encontrada"));
+        lblIdentificacion = new JLabel("Identificación: " + (pacienteActual != null ? pacienteActual.getIdentificacion() : "No encontrada"));
 
-        // === NUEVOS CAMPOS (Portafolio) ===
-        lblSalud = new JLabel("EPS / Salud: " + safe(portafolioActual != null ? portafolioActual.getSalud() : null));
-        lblAfiliacion = new JLabel("Afiliación: " + safe(portafolioActual != null ? portafolioActual.getAfiliaciones() : null));
+        panel.add(lblNombre);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblCorreo);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblEdad);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblTelefono);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblSexo);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblDireccion);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblIdentificacion);
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // === BOTÓN AGENDAR CITA ===
+        // BOTONES
         btnAgendarCita = new JButton("Agendar Cita");
-        btnAgendarCita.addActionListener(e -> new VentanaAgendarCita(pacienteActual));
+        btnVerHistoriaClinica = new JButton("Ver Historia Clínica");
+        btnCerrarSesion = new JButton("Cerrar Sesión");
 
-        // === AGREGAR ETIQUETAS AL PANEL ===
-        JLabel[] etiquetas = {
-            lblNombre, lblCorreo, lblEdad, lblTelefono, lblSexo, lblDireccion, lblIdentificacion,
-            lblSalud, lblAfiliacion
-        };
+        // Acción de Agendar Cita
+        btnAgendarCita.addActionListener(e -> {
+            new VentanaAgendarCita(pacienteActual);
+        });
 
-        for (JLabel label : etiquetas) {
-            label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-            label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-            panel.add(label);
-            panel.add(Box.createRigidArea(new Dimension(0, 8)));
-        }
+        // Acción de Ver Historia Clínica
+       // btnVerHistoriaClinica.addActionListener(e -> {
+            //new VentanaHistoriaClinica(pacienteActual);
+        //});
 
+        // Acción de Cerrar Sesión
+        btnCerrarSesion.addActionListener(e -> {
+            dispose();
+            new Login(); // Regresar al login
+        });
+
+        // Añadir botones al panel
         panel.add(btnAgendarCita);
-        add(panel);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(btnVerHistoriaClinica);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(btnCerrarSesion);
 
+        add(panel, BorderLayout.CENTER);
         setVisible(true);
-            System.out.println("Portafolio obtenido → Salud: " +
-        (portafolioActual != null ? portafolioActual.getSalud() : "NULL") +
-        " | Afiliación: " +
-        (portafolioActual != null ? portafolioActual.getAfiliaciones() : "NULL"));
-
     }
-
-    // === Métodos auxiliares para evitar nulls ===
-    private String safe(String text) {
-        return (text == null || text.isEmpty()) ? "No registrado" : text;
-    }
-
-    private String safeInt(int value) {
-        return value == 0 ? "No registrado" : String.valueOf(value);
-    }
-    
 }

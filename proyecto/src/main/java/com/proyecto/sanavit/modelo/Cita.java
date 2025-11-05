@@ -9,19 +9,17 @@ public class Cita {
     private int idPaciente;
     private int idEstadoCita;
     private int idModalidad;
-    private int idPortafolio;
     private Date fechaCita;
     private Time horaCita;
 
 
     // Constructor completo
-    public Cita(int idCita, int idMedico, int idPaciente, int idEstadoCita, int idModalidad, int idPortafolio, Date fechaCita, Time horaCita) {
+    public Cita(int idCita, int idMedico, int idPaciente, int idEstadoCita, int idModalidad, Date fechaCita, Time horaCita) {
         this.idCita = idCita;
         this.idMedico = idMedico;
         this.idPaciente = idPaciente;
         this.idEstadoCita = idEstadoCita;
         this.idModalidad = idModalidad;
-        this.idPortafolio = idPortafolio;
         this.fechaCita = fechaCita;
         this.horaCita = horaCita;
     }
@@ -59,12 +57,6 @@ public class Cita {
     }
     public void setIdModalidad(int idModalidad) {
         this.idModalidad = idModalidad;
-    }
-    public int getIdPortafolio() {
-        return idPortafolio;
-    }
-    public void setIdPortafolio(int idPortafolio) {
-        this.idPortafolio = idPortafolio;
     }
     public Date getFechaCita() {
         return fechaCita;
