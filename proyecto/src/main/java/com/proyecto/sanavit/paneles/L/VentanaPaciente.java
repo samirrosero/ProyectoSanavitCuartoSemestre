@@ -11,7 +11,7 @@ public class VentanaPaciente extends JFrame {
 
     public VentanaPaciente(Usuario usuarioActual) {
         setTitle("Panel del Paciente");
-        setSize(700, 500);
+        setSize(700, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
