@@ -7,13 +7,11 @@ public class CitaController {
     private CitaDao citaDao;
     private MedicoDao medicoDao;
     private PacienteDao pacienteDao;
-    private PortafolioDao portafolioDao;
 
     public CitaController() {
         this.citaDao = new CitaDao();
         this.medicoDao = new MedicoDao();
         this.pacienteDao = new PacienteDao();
-        this.portafolioDao = new PortafolioDao();
     }
 
     // ✅ Registrar nueva cita
@@ -29,10 +27,6 @@ public class CitaController {
         }
         if (pacienteDao.obtenerPacientePorId(cita.getIdPaciente()) == null) {
             System.err.println("Error: El paciente con ID " + cita.getIdPaciente() + " no existe.");
-            return false;
-        }
-        if (portafolioDao.obtenerPorId(cita.getIdPortafolio()) == null) {
-            System.err.println("Error: El portafolio con ID " + cita.getIdPortafolio() + " no existe.");
             return false;
         }
         return citaDao.insertarCita(cita);
