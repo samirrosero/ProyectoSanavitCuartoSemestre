@@ -183,7 +183,6 @@ public class VentanaAgendarCita extends JFrame {
             String fechaStr = (String) cmbFecha.getSelectedItem();
             String horaStr = (String) cmbHora.getSelectedItem();
             String modalidadNombre = (String) cmbModalidad.getSelectedItem();
-            int idPortafolio = obtenerIdPortafolioPorEspecialidad((String) cmbEspecialidad.getSelectedItem());
 
             if (pacienteNombre.isEmpty() || identificacion.isEmpty() || medicoNombre == null || especialidad == null
                     || fechaStr == null || horaStr == null || modalidadNombre == null) {
@@ -218,7 +217,6 @@ public class VentanaAgendarCita extends JFrame {
             nuevaCita.setIdEstadoCita(1); // Estado "Agendada"
             nuevaCita.setFechaCita(fecha);
             nuevaCita.setHoraCita(hora);
-            nuevaCita.setIdPortafolio(idPortafolio); 
             nuevaCita.setIdModalidad(idModalidad);
 
 
@@ -238,26 +236,6 @@ public class VentanaAgendarCita extends JFrame {
         }
     }
 
-
-    private int obtenerIdPortafolioPorEspecialidad(String selectedItem) {
-    String especialidad = selectedItem;
-    int idPortafolio = -1;
-    String sql = "SELECT id_portafolio FROM portafolio WHERE salud = ?";
-    try (Connection conn = ConexionDatabase.getConnection();
-         PreparedStatement pst = conn.prepareStatement(sql)) {
-
-        pst.setString(1, especialidad);
-        try (ResultSet rs = pst.executeQuery()) {
-            if (rs.next()) {
-                idPortafolio = rs.getInt("id_portafolio");
-            }
-        }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return idPortafolio;
-}
 
     private void limpiarCampos() {
         txtPaciente.setText("");
