@@ -10,7 +10,7 @@ import java.util.List;
 public class VentanaMedico extends JFrame {
 
     private JLabel lblNombre, lblEspecialidad;
-    private JButton btnNuevaHistoria;
+    private JButton btnNuevaHistoria, btnCerrarSesion;
     private JTable tablaCita;
     private DefaultTableModel modeloTabla;
 
@@ -54,6 +54,9 @@ public class VentanaMedico extends JFrame {
         btnNuevaHistoria = new JButton("Crear Historia Clínica");
         panelInferior.add(btnNuevaHistoria);
         add(panelInferior, BorderLayout.SOUTH);
+        btnCerrarSesion = new JButton("Cerrar Sesión");
+        panelInferior.add(btnCerrarSesion);
+        add(panelInferior, BorderLayout.SOUTH);
 
         // === PANEL IZQUIERDO (nombre y especialidad) ===
         JPanel panel = new JPanel();
@@ -89,6 +92,12 @@ public class VentanaMedico extends JFrame {
                 c.getIdModalidad()
             });
         }
+
+        // === BOTÓN CERRAR SESIÓN ===
+        btnCerrarSesion.addActionListener(e -> {
+            dispose();
+            new Login();
+        });
 
         //  === BOTÓN HISTORIA CLÍNICA ===
        /*  btnNuevaHistoria.addActionListener(e -> {
