@@ -14,8 +14,16 @@ contraseña VARCHAR(100),
 FOREIGN KEY (id_rol) REFERENCES rol(id_rol));
 desc usuario;
 
+CREATE TABLE portafolio
+(id_portafolio INT primary key auto_increment,
+salud varchar(50),
+convenios varchar(50),
+afiliaciones varchar(50));
+desc portafolio;
+
 CREATE TABLE paciente 
 (id_paciente INT auto_increment primary KEY,
+id_portafolio INT,
 nombre VARCHAR(100),
 correo VARCHAR(100),
 edad INT,
@@ -24,6 +32,7 @@ sexo VARCHAR(100),
 direccion VARCHAR(100),
 identificacion varchar(100),
 id_usuario int unique, 
+foreign key(id_portafolio) references portafolio(id_portafolio),
 foreign key(id_usuario) references usuario(id_usuario));
 desc paciente;
 
@@ -46,27 +55,18 @@ CREATE TABLE modalidad
 nombre_modalidad varchar(50));
 desc modalidad;
 
-CREATE TABLE portafolio
-(id_portafolio INT primary key auto_increment,
-salud varchar(50),
-convenios varchar(50),
-afiliaciones varchar(50));
-desc portafolio;
-
 CREATE TABLE cita 
 (id_cita INT auto_increment primary KEY,
 id_medico INT,
 id_paciente INT,
 id_estado_cita INT,
 id_modalidad INT,
-id_portafolio INT,
 fecha_cita DATE,
 hora_cita TIME,
 FOREIGN KEY (id_medico) REFERENCES medico(id_medico),
 FOREIGN KEY (id_paciente) REFERENCES paciente(id_paciente),
 FOREIGN KEY (id_estado_cita) REFERENCES estado_cita(id_estado_cita),
-FOREIGN KEY (id_modalidad) REFERENCES modalidad(id_modalidad),
-FOREIGN KEY (id_portafolio) REFERENCES portafolio(id_portafolio));
+FOREIGN KEY (id_modalidad) REFERENCES modalidad(id_modalidad));
 desc cita;
 
 CREATE TABLE ejecucionCita (
@@ -128,11 +128,3 @@ select * from modalidad;
 
 
 select * from paciente;
-select * from medico;
-select * from usuario;
-select * from cita;
-select * from ejecucionCita;
-select * from historia_clinica;
-select * from documento_anexo;
-select * from receta_medica;
-select * from portafolio;
