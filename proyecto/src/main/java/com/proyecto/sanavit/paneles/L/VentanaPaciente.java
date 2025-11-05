@@ -54,11 +54,11 @@ public class VentanaPaciente extends JFrame {
         lblDireccion = new JLabel("Direccion: "+ (pacienteActual != null? pacienteActual.getDireccion():"No encontrada"));
         lblIdentificacion = new JLabel("Identificacion: "+ (pacienteActual!= null ? pacienteActual.getIdentificacion():"no genero"));
 
-        //Agregar Boton para agendar cita
+        // Agregar Boton para agendar cita
         btnAgendarCita = new JButton("Agendar Cita");
-        // btnAgendarCita.addActionListener(e ->{
-        //     new VentanaAgendarCita(pacienteActual);
-        // });
+        btnAgendarCita.addActionListener(e -> {
+            new VentanaAgendarCita(pacienteActual);
+        });
         panel.add(lblNombre);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(lblCorreo);
@@ -75,7 +75,7 @@ public class VentanaPaciente extends JFrame {
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(btnAgendarCita);
         add(panel);
-            setVisible(true);
+        setVisible(true);
 
     }
 }

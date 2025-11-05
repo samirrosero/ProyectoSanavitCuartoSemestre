@@ -74,8 +74,8 @@ public class VentanaMedico extends JFrame {
 
         add(panel, BorderLayout.WEST);
 
-        /*  === LLENAR TABLA CON Cita DEL MÉDICO ===
-        CitaDao citaDAO = new CitaDao();
+         // === LLENAR TABLA CON Cita DEL MÉDICO ===
+        CitaDao CitaDao = new CitaDao();
         PacienteDao PacienteDAO = new PacienteDao();
         List<Cita> CitaDelMedico = CitaDao.obtenerCitaPorMedico(medicoActual.getIdMedico());
 
@@ -86,12 +86,12 @@ public class VentanaMedico extends JFrame {
                 p != null ? p.getNombre() : "Desconocido",
                 c.getFechaCita().toString(),
                 c.getHoraCita().toString(),
-               // c.getModalidad()
+                c.getIdModalidad()
             });
-        }*/
+        }
 
-        /*  === BOTÓN HISTORIA CLÍNICA ===
-        btnNuevaHistoria.addActionListener(e -> {
+        //  === BOTÓN HISTORIA CLÍNICA ===
+       /*  btnNuevaHistoria.addActionListener(e -> {
             int filaSeleccionada = tablaCita.getSelectedRow();
             if (filaSeleccionada == -1) {
                 JOptionPane.showMessageDialog(this, "Seleccione una cita de la tabla.");
@@ -111,7 +111,7 @@ public class VentanaMedico extends JFrame {
             }
 
             if (Citaeleccionada != null && PacienteSeleccionado != null) {
-                new VentanaHistoriaClinica(PacienteSeleccionado, Citaeleccionada);
+               // new VentanaHistoriaClinica(PacienteSeleccionado, Citaeleccionada);
             } else {
                 JOptionPane.showMessageDialog(this, "No se pudo obtener la información del Paciente.");
             }

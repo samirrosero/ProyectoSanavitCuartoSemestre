@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 public class PortafolioDao {
 
     public boolean insertarPortafolio(Portafolio p) {
@@ -99,6 +101,28 @@ public class PortafolioDao {
         }
         return state;
     }
+
+       private int obtenerIdPortafolioPorEspecialidad(String especialidad) {
+    int idPortafolio = -1;
+
+    String sql = "SELECT id_portafolio FROM portafolio WHERE salud = ?";
+    try (Connection conn = ConexionDatabase.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, especialidad);
+        try (ResultSet rs = pst.executeQuery()) {
+            if (rs.next()) {
+                idPortafolio = rs.getInt("id_portafolio");
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showInputDialog(this);
+    }
+
+    return idPortafolio;
+}
     // 🔹 Mapeo del ResultSet → Objeto Portafolio
     private Portafolio mapPortafolio(ResultSet rs) throws SQLException {
         return new Portafolio(

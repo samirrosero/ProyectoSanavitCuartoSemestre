@@ -53,16 +53,24 @@ public class Login extends JFrame {
         panelLogin.add(txtContraseña, gbc);
 
         // Botones
-        gbc.gridy++;
-        JPanel panelBotones = new JPanel();
-        panelBotones.setOpaque(false);
+        gbc.gridy++; 
+
+        JPanel panelBotonesSuperior = new JPanel();
+        panelBotonesSuperior.setOpaque(false);
+
         btnIniciar = new JButton("Iniciar Sesión");
         btnRegistrar = new JButton("Registrarse");
+
+        panelBotonesSuperior.add(btnIniciar);
+        panelBotonesSuperior.add(btnRegistrar);
+
+        panelLogin.add(panelBotonesSuperior, gbc);
+
+        gbc.gridy++; 
+
         btnRecuperar = new JButton("¿Olvidaste tu contraseña?");
-        panelBotones.add(btnIniciar);
-        panelBotones.add(btnRegistrar);
-        panelBotones.add(btnRecuperar);
-        panelLogin.add(panelBotones, gbc);
+
+        panelLogin.add(btnRecuperar, gbc);
 
         fondo.add(panelLogin, BorderLayout.CENTER);
 
@@ -117,8 +125,8 @@ public class Login extends JFrame {
         JPasswordField txtNueva = new JPasswordField();
 
         Object[] campos = {
-            "Nombre de usuario:", txtUsuarioRec,
-            "Nueva contraseña:", txtNueva
+                "Nombre de usuario:", txtUsuarioRec,
+                "Nueva contraseña:", txtNueva
         };
 
         int opcion = JOptionPane.showConfirmDialog(this, campos, "Recuperar Contraseña", JOptionPane.OK_CANCEL_OPTION);
