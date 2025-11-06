@@ -4,103 +4,104 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class EjecucionCitaDao {
 
     public boolean insertarEjecucion(EjecucionCita e) {
         boolean state = false;
-        String sql = "INSERT INTO ejecucionCita (id_cita, fecha_hora_ingreso, fecha_salida, duracion) VALUES (?, ?, ?, ?)";
+        String sql = "{CALL insertarEjecucionCita(?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setInt(1, e.getIdCita());
-            pst.setTimestamp(2, e.getFechaHoraIngreso());
-            pst.setTimestamp(3, e.getFechaHoraSalida());
-            pst.setInt(4, e.getDuracion());
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, e.getIdCita());
+            cs.setTimestamp(2, e.getFechaHoraIngreso());
+            cs.setTimestamp(3, e.getFechaHoraSalida());
+            cs.setInt(4, e.getDuracion());
 
-            int res = pst.executeUpdate();
-            if (res > 0) {
-                try (ResultSet rs = pst.getGeneratedKeys()) {
-                    if (rs.next()) e.setIdEjecucionCita(rs.getInt(1));
+            boolean hasResult = cs.execute();
+            if (hasResult) {
+                try (ResultSet rs = cs.getResultSet()) {
+                    if (rs.next()) e.setIdEjecucionCita(rs.getInt("id_ejecucionCita"));
                 }
                 state = true;
             }
         } catch (SQLException ex) {
-            System.out.println("Error insertarEjecucion: " + ex.getMessage());
+            System.out.println("Error insertarEjecucion (SP): " + ex.getMessage());
         }
         return state;
     }
 
     public EjecucionCita obtenerPorId(int id) {
         EjecucionCita e = null;
-        String sql = "SELECT * FROM ejecucionCita WHERE id_ejecucionCita = ?";
+        String sql = "{CALL obtenerEjecucionPorId(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, id);
+            try (ResultSet rs = cs.executeQuery()) {
                 if (rs.next()) {
-                    e = new EjecucionCita(0, 0, null, null, 0);
-                    e.setIdEjecucionCita(rs.getInt("id_ejecucionCita"));
-                    e.setIdCita(rs.getInt("id_cita"));
-                    e.setFechaHoraIngreso(rs.getTimestamp("fecha_hora_ingreso"));
-                    e.setFechaHoraSalida(rs.getTimestamp("fecha_salida"));
-                    e.setDuracion(rs.getInt("duracion"));
+                    e = new EjecucionCita(
+                            rs.getInt("id_ejecucionCita"),
+                            rs.getInt("id_cita"),
+                            rs.getTimestamp("fecha_hora_ingreso"),
+                            rs.getTimestamp("fecha_salida"),
+                            rs.getInt("duracion")
+                    );
                 }
             }
         } catch (SQLException ex) {
-            System.out.println("Error obtenerPorId Ejecucion: " + ex.getMessage());
+            System.out.println("Error obtenerPorId (SP): " + ex.getMessage());
         }
         return e;
     }
 
     public List<EjecucionCita> listarEjecuciones() {
         List<EjecucionCita> lista = new ArrayList<>();
-        String sql = "SELECT * FROM ejecucionCita";
+        String sql = "{CALL listarEjecuciones()}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql);
-             ResultSet rs = pst.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
             while (rs.next()) {
-                EjecucionCita e = new EjecucionCita(0, 0, null, null, 0);
-                e.setIdEjecucionCita(rs.getInt("id_ejecucionCita"));
-                e.setIdCita(rs.getInt("id_cita"));
-                e.setFechaHoraIngreso(rs.getTimestamp("fecha_hora_ingreso"));
-                e.setFechaHoraSalida(rs.getTimestamp("fecha_salida"));
-                e.setDuracion(rs.getInt("duracion"));
+                EjecucionCita e = new EjecucionCita(
+                        rs.getInt("id_ejecucionCita"),
+                        rs.getInt("id_cita"),
+                        rs.getTimestamp("fecha_hora_ingreso"),
+                        rs.getTimestamp("fecha_salida"),
+                        rs.getInt("duracion")
+                );
                 lista.add(e);
             }
         } catch (SQLException ex) {
-            System.out.println("Error listarEjecuciones: " + ex.getMessage());
+            System.out.println("Error listarEjecuciones (SP): " + ex.getMessage());
         }
         return lista;
     }
 
     public boolean updateEjecucion(EjecucionCita e) {
         boolean state = false;
-        String sql = "UPDATE ejecucionCita SET id_cita=?, fecha_hora_ingreso=?, fecha_salida=?, duracion=? WHERE id_ejecucionCita=?";
+        String sql = "{CALL actualizarEjecucionCita(?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, e.getIdCita());
-            pst.setTimestamp(2, e.getFechaHoraIngreso());
-            pst.setTimestamp(3, e.getFechaHoraSalida());
-            pst.setInt(4, e.getDuracion());
-            pst.setInt(5, e.getIdEjecucionCita());
-            int res = pst.executeUpdate();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, e.getIdEjecucionCita());
+            cs.setInt(2, e.getIdCita());
+            cs.setTimestamp(3, e.getFechaHoraIngreso());
+            cs.setTimestamp(4, e.getFechaHoraSalida());
+            cs.setInt(5, e.getDuracion());
+            int res = cs.executeUpdate();
             state = res > 0;
         } catch (SQLException ex) {
-            System.out.println("Error updateEjecucion: " + ex.getMessage());
+            System.out.println("Error updateEjecucion (SP): " + ex.getMessage());
         }
         return state;
     }
 
     public boolean deleteEjecucion(int id) {
         boolean state = false;
-        String sql = "DELETE FROM ejecucionCita WHERE id_ejecucionCita = ?";
+        String sql = "{CALL eliminarEjecucionCita(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, id);
-            int res = pst.executeUpdate();
+             CallableStatement cs = conn.prepareCall(sql)) {
+            cs.setInt(1, id);
+            int res = cs.executeUpdate();
             state = res > 0;
         } catch (SQLException ex) {
-            System.out.println("Error deleteEjecucion: " + ex.getMessage());
+            System.out.println("Error deleteEjecucion (SP): " + ex.getMessage());
         }
         return state;
     }

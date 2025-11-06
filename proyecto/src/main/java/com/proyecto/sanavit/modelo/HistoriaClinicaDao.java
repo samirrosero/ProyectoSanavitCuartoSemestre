@@ -6,41 +6,44 @@ import java.util.List;
 
 public class HistoriaClinicaDao {
 
+    // === INSERTAR HISTORIA CLÍNICA ===
     public boolean insertarHistoria(HistoriaClinica h) {
         boolean state = false;
-        String sql = "INSERT INTO historia_clinica (id_ejecucionCita, motivo_consulta, enfermedad_actual, antecedentes, diagnostico, tratamiento, evolucion, observaciones) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "{CALL insertar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            if (h.getIdEjecucionCita() > 0) pst.setInt(1, h.getIdEjecucionCita()); else pst.setNull(1, Types.INTEGER);
-            pst.setString(2, h.getMotivoConsulta());
-            pst.setString(3, h.getEnfermedadActual());
-            pst.setString(4, h.getAntecedentes());
-            pst.setString(5, h.getDiagnostico());
-            pst.setString(6, h.getTratamiento());
-            pst.setString(7, h.getevolucion());
-            pst.setString(8, h.getObservaciones());
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            int res = pst.executeUpdate();
-            if (res > 0) {
-                try (ResultSet rs = pst.getGeneratedKeys()) {
-                    if (rs.next()) h.setIdHistoriaClinica(rs.getInt(1));
-                }
-                state = true;
-            }
+            if (h.getIdEjecucionCita() > 0)
+                cs.setInt(1, h.getIdEjecucionCita());
+            else
+                cs.setNull(1, Types.INTEGER);
+
+            cs.setString(2, h.getMotivoConsulta());
+            cs.setString(3, h.getEnfermedadActual());
+            cs.setString(4, h.getAntecedentes());
+            cs.setString(5, h.getDiagnostico());
+            cs.setString(6, h.getTratamiento());
+            cs.setString(7, h.getevolucion());
+            cs.setString(8, h.getObservaciones());
+
+            cs.execute();
+            state = true;
+
         } catch (SQLException e) {
-            System.out.println("Error insertarHistoria: " + e.getMessage());
+            System.out.println("Error insertarHistoria (SP): " + e.getMessage());
         }
         return state;
     }
 
+    // === OBTENER HISTORIA POR ID ===
     public HistoriaClinica obtenerPorId(int id) {
         HistoriaClinica h = null;
-        String sql = "SELECT * FROM historia_clinica WHERE id_historia_clinica = ?";
+        String sql = "{CALL obtener_historia_por_id(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, id);
-            try (ResultSet rs = pst.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, id);
+            try (ResultSet rs = cs.executeQuery()) {
                 if (rs.next()) {
                     h = new HistoriaClinica(0, 0, null, null, null, null, null, null, null);
                     h.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
@@ -54,19 +57,22 @@ public class HistoriaClinicaDao {
                     h.setObservaciones(rs.getString("observaciones"));
                 }
             }
+
         } catch (SQLException e) {
-            System.out.println("Error obtenerPorId Historia: " + e.getMessage());
+            System.out.println("Error obtenerPorId Historia (SP): " + e.getMessage());
         }
         return h;
     }
-    //Obtener Historias clínicas por paciente
+
+    // === OBTENER HISTORIAS CLÍNICAS POR PACIENTE ===
     public List<HistoriaClinica> obtenerPorPaciente(int idPaciente) {
         List<HistoriaClinica> lista = new ArrayList<>();
-        String sql= "SELECT * FROM historia_clinica WHERE id_paciente = ?";
+        String sql = "{CALL obtener_historias_por_paciente(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idPaciente);
-            try (ResultSet rs = pst.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idPaciente);
+            try (ResultSet rs = cs.executeQuery()) {
                 while (rs.next()) {
                     HistoriaClinica h = new HistoriaClinica(0, 0, null, null, null, null, null, null, null);
                     h.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
@@ -81,18 +87,21 @@ public class HistoriaClinicaDao {
                     lista.add(h);
                 }
             }
+
         } catch (SQLException e) {
-            System.out.println("Error obtenerPorPaciente: " + e.getMessage());
+            System.out.println("Error obtenerPorPaciente (SP): " + e.getMessage());
         }
         return lista;
     }
 
+    // === LISTAR TODAS LAS HISTORIAS ===
     public List<HistoriaClinica> listarHistorias() {
         List<HistoriaClinica> lista = new ArrayList<>();
-        String sql = "SELECT * FROM historia_clinica";
+        String sql = "{CALL listar_historias_clinicas()}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql);
-             ResultSet rs = pst.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
+
             while (rs.next()) {
                 HistoriaClinica h = new HistoriaClinica(0, 0, null, null, null, null, null, null, null);
                 h.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
@@ -106,45 +115,55 @@ public class HistoriaClinicaDao {
                 h.setObservaciones(rs.getString("observaciones"));
                 lista.add(h);
             }
+
         } catch (SQLException e) {
-            System.out.println("Error listarHistorias: " + e.getMessage());
+            System.out.println("Error listarHistorias (SP): " + e.getMessage());
         }
         return lista;
     }
 
+    // === ACTUALIZAR HISTORIA CLÍNICA ===
     public boolean updateHistoria(HistoriaClinica h) {
         boolean state = false;
-        String sql = "UPDATE historia_clinica SET id_ejecucionCita=?, motivo_consulta=?, enfermedad_actual=?, antecedentes=?, diagnostico=?, tratamiento=?, evolucion=?, observaciones=? WHERE id_historia_clinica=?";
+        String sql = "{CALL actualizar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            if (h.getIdEjecucionCita() > 0) pst.setInt(1, h.getIdEjecucionCita()); else pst.setNull(1, Types.INTEGER);
-            pst.setString(2, h.getMotivoConsulta());
-            pst.setString(3, h.getEnfermedadActual());
-            pst.setString(4, h.getAntecedentes());
-            pst.setString(5, h.getDiagnostico());
-            pst.setString(6, h.getTratamiento());
-            pst.setString(7, h.getevolucion());
-            pst.setString(8, h.getObservaciones());
-            pst.setInt(9, h.getIdHistoriaClinica());
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            int res = pst.executeUpdate();
-            state = res > 0;
+            cs.setInt(1, h.getIdHistoriaClinica());
+            if (h.getIdEjecucionCita() > 0)
+                cs.setInt(2, h.getIdEjecucionCita());
+            else
+                cs.setNull(2, Types.INTEGER);
+            cs.setString(3, h.getMotivoConsulta());
+            cs.setString(4, h.getEnfermedadActual());
+            cs.setString(5, h.getAntecedentes());
+            cs.setString(6, h.getDiagnostico());
+            cs.setString(7, h.getTratamiento());
+            cs.setString(8, h.getevolucion());
+            cs.setString(9, h.getObservaciones());
+
+            cs.execute();
+            state = true;
+
         } catch (SQLException e) {
-            System.out.println("Error updateHistoria: " + e.getMessage());
+            System.out.println("Error updateHistoria (SP): " + e.getMessage());
         }
         return state;
     }
 
+    // === ELIMINAR HISTORIA CLÍNICA ===
     public boolean deleteHistoria(int idHistoria) {
         boolean state = false;
-        String sql = "DELETE FROM historia_clinica WHERE id_historia_clinica = ?";
+        String sql = "{CALL eliminar_historia_clinica(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idHistoria);
-            int res = pst.executeUpdate();
-            state = res > 0;
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idHistoria);
+            cs.execute();
+            state = true;
+
         } catch (SQLException e) {
-            System.out.println("Error deleteHistoria: " + e.getMessage());
+            System.out.println("Error deleteHistoria (SP): " + e.getMessage());
         }
         return state;
     }
