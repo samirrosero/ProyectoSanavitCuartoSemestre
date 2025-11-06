@@ -66,4 +66,6 @@ public class PacienteController {
         }
         return pacienteDao.buscarPacientePorNombre(nombre);
     }
+
+    // obt
 }
