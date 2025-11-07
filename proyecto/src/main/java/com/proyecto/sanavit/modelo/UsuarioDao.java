@@ -2,6 +2,7 @@ package com.proyecto.sanavit.modelo;
 
 import java.sql.*;
 import java.util.*;
+import javax.swing.JOptionPane;
 
 public class UsuarioDao {
 
@@ -179,4 +180,87 @@ public class UsuarioDao {
 
         return roles;
     }
+
+        // === LISTAR TODOS LOS USUARIOS ===
+    public List<Usuario> listarUsuarios() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "{CALL listar_usuarios()}";
+
+        try (Connection conn = ConexionDatabase.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Usuario u = new Usuario(
+                    rs.getInt("id_usuario"),
+                    rs.getInt("id_rol"),
+                    rs.getString("nombre_usuario"),
+                    rs.getString("contraseña"),
+                    rs.getString("nombre_rol")
+                );
+                lista.add(u);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al listar usuarios: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+    // === ACTUALIZAR USUARIO ===
+    public boolean actualizarUsuario(Usuario u) {
+        String sql = "{CALL actualizar_usuario(?, ?, ?, ?)}";
+        try (Connection conn = ConexionDatabase.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setInt(1, u.getIdUsuario());
+            stmt.setInt(2, u.getIdRol());
+            stmt.setString(3, u.getNombreUsuario());
+            stmt.setString(4, u.getContraseña());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al actualizar usuario: " + e.getMessage());
+            return false;
+        }
+    }
+    // === ELIMINAR USUARIO ===
+    
+
+public boolean eliminarUsuario(int idUsuario) {
+    String sql = "{CALL eliminar_usuario(?)}";
+    try (Connection conn = ConexionDatabase.getConnection();
+         CallableStatement stmt = conn.prepareCall(sql)) {
+
+        stmt.setInt(1, idUsuario);
+        int filasAfectadas = stmt.executeUpdate();
+
+        if (filasAfectadas > 0) {
+            JOptionPane.showMessageDialog(null, 
+                "✅ Usuario eliminado correctamente.",
+                "Eliminación exitosa", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return true;
+        } else {
+            JOptionPane.showMessageDialog(null, 
+                "⚠️ No se encontró el usuario especificado.",
+                "Aviso", 
+                JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, 
+            "❌ Error al eliminar usuario:\n" + e.getMessage(),
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
+        return false;
+    }
+}
+
+
+  
+
 }

@@ -102,7 +102,7 @@ public class Login extends JFrame {
                 case "medico" -> abrirVentana(() -> new VentanaMedico(u));
                 case "paciente" -> abrirVentana(() -> new VentanaPaciente(u));
                 // case "gestor" -> abrirVentana(() -> new VentanaGestorCitas(u));
-                // case "administrador" -> abrirVentana(() -> new VentanaAdministrador(u));
+                 case "administrador" -> abrirVentana(() -> new VentanaAdministrador());
                 default -> JOptionPane.showMessageDialog(this, "Rol no reconocido: '" + rol + "'");
             }
         } else {
