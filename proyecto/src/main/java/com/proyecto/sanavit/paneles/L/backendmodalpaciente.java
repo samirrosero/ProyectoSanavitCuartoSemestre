@@ -1,5 +1,10 @@
 // package com.proyecto.sanavit.paneles.L;
 
+// import javax.swing.JButton;
+// import javax.swing.JComboBox;
+// import javax.swing.JOptionPane;
+// import javax.swing.JTextField;
+
 // public class backendmodalpaciente {
 //  private JTextField txtNombre, txtCorreo, txtEdad, txtTelefono, txtDireccion, txtIdentificacion;
 //     private JComboBox<String> comboSexo, comboSalud, comboAfiliacion;
@@ -89,7 +94,7 @@
 //         String direccion = txtDireccion.getText().trim();
 //         String identificacion = txtIdentificacion.getText().trim();
 //         String salud = comboSalud.getSelectedItem().toString();
-//         String afiliacion = comboAfiliacion.getSelectedItem().toString();
+//         // String afiliacion = comboAfiliacion.getSelectedItem().toString();
 
 //         if (nombre.isEmpty() || correo.isEmpty()) {
 //             JOptionPane.showMessageDialog(this, "Nombre y correo son obligatorios.");
