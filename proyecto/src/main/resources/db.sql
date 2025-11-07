@@ -219,6 +219,70 @@ BEGIN
 END //
 DELIMITER ;
 
+-- === LISTAR USUARIOS ===
+DELIMITER //
+CREATE PROCEDURE listar_usuarios()
+BEGIN
+    SELECT u.id_usuario, u.id_rol, u.nombre_usuario, u.contraseña, r.nombre_rol
+    FROM usuario u
+    JOIN rol r ON u.id_rol = r.id_rol;
+END //
+DELIMITER ;
+
+-- === ACTUALIZAR USUARIO ===
+DELIMITER //
+CREATE PROCEDURE actualizar_usuario(
+    IN p_id_usuario INT,
+    IN p_id_rol INT,
+    IN p_nombre_usuario VARCHAR(100),
+    IN p_contraseña VARCHAR(100)
+)
+BEGIN
+    UPDATE usuario
+    SET id_rol = p_id_rol,
+        nombre_usuario = p_nombre_usuario,
+        contraseña = p_contraseña
+    WHERE id_usuario = p_id_usuario;
+END //
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE eliminar_usuario(IN p_id_usuario INT)
+BEGIN
+    DECLARE v_id_paciente INT;
+    DECLARE v_id_medico INT;
+
+    -- Buscar si el usuario está vinculado a un paciente
+    SELECT id_paciente INTO v_id_paciente
+    FROM paciente
+    WHERE id_usuario = p_id_usuario
+    LIMIT 1;
+
+    -- Buscar si el usuario está vinculado a un médico
+    SELECT id_medico INTO v_id_medico
+    FROM medico
+    WHERE id_usuario = p_id_usuario
+    LIMIT 1;
+
+    -- Si el usuario es paciente, eliminar sus citas primero
+    IF v_id_paciente IS NOT NULL THEN
+        DELETE FROM cita WHERE id_paciente = v_id_paciente;
+        DELETE FROM paciente WHERE id_paciente = v_id_paciente;
+    END IF;
+
+    -- Si el usuario es médico, eliminar sus citas primero
+    IF v_id_medico IS NOT NULL THEN
+        DELETE FROM cita WHERE id_medico = v_id_medico;
+        DELETE FROM medico WHERE id_medico = v_id_medico;
+    END IF;
+
+    -- Finalmente eliminar el usuario
+    DELETE FROM usuario WHERE id_usuario = p_id_usuario;
+END$$
+
+DELIMITER ;
+
 
 -- insertar cita
 DELIMITER //
