@@ -10,7 +10,11 @@ import java.awt.event.*;
 import java.util.List;
 import java.util.Map;
 
-public class VentanaCRUDUsuario extends JFrame {
+/**
+ * Panel de gestión de usuarios (versión JPanel)
+ * Integrable dentro de VentanaAdministrador
+ */
+public class PanelUsuarios extends JPanel {
 
     private JTable tablaUsuarios;
     private DefaultTableModel modeloTabla;
@@ -20,87 +24,63 @@ public class VentanaCRUDUsuario extends JFrame {
 
     private UsuarioDao usuarioDAO = new UsuarioDao();
 
-    public VentanaCRUDUsuario() {
-        setTitle("Gestión de Usuarios - Sanavit");
-        setSize(750, 520);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    public PanelUsuarios() {
         setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
 
-        // === PANEL SUPERIOR ===
+        // === TÍTULO SUPERIOR ===
         JPanel panelSuperior = new JPanel(new BorderLayout());
-        JLabel lblTitulo = new JLabel(" Administración de Usuarios", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("👥 Gestión de Usuarios", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
-        panelSuperior.setBackground(new Color(92, 184, 92)); 
+        panelSuperior.setBackground(new Color(200, 250, 200));
         panelSuperior.add(lblTitulo, BorderLayout.CENTER);
         add(panelSuperior, BorderLayout.NORTH);
 
-        // === PANEL CENTRAL (TABLA) ===
+        // === TABLA DE USUARIOS ===
         modeloTabla = new DefaultTableModel(new String[]{"ID", "Rol", "Usuario", "Contraseña"}, 0);
         tablaUsuarios = new JTable(modeloTabla);
+        tablaUsuarios.setRowHeight(25);
         tablaUsuarios.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tablaUsuarios.setRowHeight(23);
-        tablaUsuarios.setSelectionBackground(new Color(10, 10, 10 ));
-        tablaUsuarios.setSelectionForeground(Color.WHITE);
-        tablaUsuarios.getTableHeader().setBackground(new Color(40, 180, 99));
-        tablaUsuarios.getTableHeader().setForeground(Color.WHITE);
-        tablaUsuarios.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tablaUsuarios.setSelectionBackground(new Color(180, 240, 180));
+        add(new JScrollPane(tablaUsuarios), BorderLayout.CENTER);
 
-        JScrollPane scroll = new JScrollPane(tablaUsuarios);
-        scroll.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        scroll.getViewport().setBackground(new Color(121, 199, 170));
-        add(scroll, BorderLayout.CENTER);
-
-        // === PANEL INFERIOR ===
-        JPanel panelInferior = new JPanel(new GridBagLayout());
-        panelInferior.setBackground(new Color(229, 255, 237));
+        // === PANEL INFERIOR (FORMULARIO + BOTONES) ===
+        JPanel panelInferior = new JPanel(new BorderLayout());
         panelInferior.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        JPanel form = new JPanel(new GridLayout(3, 2, 10, 10));
         txtNombreUsuario = new JTextField();
         txtContraseña = new JTextField();
         comboRol = new JComboBox<>();
 
-        JLabel lblUsuario = new JLabel("Nombre de Usuario:");
-        JLabel lblContrasena = new JLabel("Contraseña:");
-        JLabel lblRol = new JLabel("Rol:");
-        lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblContrasena.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblRol.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        form.add(new JLabel("Nombre de Usuario:"));
+        form.add(txtNombreUsuario);
+        form.add(new JLabel("Contraseña:"));
+        form.add(txtContraseña);
+        form.add(new JLabel("Rol:"));
+        form.add(comboRol);
 
-        // Columna 1
-        gbc.gridx = 0; gbc.gridy = 0; panelInferior.add(lblUsuario, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; panelInferior.add(txtNombreUsuario, gbc);
+        panelInferior.add(form, BorderLayout.CENTER);
 
-        gbc.gridx = 0; gbc.gridy = 1; panelInferior.add(lblContrasena, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; panelInferior.add(txtContraseña, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; panelInferior.add(lblRol, gbc);
-        gbc.gridx = 1; gbc.gridy = 2; panelInferior.add(comboRol, gbc);
-
-        // === PANEL BOTONES ===
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        panelBotones.setBackground(new Color(240, 255, 244));
-
-        btnAgregar = crearBoton("Agregar", new Color(23, 153, 118));
-        btnEditar = crearBoton("Editar", new Color(23, 153, 118));
-        btnEliminar = crearBoton("Eliminar", new Color(23, 153, 118));
-        btnActualizarTabla = crearBoton("Actualizar", new Color(23, 153, 118));
+        // === BOTONES ===
+        JPanel panelBotones = new JPanel(new FlowLayout());
+        btnAgregar = crearBoton("Agregar");
+        btnEditar = crearBoton("Editar");
+        btnEliminar = crearBoton("Eliminar");
+        btnActualizarTabla = crearBoton("Actualizar Tabla");
 
         panelBotones.add(btnAgregar);
         panelBotones.add(btnEditar);
         panelBotones.add(btnEliminar);
         panelBotones.add(btnActualizarTabla);
 
-        JPanel panelSur = new JPanel(new BorderLayout());
-        panelSur.add(panelInferior, BorderLayout.CENTER);
-        panelSur.add(panelBotones, BorderLayout.SOUTH);
+        panelInferior.add(panelBotones, BorderLayout.SOUTH);
 
-        add(panelSur, BorderLayout.SOUTH);
+        add(panelInferior, BorderLayout.SOUTH);
 
         // === CARGAR DATOS ===
         cargarRoles();
@@ -112,7 +92,6 @@ public class VentanaCRUDUsuario extends JFrame {
         btnEliminar.addActionListener(e -> eliminarUsuario());
         btnActualizarTabla.addActionListener(e -> cargarUsuarios());
 
-        // Click en la tabla
         tablaUsuarios.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -124,55 +103,44 @@ public class VentanaCRUDUsuario extends JFrame {
                 }
             }
         });
-
-        // === FONDO GENERAL ===
-        getContentPane().setBackground(new Color(235, 255, 243));
-        setVisible(true);
     }
 
-    // === MÉTODO: Crear botones con color y hover ===
-    private JButton crearBoton(String texto, Color colorBase) {
+    // === MÉTODO: Crear botón con estilo uniforme ===
+    private JButton crearBoton(String texto) {
         JButton btn = new JButton(texto);
         btn.setFocusPainted(false);
-        btn.setBackground(colorBase);
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(colorBase.darker(), 1),
-                BorderFactory.createEmptyBorder(8, 20, 8, 20)
-        ));
-
-        // Hover
+        btn.setBackground(new Color(123, 229, 144));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                btn.setBackground(colorBase.brighter());
+                btn.setBackground(new Color(100, 210, 120));
             }
+
             @Override
             public void mouseExited(MouseEvent e) {
-                btn.setBackground(colorBase);
+                btn.setBackground(new Color(123, 229, 144));
             }
         });
         return btn;
     }
 
-    // === Cargar usuarios ===
+    // === MÉTODO: Cargar usuarios desde BD ===
     private void cargarUsuarios() {
         modeloTabla.setRowCount(0);
         List<Usuario> lista = usuarioDAO.listarUsuarios();
         for (Usuario u : lista) {
             modeloTabla.addRow(new Object[]{
-                u.getIdUsuario(),
-                u.getNombreRol(),
-                u.getNombreUsuario(),
-                u.getContraseña()
+                    u.getIdUsuario(),
+                    u.getNombreRol(),
+                    u.getNombreUsuario(),
+                    u.getContraseña()
             });
         }
     }
 
-    // === Cargar roles ===
+    // === MÉTODO: Cargar roles ===
     private void cargarRoles() {
         comboRol.removeAllItems();
         Map<String, Integer> roles = usuarioDAO.obtenerRoles();
@@ -181,7 +149,7 @@ public class VentanaCRUDUsuario extends JFrame {
         }
     }
 
-    // === Agregar usuario ===
+    // === CRUD ===
     private void agregarUsuario() {
         String nombre = txtNombreUsuario.getText().trim();
         String contrasena = txtContraseña.getText().trim();
@@ -205,7 +173,6 @@ public class VentanaCRUDUsuario extends JFrame {
         }
     }
 
-    // === Editar usuario ===
     private void editarUsuario() {
         int fila = tablaUsuarios.getSelectedRow();
         if (fila == -1) {
@@ -231,7 +198,6 @@ public class VentanaCRUDUsuario extends JFrame {
         }
     }
 
-    // === Eliminar usuario ===
     private void eliminarUsuario() {
         int fila = tablaUsuarios.getSelectedRow();
         if (fila == -1) {
@@ -240,7 +206,10 @@ public class VentanaCRUDUsuario extends JFrame {
         }
 
         int id = (int) modeloTabla.getValueAt(fila, 0);
-        int confirm = JOptionPane.showConfirmDialog(this, "¿Seguro que deseas eliminar este usuario?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "¿Seguro que deseas eliminar este usuario?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
             boolean ok = usuarioDAO.eliminarUsuario(id);
@@ -254,7 +223,6 @@ public class VentanaCRUDUsuario extends JFrame {
         }
     }
 
-    // === Limpiar campos ===
     private void limpiarCampos() {
         txtNombreUsuario.setText("");
         txtContraseña.setText("");
