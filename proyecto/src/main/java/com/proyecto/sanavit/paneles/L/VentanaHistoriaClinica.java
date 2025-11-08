@@ -3,127 +3,125 @@ package com.proyecto.sanavit.paneles.L;
 import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class VentanaHistoriaClinica extends JFrame {
 
-    private JTextField txtMotivoConsulta;
-    private JTextArea txtEnfermedadActual, txtAntecedentes, txtDiagnostico, txtTratamiento, txtEvolucion, txtObservaciones;
-    private JButton btnGuardar, btnVerReceta, btnCerrar;
+    private JTextField txtMotivo, txtDiagnostico, txtTratamiento, txtEvolucion;
+    private JTextArea txtEnfermedadActual, txtAntecedentes, txtObservaciones;
+    private JButton btnGuardar, btnVerReceta, btnCancelar;
+
     private Paciente paciente;
     private Cita cita;
+    private EjecucionCita ejecucion;
+    private HistoriaClinica historiaGuardada;
 
-    private HistoriaClinica historiaGuardada; // Se usará para pasar su ID a la receta
-
-    public VentanaHistoriaClinica(Paciente paciente, Cita cita) {
+    public VentanaHistoriaClinica(Paciente paciente, Cita cita, EjecucionCita ejecucion) {
         this.paciente = paciente;
         this.cita = cita;
+        this.ejecucion = ejecucion;
 
-        setTitle("Historia Clínica - Paciente: " + paciente.getNombre());
-        setSize(800, 700);
+        setTitle("Historia Clínica del Paciente: " + paciente.getNombre());
+        setSize(750, 600);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // === PANEL DE CAMPOS ===
-        JPanel panelCampos = new JPanel();
-        panelCampos.setLayout(new GridLayout(7, 2, 10, 10));
-        panelCampos.setBorder(BorderFactory.createTitledBorder("Datos de la Historia Clínica"));
+        // === PANEL SUPERIOR ===
+        JLabel lblTitulo = new JLabel("Registro de Historia Clínica", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 20));
+        lblTitulo.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        add(lblTitulo, BorderLayout.NORTH);
 
-        txtMotivoConsulta = new JTextField();
-        txtEnfermedadActual = new JTextArea(3, 20);
-        txtAntecedentes = new JTextArea(3, 20);
-        txtDiagnostico = new JTextArea(3, 20);
-        txtTratamiento = new JTextArea(3, 20);
-        txtEvolucion = new JTextArea(3, 20);
-        txtObservaciones = new JTextArea(3, 20);
+        // === PANEL CENTRAL ===
+        JPanel panelCampos = new JPanel(new GridLayout(8, 2, 10, 10));
+        panelCampos.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        panelCampos.add(new JLabel("Motivo de consulta:"));
-        panelCampos.add(txtMotivoConsulta);
-        panelCampos.add(new JLabel("Enfermedad actual:"));
+        panelCampos.add(new JLabel("Motivo de Consulta:"));
+        txtMotivo = new JTextField();
+        panelCampos.add(txtMotivo);
+
+        panelCampos.add(new JLabel("Enfermedad Actual:"));
+        txtEnfermedadActual = new JTextArea(2, 20);
         panelCampos.add(new JScrollPane(txtEnfermedadActual));
+
         panelCampos.add(new JLabel("Antecedentes:"));
+        txtAntecedentes = new JTextArea(2, 20);
         panelCampos.add(new JScrollPane(txtAntecedentes));
+
         panelCampos.add(new JLabel("Diagnóstico:"));
-        panelCampos.add(new JScrollPane(txtDiagnostico));
+        txtDiagnostico = new JTextField();
+        panelCampos.add(txtDiagnostico);
+
         panelCampos.add(new JLabel("Tratamiento:"));
-        panelCampos.add(new JScrollPane(txtTratamiento));
+        txtTratamiento = new JTextField();
+        panelCampos.add(txtTratamiento);
+
         panelCampos.add(new JLabel("Evolución:"));
-        panelCampos.add(new JScrollPane(txtEvolucion));
+        txtEvolucion = new JTextField();
+        panelCampos.add(txtEvolucion);
+
         panelCampos.add(new JLabel("Observaciones:"));
+        txtObservaciones = new JTextArea(2, 20);
         panelCampos.add(new JScrollPane(txtObservaciones));
 
         add(panelCampos, BorderLayout.CENTER);
 
-        // === BOTONES ===
+        // === PANEL DE BOTONES ===
         JPanel panelBotones = new JPanel(new FlowLayout());
-        btnGuardar = new JButton("Guardar Historia Clínica");
+        btnGuardar = new JButton("Guardar Historia");
         btnVerReceta = new JButton("Crear Receta Médica");
-        btnVerReceta.setEnabled(false); // Se activa solo tras guardar
-        btnCerrar = new JButton("Cerrar");
+        btnCancelar = new JButton("Cancelar");
+
+        btnVerReceta.setEnabled(false);
 
         panelBotones.add(btnGuardar);
         panelBotones.add(btnVerReceta);
-        panelBotones.add(btnCerrar);
+        panelBotones.add(btnCancelar);
+
         add(panelBotones, BorderLayout.SOUTH);
 
-        // === EVENTO GUARDAR ===
+        // === ACCIÓN GUARDAR HISTORIA ===
         btnGuardar.addActionListener(e -> guardarHistoriaClinica());
-        btnVerReceta.addActionListener(e -> abrirReceta());
-        btnCerrar.addActionListener(e -> dispose());
+
+        // === ACCIÓN VER / CREAR RECETA MÉDICA ===
+        btnVerReceta.addActionListener(e -> {
+            if (historiaGuardada != null) {
+                new VentanaRecetaMedica(historiaGuardada);
+            } else {
+                JOptionPane.showMessageDialog(this, "Primero debe guardar la historia clínica.");
+            }
+        });
+
+        // === ACCIÓN CANCELAR ===
+        btnCancelar.addActionListener(e -> dispose());
 
         setVisible(true);
     }
 
-    // ======= MÉTODO GUARDAR HISTORIA CLÍNICA =======
     private void guardarHistoriaClinica() {
         try {
-            String motivo = txtMotivoConsulta.getText().trim();
-            String enfermedad = txtEnfermedadActual.getText().trim();
-            String antecedentes = txtAntecedentes.getText().trim();
-            String diagnostico = txtDiagnostico.getText().trim();
-            String tratamiento = txtTratamiento.getText().trim();
-            String evolucion = txtEvolucion.getText().trim();
-            String observaciones = txtObservaciones.getText().trim();
-
-            if (motivo.isEmpty() || diagnostico.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Motivo y diagnóstico son obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            HistoriaClinica hc = new HistoriaClinica(ALLBITS, ABORT, motivo, enfermedad, antecedentes, diagnostico, tratamiento, evolucion, observaciones);
-            hc.setIdEjecucionCita(cita.getIdCita()); // Enlazamos con la cita
-            hc.setMotivoConsulta(motivo);
-            hc.setEnfermedadActual(enfermedad);
-            hc.setAntecedentes(antecedentes);
-            hc.setDiagnostico(diagnostico);
-            hc.setTratamiento(tratamiento);
-            hc.setevolucion(evolucion);
-            hc.setObservaciones(observaciones);
+            HistoriaClinica hc = new HistoriaClinica();
+            hc.setIdEjecucionCita(ejecucion.getIdEjecucionCita());
+            hc.setMotivoConsulta(txtMotivo.getText());
+            hc.setEnfermedadActual(txtEnfermedadActual.getText());
+            hc.setAntecedentes(txtAntecedentes.getText());
+            hc.setDiagnostico(txtDiagnostico.getText());
+            hc.setTratamiento(txtTratamiento.getText());
+            hc.setEvolucion(txtEvolucion.getText());
+            hc.setObservaciones(txtObservaciones.getText());
 
             HistoriaClinicaDao dao = new HistoriaClinicaDao();
+            boolean exito = dao.insertarHistoria(hc);
 
-            boolean existeidGenerado = dao.insertarHistoria(hc);
-            if (existeidGenerado) {
-                String idGenerado = String.valueOf(hc.getIdHistoriaClinica());
+            if (exito) {
                 historiaGuardada = hc;
-                JOptionPane.showMessageDialog(this, "Historia clínica guardada con éxito ✅\nID generado: " + idGenerado);
+                JOptionPane.showMessageDialog(this, "Historia clínica guardada correctamente ✅");
                 btnVerReceta.setEnabled(true);
             } else {
-                JOptionPane.showMessageDialog(this, "Error al guardar historia clínica ❌");
+                JOptionPane.showMessageDialog(this, "Error al guardar la historia clínica ❌");
             }
-
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // ======= MÉTODO ABRIR RECETA MÉDICA =======
-    private void abrirReceta() {
-        if (historiaGuardada != null) {
-            new VentanaRecetaMedica(historiaGuardada.getIdHistoriaClinica());
-        } else {
-            JOptionPane.showMessageDialog(this, "Primero guarda la historia clínica.");
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + ex.getMessage());
         }
     }
 }

@@ -6,6 +6,9 @@ public class RecetaMedica {
     private int idHistoriaClinica;
     private String medicamento;
     private String indicaciones;
+    // Constructor
+    public RecetaMedica() { 
+    }
 
     public RecetaMedica(int idReceta, int idHistoriaClinica, String medicamento, String indicaciones) {
         this.idReceta = idReceta;

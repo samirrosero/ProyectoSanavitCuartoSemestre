@@ -8,6 +8,10 @@ public class EjecucionCita {
     private Timestamp fechaHoraIngreso;
     private Timestamp fechaHoraSalida;   
     private int duracion;
+    
+    // Constructor
+    public EjecucionCita() {
+    }
 
     public EjecucionCita(int idEjecucionCita, int idCita, Timestamp fechaHoraIngreso, Timestamp fechaHoraSalida, int duracion) {
         this.idEjecucionCita = idEjecucionCita;

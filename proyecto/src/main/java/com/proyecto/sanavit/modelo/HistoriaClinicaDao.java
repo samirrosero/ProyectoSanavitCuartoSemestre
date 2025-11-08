@@ -11,7 +11,7 @@ public class HistoriaClinicaDao {
         boolean state = false;
         String sql = "{CALL sp_insertar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
 
             if (h.getIdEjecucionCita() > 0)
                 cs.setInt(1, h.getIdEjecucionCita());
@@ -26,7 +26,13 @@ public class HistoriaClinicaDao {
             cs.setString(7, h.getevolucion());
             cs.setString(8, h.getObservaciones());
 
-            cs.execute();
+            boolean hasResult = cs.execute();
+            if (hasResult) {
+                ResultSet rs = cs.getResultSet();
+                if (rs.next()) {
+                    h.setIdHistoriaClinica(rs.getInt("idGenerado"));
+                }
+            }
             state = true;
 
         } catch (SQLException e) {
@@ -40,7 +46,7 @@ public class HistoriaClinicaDao {
         HistoriaClinica h = null;
         String sql = "{CALL obtener_historia_por_id(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
 
             cs.setInt(1, id);
             try (ResultSet rs = cs.executeQuery()) {
@@ -53,7 +59,7 @@ public class HistoriaClinicaDao {
                     h.setAntecedentes(rs.getString("antecedentes"));
                     h.setDiagnostico(rs.getString("diagnostico"));
                     h.setTratamiento(rs.getString("tratamiento"));
-                    h.setevolucion(rs.getString("evolucion"));
+                    h.setEvolucion(rs.getString("evolucion"));
                     h.setObservaciones(rs.getString("observaciones"));
                 }
             }
@@ -69,7 +75,7 @@ public class HistoriaClinicaDao {
         List<HistoriaClinica> lista = new ArrayList<>();
         String sql = "{CALL sp_historia_por_paciente(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
 
             cs.setInt(1, idPaciente);
             try (ResultSet rs = cs.executeQuery()) {
@@ -82,7 +88,7 @@ public class HistoriaClinicaDao {
                     h.setAntecedentes(rs.getString("antecedentes"));
                     h.setDiagnostico(rs.getString("diagnostico"));
                     h.setTratamiento(rs.getString("tratamiento"));
-                    h.setevolucion(rs.getString("evolucion"));
+                    h.setEvolucion(rs.getString("evolucion"));
                     h.setObservaciones(rs.getString("observaciones"));
                     lista.add(h);
                 }
@@ -99,8 +105,8 @@ public class HistoriaClinicaDao {
         List<HistoriaClinica> lista = new ArrayList<>();
         String sql = "{CALL sp_listar_historias_clinicas()}";
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql);
-             ResultSet rs = cs.executeQuery()) {
+                CallableStatement cs = conn.prepareCall(sql);
+                ResultSet rs = cs.executeQuery()) {
 
             while (rs.next()) {
                 HistoriaClinica h = new HistoriaClinica(0, 0, null, null, null, null, null, null, null);
@@ -111,7 +117,7 @@ public class HistoriaClinicaDao {
                 h.setAntecedentes(rs.getString("antecedentes"));
                 h.setDiagnostico(rs.getString("diagnostico"));
                 h.setTratamiento(rs.getString("tratamiento"));
-                h.setevolucion(rs.getString("evolucion"));
+                h.setEvolucion(rs.getString("evolucion"));
                 h.setObservaciones(rs.getString("observaciones"));
                 lista.add(h);
             }
@@ -127,7 +133,7 @@ public class HistoriaClinicaDao {
         boolean state = false;
         String sql = "{CALL sp_actualizar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
 
             cs.setInt(1, h.getIdHistoriaClinica());
             if (h.getIdEjecucionCita() > 0)
@@ -156,7 +162,7 @@ public class HistoriaClinicaDao {
         boolean state = false;
         String sql = "{CALL sp_eliminar_historia_clinica(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
+                CallableStatement cs = conn.prepareCall(sql)) {
 
             cs.setInt(1, idHistoria);
             cs.execute();

@@ -6,28 +6,42 @@ import java.util.List;
 
 public class EjecucionCitaDao {
 
-    public boolean insertarEjecucion(EjecucionCita e) {
-        boolean state = false;
-        String sql = "{CALL sp_insertar_ejecucion_cita(?, ?, ?, ?)}";
-        try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement cs = conn.prepareCall(sql)) {
-            cs.setInt(1, e.getIdCita());
-            cs.setTimestamp(2, e.getFechaHoraIngreso());
-            cs.setTimestamp(3, e.getFechaHoraSalida());
-            cs.setInt(4, e.getDuracion());
+public boolean insertarEjecucion(EjecucionCita e) {
+    boolean state = false;
+    String sql = "{CALL sp_insertar_ejecucion_cita(?, ?, ?, ?)}";
+    try (Connection conn = ConexionDatabase.getConnection();
+         CallableStatement cs = conn.prepareCall(sql)) {
 
-            boolean hasResult = cs.execute();
+        cs.setInt(1, e.getIdCita());
+        cs.setTimestamp(2, e.getFechaHoraIngreso());
+        cs.setTimestamp(3, e.getFechaHoraSalida());
+        cs.setInt(4, e.getDuracion());
+
+        // ✅ Ejecutar y capturar el ID generado
+        boolean hasResult = cs.execute();
+
+        // 🔄 Recorremos todos los posibles resultados hasta encontrar el SELECT
+        while (true) {
             if (hasResult) {
                 try (ResultSet rs = cs.getResultSet()) {
-                    if (rs.next()) e.setIdEjecucionCita(rs.getInt("id_ejecucionCita"));
+                    if (rs.next()) {
+                        int idGenerado = rs.getInt("id_ejecucionCita");
+                        e.setIdEjecucionCita(idGenerado);
+                        System.out.println("✅ Ejecución insertada con ID: " + idGenerado);
+                        state = true;
+                        break;
+                    }
                 }
-                state = true;
             }
-        } catch (SQLException ex) {
-            System.out.println("Error insertarEjecucion (SP): " + ex.getMessage());
+            if (!cs.getMoreResults()) break;
+            hasResult = true;
         }
-        return state;
+
+    } catch (SQLException ex) {
+        System.out.println("❌ Error insertarEjecucion (SP): " + ex.getMessage());
     }
+    return state;
+}
 
     public EjecucionCita obtenerPorId(int id) {
         EjecucionCita e = null;
@@ -79,6 +93,12 @@ public class EjecucionCitaDao {
         String sql = "{CALL sp_actualizar_ejecucion_cita(?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
+                System.out.println("Updating EjecucionCita with ID: " + e.getIdEjecucionCita());
+                System.out.println("ID Cita: " + e.getIdCita());
+                System.out.println("Fecha Hora Ingreso: " + e.getFechaHoraIngreso());
+                System.out.println("Fecha Hora Salida: " + e.getFechaHoraSalida());
+                System.out.println("Duración: " + e.getDuracion());
+                
             cs.setInt(1, e.getIdEjecucionCita());
             cs.setInt(2, e.getIdCita());
             cs.setTimestamp(3, e.getFechaHoraIngreso());
