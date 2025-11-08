@@ -9,7 +9,7 @@ public class RecetaMedicaDao {
     // === INSERTAR RECETA MÉDICA USANDO PROCEDIMIENTO ===
     public boolean insertarReceta(RecetaMedica r) {
         boolean state = false;
-        String sql = "{CALL insertar_receta(?, ?, ?)}";
+        String sql = "{CALL sp_insertar_receta(?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -22,7 +22,9 @@ public class RecetaMedicaDao {
             if (tieneResultado) {
                 try (ResultSet rs = cs.getResultSet()) {
                     if (rs.next()) {
-                        r.setIdReceta(rs.getInt("idGenerado"));
+                    int idGenerado = rs.getInt("id_generado");
+                    r.setIdReceta(idGenerado);
+                    System.out.println("✅ ID de receta generado: " + idGenerado);
                     }
                 }
             }
@@ -64,7 +66,7 @@ public class RecetaMedicaDao {
     // === LISTAR TODAS LAS RECETAS ===
     public List<RecetaMedica> listarRecetas() {
         List<RecetaMedica> lista = new ArrayList<>();
-        String sql = "{CALL listar_recetas()}";
+        String sql = "{CALL sp_listar_recetas()}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql);
@@ -90,7 +92,7 @@ public class RecetaMedicaDao {
     // === ACTUALIZAR RECETA ===
     public boolean updateReceta(RecetaMedica r) {
         boolean state = false;
-        String sql = "{CALL actualizar_receta(?, ?, ?, ?)}";
+        String sql = "{CALL sp_actualizar_receta(?, ?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -113,7 +115,7 @@ public class RecetaMedicaDao {
     // === ELIMINAR RECETA ===
     public boolean deleteReceta(int idReceta) {
         boolean state = false;
-        String sql = "{CALL eliminar_receta(?)}";
+        String sql = "{CALL sp_eliminar_receta(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {

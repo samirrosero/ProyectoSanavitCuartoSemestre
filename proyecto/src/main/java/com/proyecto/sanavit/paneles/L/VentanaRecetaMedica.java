@@ -10,45 +10,38 @@ import java.awt.event.ActionListener;
 public class VentanaRecetaMedica {
 
     private JFrame frame;
-    private JTextField txtIdHistoriaClinica;
     private JTextField txtMedicamento;
-    private JTextField txtIndicaciones;
+    private JTextArea txtIndicaciones;
     private JButton btnGuardar;
+    private int idHistoriaClinica;
 
-    public VentanaRecetaMedica() {
+    // Recibe el id de historia clínica al crear la ventana
+    public VentanaRecetaMedica(int idHistoriaClinica) {
+        this.idHistoriaClinica = idHistoriaClinica;
+
         frame = new JFrame("Registro de Receta Médica");
         frame.setSize(400, 300);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new GridLayout(5, 2));
-
-        frame.add(new JLabel("ID Historia Clínica:"));
-        txtIdHistoriaClinica = new JTextField();
-        frame.add(txtIdHistoriaClinica);
+        frame.setLayout(new GridLayout(4, 2, 10, 10));
 
         frame.add(new JLabel("Medicamento:"));
         txtMedicamento = new JTextField();
         frame.add(txtMedicamento);
 
         frame.add(new JLabel("Indicaciones:"));
-        txtIndicaciones = new JTextField();
-        frame.add(txtIndicaciones);
+        txtIndicaciones = new JTextArea(3, 20);
+        frame.add(new JScrollPane(txtIndicaciones));
 
         btnGuardar = new JButton("Guardar");
         frame.add(btnGuardar);
 
-        btnGuardar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                guardarRecetaMedica();
-            }
-        });
+        btnGuardar.addActionListener(e -> guardarRecetaMedica());
 
         frame.setVisible(true);
     }
 
     private void guardarRecetaMedica() {
         try {
-            int idHistoriaClinica = Integer.parseInt(txtIdHistoriaClinica.getText());
             String medicamento = txtMedicamento.getText();
             String indicaciones = txtIndicaciones.getText();
 
@@ -56,21 +49,13 @@ public class VentanaRecetaMedica {
             RecetaMedicaDao recetaDao = new RecetaMedicaDao();
 
             if (recetaDao.insertarReceta(receta)) {
-                JOptionPane.showMessageDialog(frame, "Receta médica guardada con éxito.");
+                JOptionPane.showMessageDialog(frame, "Receta guardada con éxito ✅\nID generado: " + receta.getIdReceta());
                 frame.dispose();
             } else {
-                JOptionPane.showMessageDialog(frame, "Error al guardar la receta médica.");
+                JOptionPane.showMessageDialog(frame, "Error al guardar la receta ❌");
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(frame, "ID Historia Clínica debe ser un número válido.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
         }
     }
-
-    public static void main(String[] args) {
-        new VentanaRecetaMedica();
-    }
-   
-
-   
-    
 }

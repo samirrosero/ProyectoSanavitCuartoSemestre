@@ -9,7 +9,7 @@ public class DocumentoAnexoDao {
     // === INSERTAR DOCUMENTO USANDO PROCEDIMIENTO ===
     public boolean insertarDocumento(DocumentoAnexo d) {
         boolean state = false;
-        String sql = "{CALL insertar_documento_anexo(?, ?, ?)}";
+        String sql = "{CALL sp_insertar_documento(?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -64,7 +64,7 @@ public class DocumentoAnexoDao {
     // === LISTAR DOCUMENTOS POR HISTORIA ===
     public List<DocumentoAnexo> listarDocumentosPorHistoria(int idHistoriaClinica) {
         List<DocumentoAnexo> lista = new ArrayList<>();
-        String sql = "{CALL listar_documentos_por_historia(?)}";
+        String sql = "{CALL sp_listar_documentos_por_historia(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -93,7 +93,7 @@ public class DocumentoAnexoDao {
     // === ACTUALIZAR DOCUMENTO ===
     public boolean updateDocumento(DocumentoAnexo d) {
         boolean state = false;
-        String sql = "{CALL actualizar_documento_anexo(?, ?, ?, ?)}";
+        String sql = "{CALL sp_actualizar_documento(?, ?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
@@ -116,7 +116,7 @@ public class DocumentoAnexoDao {
     // === ELIMINAR DOCUMENTO ===
     public boolean deleteDocumento(int idDocumentoAnexo) {
         boolean state = false;
-        String sql = "{CALL eliminar_documento_anexo(?)}";
+        String sql = "{CALL sp_eliminar_documento(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {

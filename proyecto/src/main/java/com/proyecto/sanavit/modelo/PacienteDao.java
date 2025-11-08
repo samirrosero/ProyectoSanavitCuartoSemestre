@@ -29,6 +29,7 @@ public class PacienteDao {
         // Obtener el ID generado desde el OUT del procedimiento
         int idGenerado = stmt.getInt(9);
         paciente.setIdPaciente(idGenerado);
+        System.out.println("Paciente creado: " + idGenerado);
 
         return true;
     } catch (SQLException e) {

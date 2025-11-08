@@ -9,7 +9,7 @@ public class CitaDao {
     // === INSERTAR ===
     public boolean insertarCita(Cita cita) {
         boolean state = false;
-        String sql = "{CALL sp_insertar_cita(?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL insertar_cita(?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {
@@ -41,7 +41,7 @@ public class CitaDao {
 
     // === ACTUALIZAR ESTADO DE UNA CITA ===
     public boolean actualizarEstadoCita(int idCita, int nuevoEstado) {
-        String sql = "{CALL sp_actualizar_estado_cita(?, ?)}";
+        String sql = "{CALL actualizar_estado_cita(?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {
@@ -58,7 +58,7 @@ public class CitaDao {
 
     // === ACTUALIZAR CITA ===
     public boolean updateCita(Cita cita) {
-        String sql = "{CALL sp_actualizar_cita(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL actualizar_cita(?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {
@@ -81,7 +81,7 @@ public class CitaDao {
 
     // === ELIMINAR CITA ===
     public boolean deleteCita(int idCita) {
-        String sql = "{CALL sp_eliminar_cita(?)}";
+        String sql = "{CALL eliminar_cita(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {
@@ -98,7 +98,7 @@ public class CitaDao {
     // === LISTAR TODAS LAS CITAS ===
     public List<Cita> selectCita() {
         List<Cita> lista = new ArrayList<>();
-        String sql = "{CALL sp_listar_citas()}";
+        String sql = "{CALL listar_citas()}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql);
@@ -118,7 +118,7 @@ public class CitaDao {
     // === OBTENER CITA POR ID ===
     public Cita obtenerCitaPorId(int idCita) {
         Cita cita = null;
-        String sql = "{CALL sp_obtener_cita_por_id(?)}";
+        String sql = "{CALL obtener_cita_por_id(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {
@@ -140,7 +140,7 @@ public class CitaDao {
     // === OBTENER CITAS POR PACIENTE ===
     public List<Cita> obtenerCitaPorPaciente(int idPaciente) {
         List<Cita> lista = new ArrayList<>();
-        String sql = "{CALL sp_obtener_citas_por_paciente(?)}";
+        String sql = "{CALL obtener_citas_por_paciente(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {
@@ -162,7 +162,7 @@ public class CitaDao {
     // === OBTENER CITAS POR MÉDICO ===
     public List<Cita> obtenerCitaPorMedico(int idMedico) {
         List<Cita> lista = new ArrayList<>();
-        String sql = "{CALL sp_obtener_citas_por_medico(?)}";
+        String sql = "{CALL obtener_citas_por_medico(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement pst = conn.prepareCall(sql)) {

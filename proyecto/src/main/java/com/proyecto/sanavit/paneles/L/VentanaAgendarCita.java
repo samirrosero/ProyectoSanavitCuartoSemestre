@@ -5,12 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import com.proyecto.sanavit.modelo.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.List;
 

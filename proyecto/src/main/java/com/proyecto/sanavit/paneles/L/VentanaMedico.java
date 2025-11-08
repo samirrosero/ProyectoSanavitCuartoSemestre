@@ -99,32 +99,18 @@ public class VentanaMedico extends JFrame {
             new Login();
         });
 
-        //  === BOTÓN HISTORIA CLÍNICA ===
-       /*  btnNuevaHistoria.addActionListener(e -> {
+        btnNuevaHistoria.addActionListener(e -> {
             int filaSeleccionada = tablaCita.getSelectedRow();
             if (filaSeleccionada == -1) {
                 JOptionPane.showMessageDialog(this, "Seleccione una cita de la tabla.");
                 return;
             }
 
-            int id_cita = (int) modeloTabla.getValueAt(filaSeleccionada, 0);
-            Cita Citaeleccionada = null;
-            Paciente PacienteSeleccionado = null;
+            int idCita = (int) modeloTabla.getValueAt(filaSeleccionada, 0);
+            Cita citaSeleccionada = CitaDao.obtenerCitaPorId(idCita);
+            new VentanaHistoriaClinica(medicoActual, citaSeleccionada);
+        });
 
-            for (Cita c : CitaDelMedico) {
-                if (c.getIdCita() == id_cita) {
-                    Citaeleccionada = c;
-                    PacienteSeleccionado = PacienteDAO.obtenerPacientePorId(c.getIdPaciente());
-                    break;
-                }
-            }
-
-            if (Citaeleccionada != null && PacienteSeleccionado != null) {
-               // new VentanaHistoriaClinica(PacienteSeleccionado, Citaeleccionada);
-            } else {
-                JOptionPane.showMessageDialog(this, "No se pudo obtener la información del Paciente.");
-            }
-        });*/
 
         setVisible(true);
         System.out.println("ID del médico actual: " + medicoActual.getIdMedico());
