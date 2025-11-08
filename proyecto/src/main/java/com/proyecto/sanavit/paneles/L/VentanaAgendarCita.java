@@ -1,5 +1,6 @@
 package com.proyecto.sanavit.paneles.L;
 
+import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
 import com.proyecto.sanavit.modelo.*;
 import java.awt.*;
@@ -19,15 +20,20 @@ public class VentanaAgendarCita extends JFrame {
 
     public VentanaAgendarCita(Object pacienteActual) {
         setTitle("Agendar Cita - Sanavit");
-        setSize(950, 600);
+        setSize(670, 510);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
 
         // === Panel de datos del paciente ===
         JPanel panelPaciente = new JPanel(new GridLayout(2, 2, 10, 10));
         panelPaciente.setBorder(BorderFactory.createTitledBorder("Datos del Paciente"));
-        panelPaciente.add(new JLabel("Paciente:"));
+        panelPaciente.setBackground(fondoPanel);
+
+        JLabel lblPaciente = new JLabel("Paciente:");
+        lblPaciente.setForeground(textoPrincipal);
+        JLabel lblIdentificacion = new JLabel("Identificación:");
+        lblIdentificacion.setForeground(textoPrincipal);
+
         txtPaciente = new JTextField((pacienteActual != null ? ((Paciente) pacienteActual).getNombre() : ""));
         txtPaciente.setEditable(false);
         panelPaciente.add(txtPaciente);
@@ -40,6 +46,7 @@ public class VentanaAgendarCita extends JFrame {
         // === Panel de detalles de la cita ===
         JPanel panelCita = new JPanel(new GridLayout(7, 2, 10, 10));
         panelCita.setBorder(BorderFactory.createTitledBorder("Detalles de la Cita"));
+        panelCita.setBackground(fondoPanel);
 
         cmbMedico = new JComboBox<>();
         cmbEspecialidad = new JComboBox<>();
@@ -67,9 +74,15 @@ public class VentanaAgendarCita extends JFrame {
 
         // === Panel de botones ===
         JPanel panelBotones = new JPanel(new FlowLayout());
+        panelBotones.setBackground(new Color(0xDDEDF0));
+
         btnGuardar = new JButton("Guardar");
         btnCancelar = new JButton("Cancelar");
         btnVolver = new JButton("Volver");
+
+        configurarBoton(btnGuardar, new Color(92, 184, 92));    
+        configurarBoton(btnCancelar, new Color(70, 130, 180));  
+        configurarBoton(btnVolver, new Color(92, 184, 92));       
 
         panelBotones.add(btnGuardar);
         panelBotones.add(btnCancelar);
@@ -120,7 +133,6 @@ public class VentanaAgendarCita extends JFrame {
 
         List<Medico> medicos = MedicoDao.listarMedicos();
         cmbMedico.removeAllItems();
-
         for (Medico m : medicos) {
             if (especialidadSeleccionada.equals(m.getEspecialidad())) {
                 cmbMedico.addItem(m.getNombre());

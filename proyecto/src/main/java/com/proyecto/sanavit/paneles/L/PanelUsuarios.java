@@ -48,6 +48,9 @@ public class PanelUsuarios extends JPanel {
         // === PANEL INFERIOR (FORMULARIO + BOTONES) ===
         JPanel panelInferior = new JPanel(new BorderLayout());
         panelInferior.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 10, 5, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JPanel form = new JPanel(new GridLayout(3, 2, 10, 10));
         txtNombreUsuario = new JTextField();
@@ -127,7 +130,6 @@ public class PanelUsuarios extends JPanel {
     private void cargarUsuarios() {
         modeloTabla.setRowCount(0);
         List<Usuario> lista = usuarioDAO.listarUsuarios();
-
         for (Usuario u : lista) {
             modeloTabla.addRow(new Object[]{
                     u.getIdUsuario(),
@@ -224,6 +226,10 @@ public class PanelUsuarios extends JPanel {
     private void limpiarCampos() {
         txtNombreUsuario.setText("");
         txtContraseña.setText("");
-        comboRol.setSelectedIndex(0);
+        if (comboRol.getItemCount() > 0) comboRol.setSelectedIndex(0);
+    }
+
+    public static void main(String[] args) {
+        new VentanaCRUDUsuario();
     }
 }
