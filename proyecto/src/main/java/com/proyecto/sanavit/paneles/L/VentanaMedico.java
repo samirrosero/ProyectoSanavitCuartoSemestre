@@ -1,120 +1,174 @@
 package com.proyecto.sanavit.paneles.L;
-import com.proyecto.sanavit.modelo.*;
 
+import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class VentanaMedico extends JFrame {
 
     private JLabel lblNombre, lblEspecialidad;
-    private JButton btnNuevaHistoria, btnCerrarSesion;
+    private JButton btnIniciarAtencion, btnFinalizarAtencion, btnCerrarSesion;
     private JTable tablaCita;
     private DefaultTableModel modeloTabla;
 
+    private Medico medicoActual;
+    private EjecucionCita ejecucionActual;
+    private LocalDateTime horaInicio;
+
     public VentanaMedico(Usuario usuarioActual) {
         setTitle("Panel del Médico");
-        setSize(600, 400);
+        setSize(900, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
 
         // === DATOS DEL MÉDICO ===
         MedicoDao medicoDAO = new MedicoDao();
-        Medico medicoActual = medicoDAO.obtenerMedicoPorIdUsuario(usuarioActual.getIdUsuario());
+        medicoActual = medicoDAO.obtenerMedicoPorIdUsuario(usuarioActual.getIdUsuario());
 
-        // === ENCABEZADO (logo + bienvenida) ===
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(123, 229, 144));
-
-        JLabel lblBienvenida = new JLabel("Bienvenido (a) " + (medicoActual != null ? medicoActual.getNombre() : ""));
-        lblBienvenida.setForeground(Color.BLACK);
+        // === ENCABEZADO ===
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(new Color(180, 240, 180));
+        JLabel lblBienvenida = new JLabel("Bienvenido(a): " + medicoActual.getNombre(), SwingConstants.LEFT);
         lblBienvenida.setFont(new Font("Arial", Font.BOLD, 16));
         lblBienvenida.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 0));
-        headerPanel.add(lblBienvenida, BorderLayout.WEST);
+        header.add(lblBienvenida, BorderLayout.WEST);
+        add(header, BorderLayout.NORTH);
 
-        ImageIcon logoIcon = new ImageIcon("C:\\Users\\samir\\OneDrive\\Escritorio\\OneDrive\\Documentos\\prototipo\\logo2.png");
-        Image imagenEscalada = logoIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-        JLabel lblLogo = new JLabel(new ImageIcon(imagenEscalada));
-        lblLogo.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 15));
-        headerPanel.add(lblLogo, BorderLayout.EAST);
+        // === PANEL IZQUIERDO ===
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        infoPanel.setBackground(new Color(235, 255, 235));
 
-        add(headerPanel, BorderLayout.NORTH);
+        lblNombre = new JLabel("Nombre: " + medicoActual.getNombre());
+        lblEspecialidad = new JLabel("Especialidad: " + medicoActual.getEspecialidad());
 
-        // === PANEL CENTRAL: tabla de Cita ===
-        modeloTabla = new DefaultTableModel(new String[] { "id_cita", "id_Paciente", "fecha_cita", "hora_cita", "modalidad" }, 0);
+        lblNombre.setFont(new Font("Arial", Font.BOLD, 16));
+        lblEspecialidad.setFont(new Font("Arial", Font.PLAIN, 15));
+
+        infoPanel.add(lblNombre);
+        infoPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        infoPanel.add(lblEspecialidad);
+
+        add(infoPanel, BorderLayout.WEST);
+
+        // === TABLA DE CITAS ===
+        modeloTabla = new DefaultTableModel(new String[]{"ID Cita", "Paciente", "Fecha", "Hora", "Modalidad"}, 0);
         tablaCita = new JTable(modeloTabla);
-        JScrollPane scroll = new JScrollPane(tablaCita);
-        add(scroll, BorderLayout.CENTER);
+        add(new JScrollPane(tablaCita), BorderLayout.CENTER);
 
-        // === PANEL INFERIOR ===
-        JPanel panelInferior = new JPanel();
-        btnNuevaHistoria = new JButton("Crear Historia Clínica");
-        panelInferior.add(btnNuevaHistoria);
-        add(panelInferior, BorderLayout.SOUTH);
+        // === BOTONES ===
+        JPanel panelBotones = new JPanel(new FlowLayout());
+        btnIniciarAtencion = new JButton("Iniciar Atención");
+        btnFinalizarAtencion = new JButton("Finalizar Atención");
         btnCerrarSesion = new JButton("Cerrar Sesión");
-        panelInferior.add(btnCerrarSesion);
-        add(panelInferior, BorderLayout.SOUTH);
 
-        // === PANEL IZQUIERDO (nombre y especialidad) ===
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(new Color(235, 255, 235));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        btnFinalizarAtencion.setEnabled(false);
+        panelBotones.add(btnIniciarAtencion);
+        panelBotones.add(btnFinalizarAtencion);
+        panelBotones.add(btnCerrarSesion);
+        add(panelBotones, BorderLayout.SOUTH);
 
-        lblNombre = new JLabel("Nombre: " + (medicoActual != null ? medicoActual.getNombre() : "No encontrado"));
-        lblEspecialidad = new JLabel("Especialidad: " + (medicoActual != null ? medicoActual.getEspecialidad() : "No encontrada"));
+        // === CARGAR CITAS DEL MÉDICO ===
+        cargarCitasDelMedico();
 
-        lblNombre.setFont(new Font("Arial", Font.BOLD, 18));
-        lblEspecialidad.setFont(new Font("Arial", Font.PLAIN, 16));
-
-        panel.add(lblNombre);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(lblEspecialidad);
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
-
-        add(panel, BorderLayout.WEST);
-
-         // === LLENAR TABLA CON Cita DEL MÉDICO ===
-        CitaDao CitaDao = new CitaDao();
-        PacienteDao PacienteDAO = new PacienteDao();
-        List<Cita> CitaDelMedico = CitaDao.obtenerCitaPorMedico(medicoActual.getIdMedico());
-
-        for (Cita c : CitaDelMedico) {
-            Paciente p = PacienteDAO.obtenerPacientePorId(c.getIdPaciente());
-            modeloTabla.addRow(new Object[] {
-                c.getIdCita(),
-                p != null ? p.getNombre() : "Desconocido",
-                c.getFechaCita().toString(),
-                c.getHoraCita().toString(),
-                c.getIdModalidad()
-            });
-        }
-
-        // === BOTÓN CERRAR SESIÓN ===
+        // === EVENTOS ===
+        btnIniciarAtencion.addActionListener(e -> iniciarAtencion());
+        btnFinalizarAtencion.addActionListener(e -> finalizarAtencion());
         btnCerrarSesion.addActionListener(e -> {
             dispose();
             new Login();
         });
 
-        btnNuevaHistoria.addActionListener(e -> {
-            int filaSeleccionada = tablaCita.getSelectedRow();
-            if (filaSeleccionada == -1) {
-                JOptionPane.showMessageDialog(this, "Seleccione una cita de la tabla.");
-                return;
-            }
-
-            int idCita = (int) modeloTabla.getValueAt(filaSeleccionada, 0);
-            Cita citaSeleccionada = CitaDao.obtenerCitaPorId(idCita);
-            new VentanaHistoriaClinica(medicoActual, citaSeleccionada);
-        });
-
-
         setVisible(true);
-        System.out.println("ID del médico actual: " + medicoActual.getIdMedico());
+    }
 
+    private void cargarCitasDelMedico() {
+        modeloTabla.setRowCount(0);
+        CitaDao citaDao = new CitaDao();
+        PacienteDao pacienteDao = new PacienteDao();
+        List<Cita> citas = citaDao.obtenerCitaPorMedico(medicoActual.getIdMedico());
+
+        for (Cita c : citas) {
+            Paciente p = pacienteDao.obtenerPacientePorId(c.getIdPaciente());
+            modeloTabla.addRow(new Object[]{
+                    c.getIdCita(),
+                    (p != null ? p.getNombre() : "Desconocido"),
+                    c.getFechaCita(),
+                    c.getHoraCita(),
+                    c.getIdModalidad() == 1 ? "Presencial" : "Virtual"
+            });
+        }
+    }
+
+    // === INICIAR ATENCIÓN ===
+    private void iniciarAtencion() {
+        int fila = tablaCita.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una cita para iniciar atención.");
+            return;
+        }
+
+        int idCita = (int) modeloTabla.getValueAt(fila, 0);
+        CitaDao citaDao = new CitaDao();
+        Cita cita = citaDao.obtenerCitaPorId(idCita);
+
+        horaInicio = LocalDateTime.now();
+
+        EjecucionCita ejec = new EjecucionCita();
+        ejec.setIdCita(idCita);
+        ejec.setFechaHoraIngreso(Timestamp.valueOf(horaInicio));
+        ejec.setFechaHoraSalida(null);
+        ejec.setDuracion(0);
+
+        EjecucionCitaDao ejecDao = new EjecucionCitaDao();
+        boolean ok = ejecDao.insertarEjecucion(ejec);
+
+        if (ok) {
+            ejecucionActual = ejec;
+            JOptionPane.showMessageDialog(this, "Atención iniciada correctamente.");
+            btnIniciarAtencion.setEnabled(false);
+            btnFinalizarAtencion.setEnabled(true);
+
+            // Obtener el paciente y abrir ventana de historia clínica
+            PacienteDao pacienteDao = new PacienteDao();
+            Paciente paciente = pacienteDao.obtenerPacientePorId(cita.getIdPaciente());
+            new VentanaHistoriaClinica(paciente, cita, ejecucionActual);
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al iniciar atención.");
+        }
+    }
+
+    // === FINALIZAR ATENCIÓN ===
+    private void finalizarAtencion() {
+        if (ejecucionActual == null) {
+            JOptionPane.showMessageDialog(this, "No hay una atención activa.");
+            return;
+        }
+
+        LocalDateTime horaFin = LocalDateTime.now();
+        int duracionMinutos = (int) Duration.between(horaInicio, horaFin).toMinutes();
+
+        ejecucionActual.setFechaHoraSalida(Timestamp.valueOf(horaFin));
+        ejecucionActual.setDuracion(duracionMinutos);
+
+        EjecucionCitaDao ejecDao = new EjecucionCitaDao();
+        boolean ok = ejecDao.updateEjecucion(ejecucionActual);
+
+        if (ok) {
+            JOptionPane.showMessageDialog(this,
+                    "Atención finalizada.\nDuración: " + duracionMinutos + " minutos.");
+            btnIniciarAtencion.setEnabled(true);
+            btnFinalizarAtencion.setEnabled(false);
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al finalizar atención.");
+        }
     }
 }
-    

@@ -11,6 +11,9 @@ public class HistoriaClinica {
     private String evolucion;
     private String observaciones;
 
+    // Constructor
+    public HistoriaClinica() {
+    }
     public HistoriaClinica(int idHistoriaClinica, int idEjecucionCita, String motivoConsulta, String enfermedadActual, String antecedentes, String diagnostico, String tratamiento, String evolucion, String observaciones) {
         this.idHistoriaClinica = idHistoriaClinica;
         this.idEjecucionCita = idEjecucionCita;
@@ -70,7 +73,7 @@ public class HistoriaClinica {
     public String getevolucion() {
         return evolucion;
     }
-    public void setevolucion(String evolucion) {
+    public void setEvolucion(String evolucion) {
         this.evolucion = evolucion;
     }
     public String getObservaciones() {

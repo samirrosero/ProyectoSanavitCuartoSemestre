@@ -269,6 +269,9 @@ INSERT INTO modalidad (nombre_modalidad)
 VALUES ('Presencial'), ('Virtual');
 select * from modalidad;
 
+
+SELECT * FROM historia_clinica ORDER BY id_historia_clinica DESC LIMIT 5;
+
 -- ==========================================
 -- CREACIÓN DE PROCEDIMIENTOS ALMACENADOS
 -- ==========================================
@@ -670,6 +673,25 @@ BEGIN
         p_id_ejecucionCita, p_motivo_consulta, p_enfermedad_actual,
         p_antecedentes, p_diagnostico, p_tratamiento, p_evolucion, p_observaciones
     );
+    SELECT LAST_INSERT_ID() AS idGenerado;
+END //
+
+CREATE PROCEDURE obtener_historia_por_id (
+    IN p_id_historia_clinica INT
+)
+BEGIN
+    SELECT 
+        id_historia_clinica,
+        id_ejecucionCita,
+        motivo_consulta,
+        enfermedad_actual,
+        antecedentes,
+        diagnostico,
+        tratamiento,
+        evolucion,
+        observaciones
+    FROM historia_clinica
+    WHERE id_historia_clinica = p_id_historia_clinica;
 END //
 
 CREATE PROCEDURE sp_actualizar_historia_clinica(
@@ -708,7 +730,11 @@ END //
 
 CREATE PROCEDURE sp_historia_por_paciente(IN p_id_paciente INT)
 BEGIN
-    SELECT * FROM historia_clinica WHERE id_paciente = p_id_paciente;
+    SELECT hc. * 
+	FROM historia_clinica hc
+    INNER JOIN ejecucionCita ec ON hc.id_ejecucionCita = ec.id_ejecucionCita
+    INNER JOIN cita c ON ec.id_cita = c.id_cita
+    WHERE c.id_paciente = p_id_paciente;
 END //
 
 -- =====================
@@ -800,6 +826,21 @@ CREATE PROCEDURE sp_insertar_ejecucion_cita(
 BEGIN
     INSERT INTO ejecucionCita (id_cita, fecha_hora_ingreso, fecha_salida, duracion)
     VALUES (p_id_cita, p_fecha_ingreso, p_fecha_salida, p_duracion);
+    SELECT LAST_INSERT_ID() AS id_ejecucionCita;
+END //
+
+CREATE PROCEDURE obtenerEjecucionPorId(
+    IN p_id_ejecucionCita INT
+)
+BEGIN
+    SELECT 
+        id_ejecucionCita,
+        id_cita,
+        fecha_hora_ingreso,
+        fecha_salida,
+        duracion
+    FROM ejecucionCita
+    WHERE id_ejecucionCita = p_id_ejecucionCita;
 END //
 
 CREATE PROCEDURE sp_actualizar_ejecucion_cita(

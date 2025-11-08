@@ -3,7 +3,6 @@ package com.proyecto.sanavit.controlador;
 import java.util.List;
 
 import com.proyecto.sanavit.modelo.Cita;
-import com.proyecto.sanavit.modelo.CitaDao;
 import com.proyecto.sanavit.modelo.Medico;
 import com.proyecto.sanavit.modelo.MedicoDao;
 import com.proyecto.sanavit.modelo.RecetaMedica;
@@ -32,7 +31,7 @@ public class MedicoController {
     }
 
     public List<Medico> listarMedicos() {
-        return medicoDao.listarMedicos();
+        return MedicoDao.listarMedicos();
     }
 
     public Medico obtenerMedicoPorId(int idMedico) {
