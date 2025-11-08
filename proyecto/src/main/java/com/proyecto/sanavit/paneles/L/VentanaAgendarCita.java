@@ -2,7 +2,8 @@ package com.proyecto.sanavit.paneles.L;
 
 import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
-import com.proyecto.sanavit.modelo.*;
+import javax.swing.border.Border;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
@@ -13,40 +14,64 @@ public class VentanaAgendarCita extends JFrame {
     private JTextField txtPaciente, txtIdentificacion;
     private JComboBox<String> cmbMedico, cmbEspecialidad, cmbFecha, cmbHora, cmbModalidad;
     private JButton btnGuardar, btnCancelar, btnVolver;
-    private static final int ID_ESTADO_AGENDADA = 1; // Estado "Agendada"
+    private static final int ID_ESTADO_AGENDADA = 1;
 
     private MedicoDao medicoDAO = new MedicoDao();
     private CitaDao citaDAO = new CitaDao();
 
     public VentanaAgendarCita(Object pacienteActual) {
         setTitle("Agendar Cita - Sanavit");
-        setSize(670, 510);
+        setSize(700, 540);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setUndecorated(false);
 
-        // === Panel de datos del paciente ===
-        JPanel panelPaciente = new JPanel(new GridLayout(2, 2, 10, 10));
-        panelPaciente.setBorder(BorderFactory.createTitledBorder("Datos del Paciente"));
-        panelPaciente.setBackground(fondoPanel);
+        // 🎨 Panel de fondo con degradado y bordes suaves
+        JPanel fondo = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getWidth(), h = getHeight();
+                GradientPaint gp = new GradientPaint(0, 0, new Color(29, 151, 108),
+                        0, h, new Color(220, 250, 235));
+                g2.setPaint(gp);
+                g2.fillRoundRect(0, 0, w, h, 25, 25);
+            }
+        };
+        fondo.setLayout(new BorderLayout(10, 10));
+        fondo.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setContentPane(fondo);
+
+        Color fondoPanel = new Color(239, 247, 243);
+        Color textoPrincipal = new Color(20, 20, 20);
+
+        // === Panel Paciente ===
+        JPanel panelPaciente = crearPanelBase("Datos del Paciente", fondoPanel);
+        panelPaciente.setLayout(new GridLayout(2, 2, 10, 10));
 
         JLabel lblPaciente = new JLabel("Paciente:");
-        lblPaciente.setForeground(textoPrincipal);
         JLabel lblIdentificacion = new JLabel("Identificación:");
+        lblPaciente.setForeground(textoPrincipal);
         lblIdentificacion.setForeground(textoPrincipal);
 
         txtPaciente = new JTextField((pacienteActual != null ? ((Paciente) pacienteActual).getNombre() : ""));
         txtPaciente.setEditable(false);
-        panelPaciente.add(txtPaciente);
-        panelPaciente.add(new JLabel("Identificación:"));
+        txtPaciente.setBorder(bordeCampo());
         txtIdentificacion = new JTextField(
                 (pacienteActual != null ? ((Paciente) pacienteActual).getIdentificacion() : ""));
         txtIdentificacion.setEditable(false);
+        txtIdentificacion.setBorder(bordeCampo());
+
+        panelPaciente.add(lblPaciente);
+        panelPaciente.add(txtPaciente);
+        panelPaciente.add(lblIdentificacion);
         panelPaciente.add(txtIdentificacion);
 
-        // === Panel de detalles de la cita ===
-        JPanel panelCita = new JPanel(new GridLayout(7, 2, 10, 10));
-        panelCita.setBorder(BorderFactory.createTitledBorder("Detalles de la Cita"));
-        panelCita.setBackground(fondoPanel);
+        // === Panel Cita ===
+        JPanel panelCita = crearPanelBase("Detalles de la Cita", fondoPanel);
+        panelCita.setLayout(new GridLayout(6, 2, 10, 10));
 
         cmbMedico = new JComboBox<>();
         cmbEspecialidad = new JComboBox<>();
@@ -58,31 +83,32 @@ public class VentanaAgendarCita extends JFrame {
         cmbHora = new JComboBox<>();
         cmbModalidad = new JComboBox<>(new String[]{"Presencial", "Virtual"});
 
-        // Cargar médicos y especialidades
+        estilizarCombo(cmbMedico);
+        estilizarCombo(cmbEspecialidad);
+        estilizarCombo(cmbFecha);
+        estilizarCombo(cmbHora);
+        estilizarCombo(cmbModalidad);
+
         cargarMedicos();
 
-        panelCita.add(new JLabel("Especialidad:"));
+        panelCita.add(crearLabel("Especialidad:", textoPrincipal));
         panelCita.add(cmbEspecialidad);
-        panelCita.add(new JLabel("Médico:"));
+        panelCita.add(crearLabel("Médico:", textoPrincipal));
         panelCita.add(cmbMedico);
-        panelCita.add(new JLabel("Fecha disponible:"));
+        panelCita.add(crearLabel("Fecha disponible:", textoPrincipal));
         panelCita.add(cmbFecha);
-        panelCita.add(new JLabel("Hora disponible:"));
+        panelCita.add(crearLabel("Hora disponible:", textoPrincipal));
         panelCita.add(cmbHora);
-        panelCita.add(new JLabel("Modalidad:"));
+        panelCita.add(crearLabel("Modalidad:", textoPrincipal));
         panelCita.add(cmbModalidad);
 
-        // === Panel de botones ===
-        JPanel panelBotones = new JPanel(new FlowLayout());
-        panelBotones.setBackground(new Color(0xDDEDF0));
+        // === Panel Botones ===
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        panelBotones.setBackground(new Color(0, 0, 0, 0));
 
-        btnGuardar = new JButton("Guardar");
-        btnCancelar = new JButton("Cancelar");
-        btnVolver = new JButton("Volver");
-
-        configurarBoton(btnGuardar, new Color(92, 184, 92));    
-        configurarBoton(btnCancelar, new Color(70, 130, 180));  
-        configurarBoton(btnVolver, new Color(92, 184, 92));       
+        btnGuardar = crearBoton("Guardar", new Color(34, 197, 94));
+        btnCancelar = crearBoton("Cancelar", new Color(59, 130, 246));
+        btnVolver = crearBoton("Volver", new Color(168, 85, 247));
 
         panelBotones.add(btnGuardar);
         panelBotones.add(btnCancelar);
@@ -96,15 +122,81 @@ public class VentanaAgendarCita extends JFrame {
         cmbMedico.addActionListener(e -> actualizarHorasDisponibles());
         cmbFecha.addActionListener(e -> actualizarHorasDisponibles());
 
-        // === Estructura general ===
-        add(panelPaciente, BorderLayout.NORTH);
-        add(panelCita, BorderLayout.CENTER);
-        add(panelBotones, BorderLayout.SOUTH);
+        fondo.add(panelPaciente, BorderLayout.NORTH);
+        fondo.add(panelCita, BorderLayout.CENTER);
+        fondo.add(panelBotones, BorderLayout.SOUTH);
 
         setVisible(true);
     }
 
-    // === Cargar médicos y especialidades ===
+    // === Helpers visuales ===
+    private JPanel crearPanelBase(String titulo, Color fondo) {
+        JPanel panel = new JPanel();
+        panel.setBackground(fondo);
+        panel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 230, 210)),
+                titulo));
+        return panel;
+    }
+
+    private JLabel crearLabel(String texto, Color color) {
+        JLabel lbl = new JLabel(texto);
+        lbl.setForeground(color);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        return lbl;
+    }
+
+    private Border bordeCampo() {
+        return BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(180, 200, 190), 1, true),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        );
+    }
+
+    private void estilizarCombo(JComboBox<String> combo) {
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        combo.setBorder(bordeCampo());
+        combo.setBackground(Color.WHITE);
+    }
+
+    private JButton crearBoton(String texto, Color colorBase) {
+        JButton boton = new JButton(texto);
+        boton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 15));
+        boton.setForeground(Color.WHITE);
+        boton.setBackground(colorBase);
+        boton.setFocusPainted(false);
+        boton.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Bordes redondeados y sombra
+        boton.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+            @Override
+            public void paint(Graphics g, JComponent c) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(colorBase.darker());
+                g2.fillRoundRect(2, 4, c.getWidth() - 4, c.getHeight() - 4, 18, 18);
+                g2.setColor(colorBase);
+                g2.fillRoundRect(0, 0, c.getWidth() - 4, c.getHeight() - 6, 18, 18);
+                super.paint(g2, c);
+            }
+        });
+
+        boton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                boton.setBackground(colorBase.brighter());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                boton.setBackground(colorBase);
+            }
+        });
+        return boton;
+    }
+
+    // === Cargar médicos ===
     private void cargarMedicos() {
         List<Medico> medicos = MedicoDao.listarMedicos();
         cmbMedico.removeAllItems();
@@ -126,7 +218,6 @@ public class VentanaAgendarCita extends JFrame {
         filtrarMedicosPorEspecialidad();
     }
 
-    // === Filtrar médicos por especialidad ===
     private void filtrarMedicosPorEspecialidad() {
         String especialidadSeleccionada = (String) cmbEspecialidad.getSelectedItem();
         if (especialidadSeleccionada == null) return;
@@ -144,7 +235,6 @@ public class VentanaAgendarCita extends JFrame {
         }
     }
 
-    // === Actualizar horas disponibles dinámicamente ===
     private void actualizarHorasDisponibles() {
         String medicoNombre = (String) cmbMedico.getSelectedItem();
         String fechaStr = (String) cmbFecha.getSelectedItem();
@@ -190,7 +280,6 @@ public class VentanaAgendarCita extends JFrame {
         }
     }
 
-    // === Guardar cita ===
     private void guardar() {
         try {
             String pacienteNombre = txtPaciente.getText().trim();
@@ -205,7 +294,6 @@ public class VentanaAgendarCita extends JFrame {
                     medicoNombre == null || especialidad == null ||
                     fechaStr == null || horaStr == null || modalidadNombre == null ||
                     horaStr.equals("Sin horas disponibles")) {
-
                 JOptionPane.showMessageDialog(this,
                         "Por favor complete todos los campos obligatorios.",
                         "Advertencia", JOptionPane.WARNING_MESSAGE);
@@ -255,17 +343,13 @@ public class VentanaAgendarCita extends JFrame {
     }
 
     private int obtenerIdModalidadPorNombre(String modalidadNombre) {
-        switch (modalidadNombre.toLowerCase()) {
-            case "presencial":
-                return 1;
-            case "virtual":
-                return 2;
-            default:
-                return 0;
-        }
+        return switch (modalidadNombre.toLowerCase()) {
+            case "presencial" -> 1;
+            case "virtual" -> 2;
+            default -> 0;
+        };
     }
 
-    // === Limpiar campos ===
     private void limpiarCampos() {
         cmbEspecialidad.setSelectedIndex(-1);
         cmbMedico.removeAllItems();

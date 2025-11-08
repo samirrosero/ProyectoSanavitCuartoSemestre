@@ -11,8 +11,7 @@ public class EjecucionCita {
     
     // Constructor
     public EjecucionCita() {
-    }
-
+    } 
     public EjecucionCita(int idEjecucionCita, int idCita, Timestamp fechaHoraIngreso, Timestamp fechaHoraSalida, int duracion) {
         this.idEjecucionCita = idEjecucionCita;
         this.idCita = idCita;
