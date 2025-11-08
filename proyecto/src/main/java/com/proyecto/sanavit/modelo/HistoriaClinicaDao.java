@@ -9,7 +9,7 @@ public class HistoriaClinicaDao {
     // === INSERTAR HISTORIA CLÍNICA ===
     public boolean insertarHistoria(HistoriaClinica h) {
         boolean state = false;
-        String sql = "{CALL insertar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_insertar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
 
@@ -67,7 +67,7 @@ public class HistoriaClinicaDao {
     // === OBTENER HISTORIAS CLÍNICAS POR PACIENTE ===
     public List<HistoriaClinica> obtenerPorPaciente(int idPaciente) {
         List<HistoriaClinica> lista = new ArrayList<>();
-        String sql = "{CALL obtener_historias_por_paciente(?)}";
+        String sql = "{CALL sp_historia_por_paciente(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
 
@@ -97,7 +97,7 @@ public class HistoriaClinicaDao {
     // === LISTAR TODAS LAS HISTORIAS ===
     public List<HistoriaClinica> listarHistorias() {
         List<HistoriaClinica> lista = new ArrayList<>();
-        String sql = "{CALL listar_historias_clinicas()}";
+        String sql = "{CALL sp_listar_historias_clinicas()}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql);
              ResultSet rs = cs.executeQuery()) {
@@ -125,7 +125,7 @@ public class HistoriaClinicaDao {
     // === ACTUALIZAR HISTORIA CLÍNICA ===
     public boolean updateHistoria(HistoriaClinica h) {
         boolean state = false;
-        String sql = "{CALL actualizar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_actualizar_historia_clinica(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
 
@@ -154,7 +154,7 @@ public class HistoriaClinicaDao {
     // === ELIMINAR HISTORIA CLÍNICA ===
     public boolean deleteHistoria(int idHistoria) {
         boolean state = false;
-        String sql = "{CALL eliminar_historia_clinica(?)}";
+        String sql = "{CALL sp_eliminar_historia_clinica(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
 

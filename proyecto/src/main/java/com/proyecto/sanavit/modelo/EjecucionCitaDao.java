@@ -8,7 +8,7 @@ public class EjecucionCitaDao {
 
     public boolean insertarEjecucion(EjecucionCita e) {
         boolean state = false;
-        String sql = "{CALL insertarEjecucionCita(?, ?, ?, ?)}";
+        String sql = "{CALL sp_insertar_ejecucion_cita(?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, e.getIdCita());
@@ -54,7 +54,7 @@ public class EjecucionCitaDao {
 
     public List<EjecucionCita> listarEjecuciones() {
         List<EjecucionCita> lista = new ArrayList<>();
-        String sql = "{CALL listarEjecuciones()}";
+        String sql = "{CALL sp_listar_ejecuciones_cita()}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql);
              ResultSet rs = cs.executeQuery()) {
@@ -76,7 +76,7 @@ public class EjecucionCitaDao {
 
     public boolean updateEjecucion(EjecucionCita e) {
         boolean state = false;
-        String sql = "{CALL actualizarEjecucionCita(?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_actualizar_ejecucion_cita(?, ?, ?, ?, ?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, e.getIdEjecucionCita());
@@ -94,7 +94,7 @@ public class EjecucionCitaDao {
 
     public boolean deleteEjecucion(int id) {
         boolean state = false;
-        String sql = "{CALL eliminarEjecucionCita(?)}";
+        String sql = "{CALL sp_eliminar_ejecucion_cita(?)}";
         try (Connection conn = ConexionDatabase.getConnection();
              CallableStatement cs = conn.prepareCall(sql)) {
             cs.setInt(1, id);

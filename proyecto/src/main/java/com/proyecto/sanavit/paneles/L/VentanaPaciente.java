@@ -7,6 +7,7 @@ import java.awt.*;
 public class VentanaPaciente extends JFrame {
 
     private JLabel lblNombre, lblCorreo, lblEdad, lblTelefono, lblSexo, lblDireccion, lblIdentificacion;
+    private JLabel lblSalud, lblAfiliacion;
     private JButton btnAgendarCita, btnVerHistoriaClinica, btnCerrarSesion;
 
     public VentanaPaciente(Usuario usuarioActual) {
@@ -19,6 +20,13 @@ public class VentanaPaciente extends JFrame {
         // Obtener información del paciente
         PacienteDao pacienteDAO = new PacienteDao();
         Paciente pacienteActual = pacienteDAO.obtenerPacientePorIdUsuario(usuarioActual.getIdUsuario());
+
+        // Obtener portafolio (EPS / Afiliación)
+        Portafolio portafolioActual = null;
+        if (pacienteActual != null) {
+            PortafolioDao portafolioDAO = new PortafolioDao();
+            portafolioActual = portafolioDAO.obtenerPortafolioPorIdPaciente(pacienteActual.getIdPaciente());
+        }
 
         // ENCABEZADO
         JPanel fondo = new JPanel(new BorderLayout());
@@ -53,6 +61,10 @@ public class VentanaPaciente extends JFrame {
         lblDireccion = new JLabel("Dirección: " + (pacienteActual != null ? pacienteActual.getDireccion() : "No encontrada"));
         lblIdentificacion = new JLabel("Identificación: " + (pacienteActual != null ? pacienteActual.getIdentificacion() : "No encontrada"));
 
+        //Campos nuevos del portafolio
+        lblSalud = new JLabel("EPS / Salud: " + (portafolioActual != null ? portafolioActual.getSalud() : "No encontrado"));
+        lblAfiliacion = new JLabel("Afiliación: " + (portafolioActual != null ? portafolioActual.getAfiliaciones() : "No encontrada"));
+
         panel.add(lblNombre);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(lblCorreo);
@@ -67,6 +79,10 @@ public class VentanaPaciente extends JFrame {
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(lblIdentificacion);
         panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        panel.add(lblSalud);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.add(lblAfiliacion);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         // BOTONES
         btnAgendarCita = new JButton("Agendar Cita");
@@ -79,15 +95,16 @@ public class VentanaPaciente extends JFrame {
         });
 
         // Acción de Ver Historia Clínica
-       // btnVerHistoriaClinica.addActionListener(e -> {
-            //new VentanaHistoriaClinica(pacienteActual);
-        //});
+        btnVerHistoriaClinica.addActionListener(e -> {
+            new VentanaVerHistoriaClinica(pacienteActual);
+        });
 
         // Acción de Cerrar Sesión
         btnCerrarSesion.addActionListener(e -> {
             dispose();
             new Login(); // Regresar al login
         });
+        
 
         // Añadir botones al panel
         panel.add(btnAgendarCita);
@@ -99,4 +116,5 @@ public class VentanaPaciente extends JFrame {
         add(panel, BorderLayout.CENTER);
         setVisible(true);
     }
+    
 }
