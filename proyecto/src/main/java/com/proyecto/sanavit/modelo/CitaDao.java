@@ -12,7 +12,7 @@ public class CitaDao {
         String sql = "{CALL insertar_cita(?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, cita.getIdMedico());
             pst.setInt(2, cita.getIdPaciente());
@@ -44,7 +44,7 @@ public class CitaDao {
         String sql = "{CALL actualizar_estado_cita(?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, idCita);
             pst.setInt(2, nuevoEstado);
@@ -61,7 +61,7 @@ public class CitaDao {
         String sql = "{CALL actualizar_cita(?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, cita.getIdCita());
             pst.setInt(2, cita.getIdMedico());
@@ -84,7 +84,7 @@ public class CitaDao {
         String sql = "{CALL eliminar_cita(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, idCita);
             return pst.executeUpdate() > 0;
@@ -101,8 +101,8 @@ public class CitaDao {
         String sql = "{CALL listar_citas()}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql);
-             ResultSet rs = pst.executeQuery()) {
+                CallableStatement pst = conn.prepareCall(sql);
+                ResultSet rs = pst.executeQuery()) {
 
             while (rs.next()) {
                 lista.add(mapCita(rs));
@@ -121,7 +121,7 @@ public class CitaDao {
         String sql = "{CALL obtener_cita_por_id(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, idCita);
             try (ResultSet rs = pst.executeQuery()) {
@@ -143,7 +143,7 @@ public class CitaDao {
         String sql = "{CALL obtener_citas_por_paciente(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, idPaciente);
             try (ResultSet rs = pst.executeQuery()) {
@@ -165,7 +165,7 @@ public class CitaDao {
         String sql = "{CALL obtener_citas_por_medico(?)}";
 
         try (Connection conn = ConexionDatabase.getConnection();
-             CallableStatement pst = conn.prepareCall(sql)) {
+                CallableStatement pst = conn.prepareCall(sql)) {
 
             pst.setInt(1, idMedico);
             try (ResultSet rs = pst.executeQuery()) {
@@ -181,16 +181,39 @@ public class CitaDao {
         return lista;
     }
 
+    // === OBTENER HORAS OCUPADAS POR MÉDICO Y FECHA ===
+    public List<String> obtenerHorasOcupadas(int idMedico, java.sql.Date fecha) {
+        List<String> horasOcupadas = new ArrayList<>();
+        String sql = "{CALL obtener_horas_ocupadas(?, ?)}";
+
+        try (Connection conn = ConexionDatabase.getConnection();
+                CallableStatement pst = conn.prepareCall(sql)) {
+
+            pst.setInt(1, idMedico);
+            pst.setDate(2, fecha);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    horasOcupadas.add(rs.getString("hora_ocupada"));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error al obtener horas ocupadas: " + e.getMessage());
+        }
+
+        return horasOcupadas;
+    }
+
     // === MAPEAR RESULTSET A OBJETO CITA ===
     private Cita mapCita(ResultSet rs) throws SQLException {
         return new Cita(
-            rs.getInt("id_cita"),
-            rs.getInt("id_medico"),
-            rs.getInt("id_paciente"),
-            rs.getInt("id_estado_cita"),
-            rs.getInt("id_modalidad"),
-            rs.getDate("fecha_cita"),
-            rs.getTime("hora_cita")
-        );
+                rs.getInt("id_cita"),
+                rs.getInt("id_medico"),
+                rs.getInt("id_paciente"),
+                rs.getInt("id_estado_cita"),
+                rs.getInt("id_modalidad"),
+                rs.getDate("fecha_cita"),
+                rs.getTime("hora_cita"));
     }
 }
