@@ -38,9 +38,9 @@ public class VentanaMedico extends JFrame {
         MedicoDao medicoDAO = new MedicoDao();
         medicoActual = medicoDAO.obtenerMedicoPorIdUsuario(usuarioActual.getIdUsuario());
 
-        // === PANEL SUPERIOR (Encabezado) ===
+        // === PANEL SUPERIOR ===
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(0, 123, 255));
+        header.setBackground(new Color(65, 158, 91));
         header.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         JLabel lblBienvenida = new JLabel("<html><span style='font-size:18px;'>Bienvenido(a)</span><br>"
@@ -49,13 +49,12 @@ public class VentanaMedico extends JFrame {
         lblBienvenida.setForeground(Color.WHITE);
         header.add(lblBienvenida, BorderLayout.WEST);
 
-        // === Foto del médico (derecha, circular) ===
+        // === FOTO PERFIL ===
         lblFotoPerfil = new JLabel();
         lblFotoPerfil.setPreferredSize(new Dimension(120, 120));
         lblFotoPerfil.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblFotoPerfil.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
-
-        setFotoPerfil("C:\\ruta\\a\\foto_medico.png"); // Ruta temporal
+        setFotoPerfil("C:\\ruta\\a\\foto_medico.png"); // Cambia según ruta
 
         lblFotoPerfil.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -76,9 +75,8 @@ public class VentanaMedico extends JFrame {
         // === PANEL CENTRAL ===
         JPanel panelCentral = new JPanel(new BorderLayout(15, 15));
         panelCentral.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
-        panelCentral.setBackground(new Color(244, 247, 250));
+        panelCentral.setBackground(new Color(198, 232, 197));
 
-        // === TARJETA INFORMATIVA DEL MÉDICO ===
         JPanel infoPanel = new JPanel() {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
@@ -96,14 +94,14 @@ public class VentanaMedico extends JFrame {
 
         JLabel lblTitulo = new JLabel("Datos del Médico");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblTitulo.setForeground(new Color(0, 123, 255));
+        lblTitulo.setForeground(new Color(10, 10, 10));
         lblTitulo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        lblNombre = new JLabel("👨‍⚕️ " + medicoActual.getNombre());
+        lblNombre = new JLabel(medicoActual.getNombre());
         lblNombre.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         lblNombre.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        lblEspecialidad = new JLabel("🩺 Especialidad: " + medicoActual.getEspecialidad());
+        lblEspecialidad = new JLabel("Especialidad: " + medicoActual.getEspecialidad());
         lblEspecialidad.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         lblEspecialidad.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -112,10 +110,9 @@ public class VentanaMedico extends JFrame {
         infoPanel.add(lblNombre);
         infoPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         infoPanel.add(lblEspecialidad);
-
         panelCentral.add(infoPanel, BorderLayout.NORTH);
 
-        // === TABLA DE CITAS ===
+        // === TABLA CITAS ===
         modeloTabla = new DefaultTableModel(new String[]{"ID Cita", "Paciente", "Fecha", "Hora", "Modalidad"}, 0);
         tablaCita = new JTable(modeloTabla);
         tablaCita.setRowHeight(28);
@@ -132,21 +129,19 @@ public class VentanaMedico extends JFrame {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 20));
         panelBotones.setBackground(new Color(244, 247, 250));
 
-        btnIniciarAtencion = crearBoton("Iniciar Atención", new Color(0, 123, 255));
-        btnFinalizarAtencion = crearBoton("Finalizar Atención", new Color(40, 167, 69));
-        btnCerrarSesion = crearBoton("Cerrar Sesión", new Color(220, 53, 69));
+btnIniciarAtencion = crearBoton("Iniciar Atención", new Color(48, 184, 86), new Color(35, 155, 86));
+btnFinalizarAtencion = crearBoton("Finalizar Atención", new Color(48, 184, 86), new Color(29, 131, 72));
+btnCerrarSesion = crearBoton("Cerrar Sesión", new Color(48, 184, 86), new Color(192, 57, 43));
+
 
         btnFinalizarAtencion.setEnabled(false);
-
         panelBotones.add(btnIniciarAtencion);
         panelBotones.add(btnFinalizarAtencion);
         panelBotones.add(btnCerrarSesion);
         add(panelBotones, BorderLayout.SOUTH);
 
-        // === CARGAR CITAS ===
         cargarCitasDelMedico();
 
-        // === EVENTOS ===
         btnIniciarAtencion.addActionListener(e -> iniciarAtencion());
         btnFinalizarAtencion.addActionListener(e -> finalizarAtencion());
         btnCerrarSesion.addActionListener(e -> {
@@ -158,6 +153,30 @@ public class VentanaMedico extends JFrame {
     }
 
     // ------------------- MÉTODOS -------------------
+
+private JButton crearBoton(String texto, Color colorBase, Color colorHover) {
+    JButton btn = new JButton(texto);
+    btn.setBackground(colorBase);
+    btn.setForeground(Color.WHITE);
+    btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    btn.setFocusPainted(false);
+    btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+
+    // 🔹 Efecto hover individual
+    btn.addMouseListener(new MouseAdapter() {
+        public void mouseEntered(MouseEvent e) {
+            btn.setBackground(colorHover);
+        }
+
+        public void mouseExited(MouseEvent e) {
+            btn.setBackground(colorBase);
+        }
+    });
+
+    return btn;
+}
+
 
     private void setFotoPerfil(String ruta) {
         try {
@@ -175,25 +194,6 @@ public class VentanaMedico extends JFrame {
         } catch (IOException e) {
             System.err.println("Error al cargar imagen: " + e.getMessage());
         }
-    }
-
-    private JButton crearBoton(String texto, Color colorBase) {
-        JButton btn = new JButton(texto);
-        btn.setBackground(colorBase);
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                btn.setBackground(colorBase.darker());
-            }
-            public void mouseExited(MouseEvent e) {
-                btn.setBackground(colorBase);
-            }
-        });
-        return btn;
     }
 
     private void cargarCitasDelMedico() {
