@@ -20,15 +20,19 @@ public class PanelReportes extends JPanel {
     private final HistoriaClinicaDao historiaDAO = new HistoriaClinicaDao();
 
     public PanelReportes() {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout());
         setBackground(new Color(233, 247, 239)); // Fondo general verde menta claro
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // === PANEL INTERNO con todo el contenido ===
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBackground(new Color(233, 247, 239));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // === Título ===
         JLabel lblTitulo = new JLabel("📊 Panel de Reportes - Sanavit", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(46, 64, 46)); // Verde oscuro elegante
-        add(lblTitulo, BorderLayout.NORTH);
+        contentPanel.add(lblTitulo, BorderLayout.NORTH);
 
         // === Panel Superior (Tarjetas) ===
         JPanel panelContadores = new JPanel(new GridLayout(1, 4, 20, 10));
@@ -45,7 +49,7 @@ public class PanelReportes extends JPanel {
         panelContadores.add(crearCard("📅 Citas", totalCitas, new Color(152, 223, 183), new Color(190, 238, 204)));
         panelContadores.add(crearCard("📄 Historias Clínicas", totalHistorias, new Color(139, 214, 177), new Color(190, 238, 204)));
 
-        add(panelContadores, BorderLayout.CENTER);
+        contentPanel.add(panelContadores, BorderLayout.CENTER);
 
         // === Panel de Gráficos ===
         JPanel panelGraficos = new JPanel(new GridLayout(1, 2, 20, 10));
@@ -114,7 +118,17 @@ public class PanelReportes extends JPanel {
         ChartPanel chartPanel2 = new ChartPanel(chartBarras);
         panelGraficos.add(chartPanel2);
 
-        add(panelGraficos, BorderLayout.SOUTH);
+        contentPanel.add(panelGraficos, BorderLayout.SOUTH);
+
+        // === SCROLL ===
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setBorder(null);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getVerticalScrollBar().setBackground(new Color(233, 247, 239));
+        scrollPane.getViewport().setBackground(new Color(233, 247, 239));
+
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     // === Tarjeta con degradado verde pastel ===
