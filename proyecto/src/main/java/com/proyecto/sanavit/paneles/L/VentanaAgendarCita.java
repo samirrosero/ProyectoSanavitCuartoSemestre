@@ -13,7 +13,7 @@ public class VentanaAgendarCita extends JFrame {
 
     private JTextField txtPaciente, txtIdentificacion;
     private JComboBox<String> cmbMedico, cmbEspecialidad, cmbHora, cmbModalidad;
-    private JDateChooser dateChooser; // ✅ reemplaza al combo de fechas
+    private JDateChooser dateChooser;
     private JButton btnGuardar, btnCancelar, btnVolver;
     private static final int ID_ESTADO_AGENDADA = 1;
 
@@ -27,7 +27,7 @@ public class VentanaAgendarCita extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setUndecorated(false);
 
-        // 🎨 Fondo degradado
+        // Fondo degradado
         JPanel fondo = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -71,7 +71,7 @@ public class VentanaAgendarCita extends JFrame {
 
         cmbMedico = new JComboBox<>();
         cmbEspecialidad = new JComboBox<>();
-        dateChooser = new JDateChooser(); // ✅ reemplazo del combo de fechas
+        dateChooser = new JDateChooser();
         dateChooser.setDateFormatString("dd/MM/yyyy");
         cmbHora = new JComboBox<>();
         cmbModalidad = new JComboBox<>(new String[]{"Presencial", "Virtual"});
@@ -88,7 +88,7 @@ public class VentanaAgendarCita extends JFrame {
         panelCita.add(crearLabel("Médico:", textoPrincipal));
         panelCita.add(cmbMedico);
         panelCita.add(crearLabel("Fecha disponible:", textoPrincipal));
-        panelCita.add(dateChooser); // ✅ se muestra el selector de calendario
+        panelCita.add(dateChooser);
         panelCita.add(crearLabel("Hora disponible:", textoPrincipal));
         panelCita.add(cmbHora);
         panelCita.add(crearLabel("Modalidad:", textoPrincipal));
@@ -98,9 +98,14 @@ public class VentanaAgendarCita extends JFrame {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panelBotones.setBackground(new Color(0, 0, 0, 0));
 
-        btnGuardar = crearBoton("Guardar", new Color(34, 197, 94));
-        btnCancelar = crearBoton("Cancelar", new Color(59, 130, 246));
-        btnVolver = crearBoton("Volver", new Color(168, 85, 247));
+        btnGuardar = crearBoton("Guardar", new Color(65, 163, 47));
+        btnCancelar = crearBoton("Cancelar", new Color(65, 163, 47));
+        btnVolver = crearBoton("Volver", new Color(65, 163, 47));
+
+        // 🎨 Efectos hover distintos para cada botón
+        agregarHover(btnGuardar, new Color(61, 143, 46), new Color(114, 214, 96));
+        agregarHover(btnCancelar, new Color(65, 163, 47), new Color(230, 90, 90));
+        agregarHover(btnVolver, new Color(65, 163, 47), new Color(114, 214, 96));
 
         panelBotones.add(btnGuardar);
         panelBotones.add(btnCancelar);
@@ -164,6 +169,21 @@ public class VentanaAgendarCita extends JFrame {
         return boton;
     }
 
+    // 🎨 Método para aplicar hover (efecto al pasar el mouse)
+    private void agregarHover(JButton boton, Color colorNormal, Color colorHover) {
+        boton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                boton.setBackground(colorHover);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                boton.setBackground(colorNormal);
+            }
+        });
+    }
+
     // === Cargar médicos y especialidades ===
     private void cargarMedicos() {
         List<Medico> medicos = MedicoDao.listarMedicos();
@@ -194,11 +214,10 @@ public class VentanaAgendarCita extends JFrame {
         }
     }
 
-    // === Actualizar horas según médico y fecha seleccionada ===
     private void actualizarHorasDisponibles() {
         try {
             String medicoNombre = (String) cmbMedico.getSelectedItem();
-            java.util.Date fechaSeleccionada = dateChooser.getDate(); // ✅
+            java.util.Date fechaSeleccionada = dateChooser.getDate();
 
             if (medicoNombre == null || fechaSeleccionada == null) return;
 
@@ -266,7 +285,7 @@ public class VentanaAgendarCita extends JFrame {
     private void limpiarCampos() {
         cmbEspecialidad.setSelectedIndex(-1);
         cmbMedico.removeAllItems();
-        dateChooser.setDate(null); // ✅ limpiar calendario
+        dateChooser.setDate(null);
         cmbHora.removeAllItems();
         cmbModalidad.setSelectedIndex(-1);
     }
