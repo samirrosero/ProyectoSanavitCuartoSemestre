@@ -66,10 +66,10 @@ public class VentanaAdministrador extends JFrame {
         // Aquí agregaremos los diferentes módulos
         panelCentral.add(new PanelUsuarios(), "usuarios");
         panelCentral.add(new PanelMedicos(), "medicos");
-        panelCentral.add(crearPanelPlaceholder("🧍 Módulo de Pacientes"), "pacientes");
-        panelCentral.add(crearPanelPlaceholder("📅 Módulo de Citas"), "citas");
-        panelCentral.add(crearPanelPlaceholder("📚 Historias Clínicas"), "historias");
-        panelCentral.add(crearPanelPlaceholder("📊 Reportes y Métricas"), "reportes");
+        panelCentral.add(new PanelPacientes(), "pacientes");
+        // // panelCentral.add(new PanelCitas(), "citas");
+        // // panelCentral.add(new PanelHistoriasClinicas(), "historias");
+        // // panelCentral.add(new PanelReportes(), "reportes");
 
         add(panelCentral, BorderLayout.CENTER);
 
