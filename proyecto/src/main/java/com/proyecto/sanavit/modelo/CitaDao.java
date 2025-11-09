@@ -55,6 +55,61 @@ public class CitaDao {
             return false;
         }
     }
+    // === OBTENER CITAS DE UN MÉDICO FILTRADAS POR ESTADO ===
+public List<Cita> obtenerCitasPorMedicoYEstado(int idMedico, int... estados) {
+    List<Cita> lista = new ArrayList<>();
+    StringBuilder placeholders = new StringBuilder();
+
+    for (int i = 0; i < estados.length; i++) {
+        placeholders.append("?");
+        if (i < estados.length - 1) placeholders.append(",");
+    }
+
+    String sql = "SELECT * FROM cita WHERE id_medico = ? AND id_estado_cita IN (" + placeholders + ") ORDER BY fecha_cita, hora_cita";
+
+    try (Connection conn = ConexionDatabase.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setInt(1, idMedico);
+        for (int i = 0; i < estados.length; i++) {
+            pst.setInt(i + 2, estados[i]);
+        }
+
+        ResultSet rs = pst.executeQuery();
+        while (rs.next()) {
+            Cita c = new Cita();
+            c.setIdCita(rs.getInt("id_cita"));
+            c.setIdMedico(rs.getInt("id_medico"));
+            c.setIdPaciente(rs.getInt("id_paciente"));
+            c.setIdEstadoCita(rs.getInt("id_estado_cita"));
+            c.setIdModalidad(rs.getInt("id_modalidad"));
+            c.setFechaCita(rs.getDate("fecha_cita"));
+            c.setHoraCita(rs.getTime("hora_cita"));
+            lista.add(c);
+        }
+    } catch (SQLException e) {
+        System.out.println("❌ Error obtenerCitasPorMedicoYEstado: " + e.getMessage());
+    }
+    return lista;
+}
+
+    public String obtenerNombreEstado(int idEstado) {
+    String nombre = "Desconocido";
+    String sql = "SELECT nombre_estado FROM estado_cita WHERE id_estado_cita = ?";
+    try (Connection conn = ConexionDatabase.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, idEstado);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                nombre = rs.getString("nombre_estado");
+            }
+        }
+    } catch (SQLException ex) {
+        System.out.println("❌ Error obtenerNombreEstado: " + ex.getMessage());
+    }
+    return nombre;
+}
+
 
     // === ACTUALIZAR CITA ===
     public boolean updateCita(Cita cita) {
