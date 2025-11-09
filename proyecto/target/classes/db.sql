@@ -534,9 +534,20 @@ CREATE PROCEDURE insertar_cita (
     IN p_hora_cita TIME
 )
 BEGIN
+ -- Verificar disponibilidad
+    IF EXISTS (
+        SELECT 1 FROM cita 
+        WHERE id_medico = p_id_medico 
+        AND fecha_cita = p_fecha_cita 
+        AND hora_cita = p_hora_cita
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La hora seleccionada ya está ocupada para este médico.';
+    ELSE
     INSERT INTO cita (id_medico, id_paciente, id_estado_cita, id_modalidad, fecha_cita, hora_cita)
     VALUES (p_id_medico, p_id_paciente, p_id_estado_cita, p_id_modalidad, p_fecha_cita, p_hora_cita);
     SELECT LAST_INSERT_ID() AS id_generado;
+    END IF;
 END //
 
 CREATE PROCEDURE actualizar_cita (
@@ -595,12 +606,25 @@ BEGIN
     SELECT * FROM cita WHERE id_paciente = p_id_paciente;
 END //
 
+CREATE PROCEDURE obtener_horas_ocupadas(
+    IN p_id_medico INT,
+    IN p_fecha_cita DATE
+)
+BEGIN
+    SELECT TIME_FORMAT(hora_cita, '%H:%i') AS hora_ocupada
+    FROM cita
+    WHERE id_medico = p_id_medico
+      AND fecha_cita = p_fecha_cita;
+END //
+
 CREATE PROCEDURE obtener_citas_por_medico (
     IN p_id_medico INT
 )
 BEGIN
     SELECT * FROM cita WHERE id_medico = p_id_medico;
 END //
+
+
 
 -- =====================
 -- PORTAFOLIO

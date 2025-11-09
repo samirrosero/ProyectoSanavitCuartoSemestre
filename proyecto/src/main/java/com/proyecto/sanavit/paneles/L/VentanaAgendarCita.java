@@ -1,9 +1,9 @@
 package com.proyecto.sanavit.paneles.L;
 
 import com.proyecto.sanavit.modelo.*;
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.border.Border;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
@@ -12,7 +12,8 @@ import java.util.List;
 public class VentanaAgendarCita extends JFrame {
 
     private JTextField txtPaciente, txtIdentificacion;
-    private JComboBox<String> cmbMedico, cmbEspecialidad, cmbFecha, cmbHora, cmbModalidad;
+    private JComboBox<String> cmbMedico, cmbEspecialidad, cmbHora, cmbModalidad;
+    private JDateChooser dateChooser; // ✅ reemplaza al combo de fechas
     private JButton btnGuardar, btnCancelar, btnVolver;
     private static final int ID_ESTADO_AGENDADA = 1;
 
@@ -26,7 +27,7 @@ public class VentanaAgendarCita extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setUndecorated(false);
 
-        // 🎨 Panel de fondo con degradado y bordes suaves
+        // 🎨 Fondo degradado
         JPanel fondo = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -51,11 +52,6 @@ public class VentanaAgendarCita extends JFrame {
         JPanel panelPaciente = crearPanelBase("Datos del Paciente", fondoPanel);
         panelPaciente.setLayout(new GridLayout(2, 2, 10, 10));
 
-        JLabel lblPaciente = new JLabel("Paciente:");
-        JLabel lblIdentificacion = new JLabel("Identificación:");
-        lblPaciente.setForeground(textoPrincipal);
-        lblIdentificacion.setForeground(textoPrincipal);
-
         txtPaciente = new JTextField((pacienteActual != null ? ((Paciente) pacienteActual).getNombre() : ""));
         txtPaciente.setEditable(false);
         txtPaciente.setBorder(bordeCampo());
@@ -64,9 +60,9 @@ public class VentanaAgendarCita extends JFrame {
         txtIdentificacion.setEditable(false);
         txtIdentificacion.setBorder(bordeCampo());
 
-        panelPaciente.add(lblPaciente);
+        panelPaciente.add(new JLabel("Paciente:"));
         panelPaciente.add(txtPaciente);
-        panelPaciente.add(lblIdentificacion);
+        panelPaciente.add(new JLabel("Identificación:"));
         panelPaciente.add(txtIdentificacion);
 
         // === Panel Cita ===
@@ -75,17 +71,13 @@ public class VentanaAgendarCita extends JFrame {
 
         cmbMedico = new JComboBox<>();
         cmbEspecialidad = new JComboBox<>();
-        cmbFecha = new JComboBox<>(new String[]{
-                "05/01/2025", "06/01/2025", "07/01/2025", "17/02/2025", "09/03/2025",
-                "22/04/2025", "11/05/2025", "28/06/2025", "14/07/2025", "30/08/2025",
-                "19/09/2025", "03/10/2025", "21/11/2025", "07/12/2025"
-        });
+        dateChooser = new JDateChooser(); // ✅ reemplazo del combo de fechas
+        dateChooser.setDateFormatString("dd/MM/yyyy");
         cmbHora = new JComboBox<>();
         cmbModalidad = new JComboBox<>(new String[]{"Presencial", "Virtual"});
 
         estilizarCombo(cmbMedico);
         estilizarCombo(cmbEspecialidad);
-        estilizarCombo(cmbFecha);
         estilizarCombo(cmbHora);
         estilizarCombo(cmbModalidad);
 
@@ -96,7 +88,7 @@ public class VentanaAgendarCita extends JFrame {
         panelCita.add(crearLabel("Médico:", textoPrincipal));
         panelCita.add(cmbMedico);
         panelCita.add(crearLabel("Fecha disponible:", textoPrincipal));
-        panelCita.add(cmbFecha);
+        panelCita.add(dateChooser); // ✅ se muestra el selector de calendario
         panelCita.add(crearLabel("Hora disponible:", textoPrincipal));
         panelCita.add(cmbHora);
         panelCita.add(crearLabel("Modalidad:", textoPrincipal));
@@ -120,7 +112,9 @@ public class VentanaAgendarCita extends JFrame {
         btnVolver.addActionListener(e -> dispose());
         cmbEspecialidad.addActionListener(e -> filtrarMedicosPorEspecialidad());
         cmbMedico.addActionListener(e -> actualizarHorasDisponibles());
-        cmbFecha.addActionListener(e -> actualizarHorasDisponibles());
+        dateChooser.getDateEditor().addPropertyChangeListener(evt -> {
+            if ("date".equals(evt.getPropertyName())) actualizarHorasDisponibles();
+        });
 
         fondo.add(panelPaciente, BorderLayout.NORTH);
         fondo.add(panelCita, BorderLayout.CENTER);
@@ -129,7 +123,7 @@ public class VentanaAgendarCita extends JFrame {
         setVisible(true);
     }
 
-    // === Helpers visuales ===
+    // === Métodos visuales ===
     private JPanel crearPanelBase(String titulo, Color fondo) {
         JPanel panel = new JPanel();
         panel.setBackground(fondo);
@@ -167,45 +161,14 @@ public class VentanaAgendarCita extends JFrame {
         boton.setFocusPainted(false);
         boton.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Bordes redondeados y sombra
-        boton.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-            @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(colorBase.darker());
-                g2.fillRoundRect(2, 4, c.getWidth() - 4, c.getHeight() - 4, 18, 18);
-                g2.setColor(colorBase);
-                g2.fillRoundRect(0, 0, c.getWidth() - 4, c.getHeight() - 6, 18, 18);
-                super.paint(g2, c);
-            }
-        });
-
-        boton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                boton.setBackground(colorBase.brighter());
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                boton.setBackground(colorBase);
-            }
-        });
         return boton;
     }
 
-    // === Cargar médicos ===
+    // === Cargar médicos y especialidades ===
     private void cargarMedicos() {
         List<Medico> medicos = MedicoDao.listarMedicos();
         cmbMedico.removeAllItems();
         cmbEspecialidad.removeAllItems();
-
-        if (medicos.isEmpty()) {
-            cmbMedico.addItem("No hay médicos registrados");
-            return;
-        }
 
         java.util.Set<String> especialidadesUnicas = new java.util.HashSet<>();
         for (Medico m : medicos) {
@@ -229,51 +192,34 @@ public class VentanaAgendarCita extends JFrame {
                 cmbMedico.addItem(m.getNombre());
             }
         }
-
-        if (cmbMedico.getItemCount() == 0) {
-            cmbMedico.addItem("Sin médicos disponibles");
-        }
     }
 
+    // === Actualizar horas según médico y fecha seleccionada ===
     private void actualizarHorasDisponibles() {
-        String medicoNombre = (String) cmbMedico.getSelectedItem();
-        String fechaStr = (String) cmbFecha.getSelectedItem();
-
-        if (medicoNombre == null || fechaStr == null ||
-                medicoNombre.isEmpty() || fechaStr.isEmpty() ||
-                medicoNombre.equals("Sin médicos disponibles")) {
-            return;
-        }
-
         try {
+            String medicoNombre = (String) cmbMedico.getSelectedItem();
+            java.util.Date fechaSeleccionada = dateChooser.getDate(); // ✅
+
+            if (medicoNombre == null || fechaSeleccionada == null) return;
+
             Medico medico = medicoDAO.obtenerPorNombre(medicoNombre);
             if (medico == null) return;
 
-            java.util.Date parsedDate = new SimpleDateFormat("dd/MM/yyyy").parse(fechaStr);
-            java.sql.Date fecha = new java.sql.Date(parsedDate.getTime());
-
-            List<String> horasOcupadas = citaDAO.obtenerHorasOcupadas(medico.getIdMedico(), fecha);
+            java.sql.Date fechaSQL = new java.sql.Date(fechaSeleccionada.getTime());
+            List<String> horasOcupadas = citaDAO.obtenerHorasOcupadas(medico.getIdMedico(), fechaSQL);
 
             cmbHora.removeAllItems();
-
             String[] todasLasHoras = {
                     "06:00", "07:00", "08:00", "09:00", "10:00",
                     "11:00", "12:00", "13:00", "14:00", "15:00",
-                    "16:00", "17:00", "18:00", "19:00", "20:00"
+                    "16:00", "17:00", "18:00"
             };
 
-            for (String hora : todasLasHoras) {
-                if (!horasOcupadas.contains(hora)) {
-                    cmbHora.addItem(hora);
-                }
+            for (String h : todasLasHoras) {
+                if (!horasOcupadas.contains(h)) cmbHora.addItem(h);
             }
 
-            if (cmbHora.getItemCount() == 0) {
-                cmbHora.addItem("Sin horas disponibles");
-                JOptionPane.showMessageDialog(this,
-                        "Este médico no tiene horas disponibles para la fecha seleccionada.",
-                        "Sin disponibilidad", JOptionPane.INFORMATION_MESSAGE);
-            }
+            if (cmbHora.getItemCount() == 0) cmbHora.addItem("Sin horas disponibles");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -285,81 +231,47 @@ public class VentanaAgendarCita extends JFrame {
             String pacienteNombre = txtPaciente.getText().trim();
             String identificacion = txtIdentificacion.getText().trim();
             String medicoNombre = (String) cmbMedico.getSelectedItem();
-            String especialidad = (String) cmbEspecialidad.getSelectedItem();
-            String fechaStr = (String) cmbFecha.getSelectedItem();
             String horaStr = (String) cmbHora.getSelectedItem();
-            String modalidadNombre = (String) cmbModalidad.getSelectedItem();
+            String modalidad = (String) cmbModalidad.getSelectedItem();
+            java.util.Date fechaSeleccionada = dateChooser.getDate();
 
             if (pacienteNombre.isEmpty() || identificacion.isEmpty() ||
-                    medicoNombre == null || especialidad == null ||
-                    fechaStr == null || horaStr == null || modalidadNombre == null ||
-                    horaStr.equals("Sin horas disponibles")) {
-                JOptionPane.showMessageDialog(this,
-                        "Por favor complete todos los campos obligatorios.",
-                        "Advertencia", JOptionPane.WARNING_MESSAGE);
+                    medicoNombre == null || fechaSeleccionada == null ||
+                    horaStr == null || modalidad == null ||
+                    "Sin horas disponibles".equals(horaStr)) {
+                JOptionPane.showMessageDialog(this, "Complete todos los campos.");
                 return;
             }
-
-            java.util.Date parsedDate = new SimpleDateFormat("dd/MM/yyyy").parse(fechaStr);
-            java.sql.Date fecha = new java.sql.Date(parsedDate.getTime());
-            java.sql.Time hora = java.sql.Time.valueOf(horaStr + ":00");
 
             Medico medico = medicoDAO.obtenerPorNombre(medicoNombre);
-            if (medico == null) {
-                JOptionPane.showMessageDialog(this, "Médico no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
             Paciente paciente = PacienteDao.obtenerPorIdentificacion(identificacion);
-            if (paciente == null) {
-                JOptionPane.showMessageDialog(this, "Paciente no encontrado.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            java.sql.Date fecha = new java.sql.Date(fechaSeleccionada.getTime());
+            java.sql.Time hora = java.sql.Time.valueOf(horaStr + ":00");
+            int idModalidad = modalidad.equalsIgnoreCase("Presencial") ? 1 : 2;
 
-            int idModalidad = obtenerIdModalidadPorNombre(modalidadNombre);
+            Cita nueva = new Cita(0, medico.getIdMedico(), paciente.getIdPaciente(),
+                    ID_ESTADO_AGENDADA, idModalidad, fecha, hora);
 
-            Cita nuevaCita = new Cita();
-            nuevaCita.setIdPaciente(paciente.getIdPaciente());
-            nuevaCita.setIdMedico(medico.getIdMedico());
-            nuevaCita.setIdEstadoCita(ID_ESTADO_AGENDADA);
-            nuevaCita.setFechaCita(fecha);
-            nuevaCita.setHoraCita(hora);
-            nuevaCita.setIdModalidad(idModalidad);
+            if (citaDAO.insertarCita(nueva))
+                JOptionPane.showMessageDialog(this, "✅ Cita agendada correctamente.");
+            else
+                JOptionPane.showMessageDialog(this, "❌ Error al guardar la cita.");
 
-            boolean exito = citaDAO.insertarCita(nuevaCita);
-
-            if (exito) {
-                JOptionPane.showMessageDialog(this, "Cita agendada correctamente ✅");
-                limpiarCampos();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al guardar la cita ❌");
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
-    }
-
-    private int obtenerIdModalidadPorNombre(String modalidadNombre) {
-        return switch (modalidadNombre.toLowerCase()) {
-            case "presencial" -> 1;
-            case "virtual" -> 2;
-            default -> 0;
-        };
     }
 
     private void limpiarCampos() {
         cmbEspecialidad.setSelectedIndex(-1);
         cmbMedico.removeAllItems();
-        cmbFecha.setSelectedIndex(-1);
+        dateChooser.setDate(null); // ✅ limpiar calendario
         cmbHora.removeAllItems();
         cmbModalidad.setSelectedIndex(-1);
     }
 
     public static void main(String[] args) {
-        Object pacienteActual = null;
-        new VentanaAgendarCita(pacienteActual);
+        new VentanaAgendarCita(null);
     }
 }

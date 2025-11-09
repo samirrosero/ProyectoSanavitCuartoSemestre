@@ -113,7 +113,7 @@ public class VentanaMedico extends JFrame {
         panelCentral.add(infoPanel, BorderLayout.NORTH);
 
         // === TABLA CITAS ===
-        modeloTabla = new DefaultTableModel(new String[]{"ID Cita", "Paciente", "Fecha", "Hora", "Modalidad"}, 0);
+        modeloTabla = new DefaultTableModel(new String[] { "ID Cita", "Paciente", "Fecha", "Hora", "Modalidad" }, 0);
         tablaCita = new JTable(modeloTabla);
         tablaCita.setRowHeight(28);
         tablaCita.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -129,10 +129,9 @@ public class VentanaMedico extends JFrame {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 20));
         panelBotones.setBackground(new Color(244, 247, 250));
 
-btnIniciarAtencion = crearBoton("Iniciar Atención", new Color(48, 184, 86), new Color(35, 155, 86));
-btnFinalizarAtencion = crearBoton("Finalizar Atención", new Color(48, 184, 86), new Color(29, 131, 72));
-btnCerrarSesion = crearBoton("Cerrar Sesión", new Color(48, 184, 86), new Color(192, 57, 43));
-
+        btnIniciarAtencion = crearBoton("Iniciar Atención", new Color(48, 184, 86), new Color(35, 155, 86));
+        btnFinalizarAtencion = crearBoton("Finalizar Atención", new Color(48, 184, 86), new Color(29, 131, 72));
+        btnCerrarSesion = crearBoton("Cerrar Sesión", new Color(48, 184, 86), new Color(192, 57, 43));
 
         btnFinalizarAtencion.setEnabled(false);
         panelBotones.add(btnIniciarAtencion);
@@ -154,29 +153,28 @@ btnCerrarSesion = crearBoton("Cerrar Sesión", new Color(48, 184, 86), new Color
 
     // ------------------- MÉTODOS -------------------
 
-private JButton crearBoton(String texto, Color colorBase, Color colorHover) {
-    JButton btn = new JButton(texto);
-    btn.setBackground(colorBase);
-    btn.setForeground(Color.WHITE);
-    btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    btn.setFocusPainted(false);
-    btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+    private JButton crearBoton(String texto, Color colorBase, Color colorHover) {
+        JButton btn = new JButton(texto);
+        btn.setBackground(colorBase);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 
-    // 🔹 Efecto hover individual
-    btn.addMouseListener(new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) {
-            btn.setBackground(colorHover);
-        }
+        // 🔹 Efecto hover individual
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(colorHover);
+            }
 
-        public void mouseExited(MouseEvent e) {
-            btn.setBackground(colorBase);
-        }
-    });
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(colorBase);
+            }
+        });
 
-    return btn;
-}
-
+        return btn;
+    }
 
     private void setFotoPerfil(String ruta) {
         try {
@@ -196,23 +194,26 @@ private JButton crearBoton(String texto, Color colorBase, Color colorHover) {
         }
     }
 
-    private void cargarCitasDelMedico() {
-        modeloTabla.setRowCount(0);
-        CitaDao citaDao = new CitaDao();
-        PacienteDao pacienteDao = new PacienteDao();
-        List<Cita> citas = citaDao.obtenerCitaPorMedico(medicoActual.getIdMedico());
+private void cargarCitasDelMedico() {
+    modeloTabla.setRowCount(0);
+    CitaDao citaDao = new CitaDao();
+    PacienteDao pacienteDao = new PacienteDao();
 
-        for (Cita c : citas) {
-            Paciente p = pacienteDao.obtenerPacientePorId(c.getIdPaciente());
-            modeloTabla.addRow(new Object[]{
-                c.getIdCita(),
-                (p != null ? p.getNombre() : "Desconocido"),
-                c.getFechaCita(),
-                c.getHoraCita(),
-                c.getIdModalidad() == 1 ? "Presencial" : "Virtual"
-            });
-        }
+    // 🔹 Solo mostrar citas Pendientes (1) y Confirmadas (2)
+    List<Cita> citas = citaDao.obtenerCitasPorMedicoYEstado(medicoActual.getIdMedico(), 1, 2);
+
+    for (Cita c : citas) {
+        Paciente p = pacienteDao.obtenerPacientePorId(c.getIdPaciente());
+        modeloTabla.addRow(new Object[]{
+            c.getIdCita(),
+            (p != null ? p.getNombre() : "Desconocido"),
+            c.getFechaCita(),
+            c.getHoraCita(),
+            c.getIdModalidad() == 1 ? "Presencial" : "Virtual"
+        });
     }
+}
+
 
     private void iniciarAtencion() {
         int fila = tablaCita.getSelectedRow();
@@ -265,11 +266,25 @@ private JButton crearBoton(String texto, Color colorBase, Color colorHover) {
         boolean ok = ejecDao.updateEjecucion(ejecucionActual);
 
         if (ok) {
-            JOptionPane.showMessageDialog(this, "Atención finalizada.\nDuración: " + duracionMinutos + " minutos.");
+            // 🔹 Cambiar estado de la cita a “Finalizada”
+            CitaDao citaDao = new CitaDao();
+            boolean estadoOk = citaDao.actualizarEstadoCita(ejecucionActual.getIdCita(), 4); // 4 = Finalizada
+
+            if (estadoOk) {
+                JOptionPane.showMessageDialog(this,
+                        "✅ Atención finalizada correctamente.\nDuración: " + duracionMinutos
+                                + " minutos.\nEstado: Finalizada.");
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "⚠️ Atención finalizada, pero no se pudo actualizar el estado de la cita.");
+            }
+
             btnIniciarAtencion.setEnabled(true);
             btnFinalizarAtencion.setEnabled(false);
+            cargarCitasDelMedico(); // 🔄 Refrescar la lista
         } else {
             JOptionPane.showMessageDialog(this, "Error al finalizar atención.");
         }
     }
+
 }
