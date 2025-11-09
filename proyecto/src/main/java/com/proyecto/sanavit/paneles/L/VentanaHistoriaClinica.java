@@ -20,22 +20,28 @@ public class VentanaHistoriaClinica extends JFrame {
         this.cita = cita;
         this.ejecucion = ejecucion;
 
-        setTitle("Historia Clínica del Paciente: " + paciente.getNombre());
-        setSize(750, 600);
+        setTitle("Historia Clínica - " + paciente.getNombre());
+        setSize(780, 620);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        getContentPane().setBackground(new Color(71, 171, 53)); 
 
         // === PANEL SUPERIOR ===
-        JLabel lblTitulo = new JLabel("Registro de Historia Clínica", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 20));
-        lblTitulo.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        JLabel lblTitulo = new JLabel("🩺 Registro de Historia Clínica", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblTitulo.setOpaque(true);
+        lblTitulo.setBackground(new Color(76, 163, 60));
+        lblTitulo.setForeground(Color.WHITE);
+        lblTitulo.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
         add(lblTitulo, BorderLayout.NORTH);
 
         // === PANEL CENTRAL ===
-        JPanel panelCampos = new JPanel(new GridLayout(8, 2, 10, 10));
-        panelCampos.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        JPanel panelCampos = new JPanel(new GridLayout(8, 2, 12, 12));
+        panelCampos.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        panelCampos.setBackground(new Color(198, 232, 197));
 
+        // Campos
         panelCampos.add(new JLabel("Motivo de Consulta:"));
         txtMotivo = new JTextField();
         panelCampos.add(txtMotivo);
@@ -67,12 +73,23 @@ public class VentanaHistoriaClinica extends JFrame {
         add(panelCampos, BorderLayout.CENTER);
 
         // === PANEL DE BOTONES ===
-        JPanel panelBotones = new JPanel(new FlowLayout());
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        panelBotones.setBackground(new Color(250, 250, 255));
+
         btnGuardar = new JButton("Guardar Historia");
         btnVerReceta = new JButton("Crear Receta Médica");
         btnCancelar = new JButton("Cancelar");
 
+        // Desactivar botón de receta hasta guardar
         btnVerReceta.setEnabled(false);
+
+        // Colores principales
+        Color verde = new Color(39, 174, 96);
+
+        // Aplicar estilos base
+        configurarBoton(btnGuardar, verde);
+        configurarBoton(btnVerReceta, verde);
+        configurarBoton(btnCancelar, verde);
 
         panelBotones.add(btnGuardar);
         panelBotones.add(btnVerReceta);
@@ -80,10 +97,8 @@ public class VentanaHistoriaClinica extends JFrame {
 
         add(panelBotones, BorderLayout.SOUTH);
 
-        // === ACCIÓN GUARDAR HISTORIA ===
+        // === ACCIONES ===
         btnGuardar.addActionListener(e -> guardarHistoriaClinica());
-
-        // === ACCIÓN VER / CREAR RECETA MÉDICA ===
         btnVerReceta.addActionListener(e -> {
             if (historiaGuardada != null) {
                 new VentanaRecetaMedica(historiaGuardada);
@@ -91,13 +106,14 @@ public class VentanaHistoriaClinica extends JFrame {
                 JOptionPane.showMessageDialog(this, "Primero debe guardar la historia clínica.");
             }
         });
-
-        // === ACCIÓN CANCELAR ===
         btnCancelar.addActionListener(e -> dispose());
 
         setVisible(true);
     }
 
+    // ============================================================
+    // MÉTODO PARA GUARDAR LA HISTORIA CLÍNICA
+    // ============================================================
     private void guardarHistoriaClinica() {
         try {
             HistoriaClinica hc = new HistoriaClinica();
@@ -115,13 +131,36 @@ public class VentanaHistoriaClinica extends JFrame {
 
             if (exito) {
                 historiaGuardada = hc;
-                JOptionPane.showMessageDialog(this, "Historia clínica guardada correctamente ✅");
+                JOptionPane.showMessageDialog(this, "✅ Historia clínica guardada correctamente.");
                 btnVerReceta.setEnabled(true);
             } else {
-                JOptionPane.showMessageDialog(this, "Error al guardar la historia clínica ❌");
+                JOptionPane.showMessageDialog(this, "❌ Error al guardar la historia clínica.");
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error inesperado: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "⚠️ Error inesperado: " + ex.getMessage());
         }
+    }
+
+    // ============================================================
+    // MÉTODO PARA DAR ESTILO Y HOVER A LOS BOTONES
+    // ============================================================
+    private void configurarBoton(JButton boton, Color colorBase) {
+        boton.setFocusPainted(false);
+        boton.setBackground(colorBase);
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        boton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        Color colorHover = colorBase.darker();
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                boton.setBackground(colorHover);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                boton.setBackground(colorBase);
+            }
+        });
     }
 }

@@ -3,6 +3,7 @@ package com.proyecto.sanavit.paneles.L;
 import com.proyecto.sanavit.modelo.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class ModalRegistrarPaciente extends JDialog {
 
@@ -99,8 +100,11 @@ public class ModalRegistrarPaciente extends JDialog {
 
         // === BOTONES ===
         JPanel panelBotones = new JPanel(new FlowLayout());
-        btnGuardar = crearBoton("Guardar Paciente", new Color(46, 204, 113));
-        btnCancelar = crearBoton("Cancelar", new Color(231, 76, 60));
+        panelBotones.setOpaque(false); // fondo transparente para mantener el degradado
+
+        btnGuardar = crearBotonConHover("Guardar Paciente", new Color(31, 148, 78), new Color(39, 174, 96));
+        btnCancelar = crearBotonConHover("Cancelar", new Color(31, 148, 78), new Color(192, 57, 43));
+
         panelBotones.add(btnGuardar);
         panelBotones.add(btnCancelar);
 
@@ -136,13 +140,29 @@ public class ModalRegistrarPaciente extends JDialog {
         combo.setBorder(BorderFactory.createLineBorder(new Color(130, 200, 130)));
     }
 
-    private JButton crearBoton(String texto, Color color) {
+    // === BOTONES CON HOVER ===
+    private JButton crearBotonConHover(String texto, Color colorBase, Color colorHover) {
         JButton btn = new JButton(texto);
-        btn.setBackground(color);
+        btn.setBackground(colorBase);
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // efecto hover
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(colorHover);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(colorBase);
+            }
+        });
+
         return btn;
     }
 

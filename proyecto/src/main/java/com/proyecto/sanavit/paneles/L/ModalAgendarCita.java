@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.Date;
 import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,14 +13,14 @@ import java.util.stream.Collectors;
 public class ModalAgendarCita extends JDialog {
 
     private JComboBox<String> cmbPaciente, cmbEspecialidad, cmbMedico, cmbHora, cmbModalidad;
-    private JDateChooser dateChooser; // ✅ Nuevo selector de fecha
+    private JDateChooser dateChooser;
     private JButton btnGuardar, btnCancelar;
 
     private final CitaDao citaDAO = new CitaDao();
     private final PacienteDao pacienteDAO = new PacienteDao();
     private final MedicoDao medicoDAO = new MedicoDao();
 
-    private List<Medico> listaMedicos; // todos los médicos cargados inicialmente
+    private List<Medico> listaMedicos;
 
     public ModalAgendarCita(JFrame parent) {
         super(parent, "Agendar Cita (Gestor)", true);
@@ -29,48 +28,87 @@ public class ModalAgendarCita extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setUndecorated(false);
 
-        JPanel form = new JPanel(new GridLayout(7, 2, 8, 8));
-        form.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        // 🎨 COLORES BASE
+        Color fondoPrincipal = new Color(209, 232, 218);
+        Color negroSanavit = new Color(12, 13, 13);
+        Color verdeSanavit = new Color(46, 204, 113);
+        Color grisTexto = new Color(12, 13, 13);
+
+        // 🔹 PANEL PRINCIPAL
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBackground(fondoPrincipal);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        add(contentPanel);
+
+        // 🔹 TÍTULO
+        JLabel lblTitulo = new JLabel("Agendar nueva cita", JLabel.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI Semibold", Font.BOLD, 20));
+        lblTitulo.setForeground(negroSanavit);
+        contentPanel.add(lblTitulo, BorderLayout.NORTH);
+
+        // 🔹 FORMULARIO
+        JPanel form = new JPanel(new GridLayout(7, 2, 10, 14));
+        form.setBackground(fondoPrincipal);
+
+        JLabel[] labels = {
+            new JLabel("Paciente:"), new JLabel("Especialidad:"), new JLabel("Médico:"),
+            new JLabel("Fecha:"), new JLabel("Hora disponible:"), new JLabel("Modalidad:")
+        };
+
+        for (JLabel label : labels) {
+            label.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+            label.setForeground(grisTexto);
+        }
 
         cmbPaciente = new JComboBox<>();
         cmbEspecialidad = new JComboBox<>();
         cmbMedico = new JComboBox<>();
         cmbHora = new JComboBox<>();
         cmbModalidad = new JComboBox<>(new String[]{"Presencial", "Virtual"});
-        dateChooser = new JDateChooser(); // ✅ reemplazo de cmbFecha
+        dateChooser = new JDateChooser();
         dateChooser.setDateFormatString("dd/MM/yyyy");
-        dateChooser.setMinSelectableDate(new java.util.Date()); // no fechas pasadas
+        dateChooser.setMinSelectableDate(new java.util.Date());
 
-        // Cargar datos iniciales
+        // Estilo combos
+        JComboBox<?>[] combos = {cmbPaciente, cmbEspecialidad, cmbMedico, cmbHora, cmbModalidad};
+        for (JComboBox<?> combo : combos) {
+            combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            combo.setBackground(Color.WHITE);
+            combo.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        }
+
+        // Cargar datos
         cargarPacientes();
         cargarEspecialidades();
 
-        // --- Campos ---
-        form.add(new JLabel("Paciente:")); form.add(cmbPaciente);
-        form.add(new JLabel("Especialidad:")); form.add(cmbEspecialidad);
-        form.add(new JLabel("Médico:")); form.add(cmbMedico);
-        form.add(new JLabel("Fecha:")); form.add(dateChooser); // ✅ cambiado
-        form.add(new JLabel("Hora disponible:")); form.add(cmbHora);
-        form.add(new JLabel("Modalidad:")); form.add(cmbModalidad);
+        // Añadir al formulario
+        form.add(labels[0]); form.add(cmbPaciente);
+        form.add(labels[1]); form.add(cmbEspecialidad);
+        form.add(labels[2]); form.add(cmbMedico);
+        form.add(labels[3]); form.add(dateChooser);
+        form.add(labels[4]); form.add(cmbHora);
+        form.add(labels[5]); form.add(cmbModalidad);
 
-        add(form, BorderLayout.CENTER);
+        contentPanel.add(form, BorderLayout.CENTER);
 
-        // === BOTONES ===
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        // 🔹 BOTONES
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        footer.setBackground(fondoPrincipal);
+
         btnGuardar = new JButton("Guardar");
         btnCancelar = new JButton("Cancelar");
 
-        btnGuardar.setBackground(new Color(46, 204, 113));
-        btnGuardar.setForeground(Color.WHITE);
-        btnCancelar.setBackground(new Color(231, 76, 60));
-        btnCancelar.setForeground(Color.WHITE);
+        estilizarBoton(btnGuardar, verdeSanavit, Color.WHITE);
+        estilizarBoton(btnCancelar, verdeSanavit, Color.WHITE);
 
         footer.add(btnGuardar);
         footer.add(btnCancelar);
-        add(footer, BorderLayout.SOUTH);
 
-        // === EVENTOS ===
+        contentPanel.add(footer, BorderLayout.SOUTH);
+
+        // 🔹 EVENTOS
         cmbEspecialidad.addActionListener(e -> actualizarMedicosPorEspecialidad());
         cmbMedico.addActionListener(e -> actualizarHorasDisponibles());
         dateChooser.getDateEditor().addPropertyChangeListener(evt -> {
@@ -82,6 +120,32 @@ public class ModalAgendarCita extends JDialog {
         setVisible(true);
     }
 
+    // 🎨 Método para dar estilo y hover a los botones
+    private void estilizarBoton(JButton boton, Color fondo, Color texto) {
+        boton.setBackground(fondo);
+        boton.setForeground(texto);
+        boton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 15));
+        boton.setFocusPainted(false);
+        boton.setBorder(BorderFactory.createEmptyBorder(8, 25, 8, 25));
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        boton.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
+        boton.setOpaque(true);
+        boton.setPreferredSize(new Dimension(120, 38));
+
+        // Efecto hover
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                boton.setBackground(fondo.darker());
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                boton.setBackground(fondo);
+            }
+        });
+    }
+
     // 🔹 Cargar pacientes
     private void cargarPacientes() {
         cmbPaciente.removeAllItems();
@@ -89,37 +153,31 @@ public class ModalAgendarCita extends JDialog {
         for (Paciente p : list) cmbPaciente.addItem(p.getNombre());
     }
 
-    // 🔹 Cargar especialidades únicas
+    // 🔹 Cargar especialidades
     private void cargarEspecialidades() {
         listaMedicos = MedicoDao.listarMedicos();
         Set<String> especialidades = listaMedicos.stream()
                 .map(Medico::getEspecialidad)
                 .collect(Collectors.toSet());
-
         cmbEspecialidad.removeAllItems();
-        for (String esp : especialidades) {
-            cmbEspecialidad.addItem(esp);
-        }
+        for (String esp : especialidades) cmbEspecialidad.addItem(esp);
     }
 
-    // 🔹 Mostrar médicos según la especialidad seleccionada
+    // 🔹 Filtrar médicos
     private void actualizarMedicosPorEspecialidad() {
         cmbMedico.removeAllItems();
-        String especialidadSeleccionada = (String) cmbEspecialidad.getSelectedItem();
-        if (especialidadSeleccionada == null) return;
+        String especialidad = (String) cmbEspecialidad.getSelectedItem();
+        if (especialidad == null) return;
 
         List<Medico> filtrados = listaMedicos.stream()
-                .filter(m -> m.getEspecialidad().equalsIgnoreCase(especialidadSeleccionada))
+                .filter(m -> m.getEspecialidad().equalsIgnoreCase(especialidad))
                 .toList();
 
-        for (Medico m : filtrados) {
-            cmbMedico.addItem(m.getNombre());
-        }
-
-        cmbHora.removeAllItems(); // limpiar horarios previos
+        for (Medico m : filtrados) cmbMedico.addItem(m.getNombre());
+        cmbHora.removeAllItems();
     }
 
-    // 🔹 Cargar horas disponibles según médico y fecha
+    // 🔹 Horas disponibles
     private void actualizarHorasDisponibles() {
         cmbHora.removeAllItems();
         try {

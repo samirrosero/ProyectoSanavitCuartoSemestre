@@ -35,7 +35,7 @@ public class VentanaPaciente extends JFrame {
 
         // ------------------- PANEL SUPERIOR -------------------
         JPanel panelSuperior = new JPanel(new BorderLayout());
-        panelSuperior.setBackground(new Color(0, 123, 255)); // Azul principal
+        panelSuperior.setBackground(new Color(29, 125, 50)); // Azul principal
         panelSuperior.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         // Bienvenida
@@ -76,7 +76,7 @@ public class VentanaPaciente extends JFrame {
 
         // ------------------- PANEL CENTRAL -------------------
         JPanel panelCentral = new JPanel();
-        panelCentral.setBackground(new Color(244, 247, 250));
+        panelCentral.setBackground(new Color(128, 191, 141));
         panelCentral.setLayout(new GridLayout(2, 4, 25, 25));
         panelCentral.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
@@ -180,7 +180,7 @@ public class VentanaPaciente extends JFrame {
     // ------------------- BOTONES -------------------
     private JButton crearBoton(String texto) {
         JButton btn = new JButton(texto);
-        btn.setBackground(new Color(0, 123, 255));
+        btn.setBackground(new Color(65, 107, 74));
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setFocusPainted(false);
@@ -190,11 +190,11 @@ public class VentanaPaciente extends JFrame {
         // Hover
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                btn.setBackground(new Color(0, 86, 179));
+                btn.setBackground(new Color(68, 128, 80));
             }
 
             public void mouseExited(MouseEvent e) {
-                btn.setBackground(new Color(0, 123, 255));
+                btn.setBackground(new Color(70, 179, 50));
             }
         });
         return btn;
