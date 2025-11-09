@@ -67,9 +67,9 @@ public class VentanaAdministrador extends JFrame {
         panelCentral.add(new PanelUsuarios(), "usuarios");
         panelCentral.add(new PanelMedicos(), "medicos");
         panelCentral.add(new PanelPacientes(), "pacientes");
-        // // panelCentral.add(new PanelCitas(), "citas");
-        // // panelCentral.add(new PanelHistoriasClinicas(), "historias");
-        // // panelCentral.add(new PanelReportes(), "reportes");
+        panelCentral.add(new PanelCitas(), "citas");
+        panelCentral.add(new PanelHistoriaClinica(), "historias");
+        panelCentral.add(new PanelReportes(), "reportes");
 
         add(panelCentral, BorderLayout.CENTER);
 

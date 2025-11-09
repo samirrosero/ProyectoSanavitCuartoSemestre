@@ -230,6 +230,6 @@ public class PanelUsuarios extends JPanel {
     }
 
     public static void main(String[] args) {
-        new VentanaCRUDUsuario();
+        new PanelUsuarios();
     }
 }
