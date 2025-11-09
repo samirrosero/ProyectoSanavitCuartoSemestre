@@ -14,6 +14,7 @@ public class VentanaPaciente extends JFrame {
 
     private JLabel lblFotoPerfil, lblBienvenida;
     private JButton btnAgendarCita, btnVerHistoriaClinica, btnVerCitas, btnCerrarSesion;
+    private BufferedImage imagenPerfil;
 
     public VentanaPaciente(Usuario usuarioActual) {
         setTitle("Panel del Paciente - Sanavit");
@@ -21,7 +22,7 @@ public class VentanaPaciente extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(244, 247, 250)); // Fondo general
+        getContentPane().setBackground(new Color(244, 247, 250));
 
         // Obtener información del paciente
         PacienteDao pacienteDAO = new PacienteDao();
@@ -35,27 +36,57 @@ public class VentanaPaciente extends JFrame {
 
         // ------------------- PANEL SUPERIOR -------------------
         JPanel panelSuperior = new JPanel(new BorderLayout());
-        panelSuperior.setBackground(new Color(29, 125, 50)); // Azul principal
+        panelSuperior.setBackground(new Color(29, 125, 50));
         panelSuperior.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // Bienvenida
+        // Texto de bienvenida
         lblBienvenida = new JLabel("<html><span style='font-size:18px;'>Bienvenido(a)</span><br>"
                 + "<b style='font-size:24px;'>" + (pacienteActual != null ? pacienteActual.getNombre() : "") + "</b></html>");
         lblBienvenida.setForeground(Color.WHITE);
         lblBienvenida.setVerticalAlignment(SwingConstants.CENTER);
-
         panelSuperior.add(lblBienvenida, BorderLayout.WEST);
 
-        // Foto de perfil (derecha, circular)
-        lblFotoPerfil = new JLabel();
+        // ------------------- FOTO DE PERFIL CIRCULAR -------------------
+        lblFotoPerfil = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (imagenPerfil != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                    int size = Math.min(getWidth(), getHeight());
+                    int x = (getWidth() - size) / 2;
+                    int y = (getHeight() - size) / 2;
+
+                    Shape clip = new Ellipse2D.Double(x, y, size, size);
+
+                    // Sombra suave
+                    g2.setColor(new Color(0, 0, 0, 60));
+                    g2.fill(new Ellipse2D.Double(x + 3, y + 3, size, size));
+
+                    // Imagen circular
+                    g2.setClip(clip);
+                    g2.drawImage(imagenPerfil, x, y, size, size, null);
+
+                    // Borde circular blanco
+                    g2.setClip(null);
+                    g2.setStroke(new BasicStroke(4f));
+                    g2.setColor(Color.WHITE);
+                    g2.draw(clip);
+
+                    g2.dispose();
+                }
+            }
+        };
         lblFotoPerfil.setPreferredSize(new Dimension(120, 120));
         lblFotoPerfil.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblFotoPerfil.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
         lblFotoPerfil.setOpaque(false);
 
-        // Cargar foto inicial (opcional)
-        setFotoPerfil("C:\\ruta\\a\\foto_perfil.png");
+        // Cargar imagen inicial (puedes dejarla vacía o con una predeterminada)
+        setFotoPerfil("C:\\Users\\samir\\Downloads\\usuario.png");
 
+        // Evento para cambiar imagen
         lblFotoPerfil.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -119,7 +150,7 @@ public class VentanaPaciente extends JFrame {
         setVisible(true);
     }
 
-    // ------------------- TARJETAS CON SOMBRA -------------------
+    // ------------------- TARJETAS -------------------
     private JPanel crearCard(String titulo, String valor) {
         JPanel card = new JPanel() {
             @Override
@@ -127,7 +158,7 @@ public class VentanaPaciente extends JFrame {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Sombra suave
+                // Sombra
                 g2.setColor(new Color(0, 0, 0, 20));
                 g2.fillRoundRect(4, 4, getWidth() - 4, getHeight() - 4, 18, 18);
 
@@ -154,24 +185,11 @@ public class VentanaPaciente extends JFrame {
         return card;
     }
 
-    // ------------------- FOTO CIRCULAR CON CORRECCIÓN -------------------
+    // ------------------- CARGAR FOTO -------------------
     private void setFotoPerfil(String ruta) {
         try {
-            BufferedImage original = ImageIO.read(new File(ruta));
-            int size = Math.min(original.getWidth(), original.getHeight());
-
-            // Crear imagen circular
-            BufferedImage circular = new BufferedImage(120, 120, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = circular.createGraphics();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Shape clip = new Ellipse2D.Float(0, 0, 120, 120);
-            g2.setClip(clip);
-            g2.drawImage(original, 0, 0, 120, 120, null);
-            g2.dispose();
-
-            lblFotoPerfil.setIcon(new ImageIcon(circular));
-            lblFotoPerfil.repaint(); // Forzar repintado
+            imagenPerfil = ImageIO.read(new File(ruta));
+            lblFotoPerfil.repaint();
         } catch (IOException e) {
             System.err.println("Error al cargar la imagen: " + e.getMessage());
         }
@@ -194,7 +212,7 @@ public class VentanaPaciente extends JFrame {
             }
 
             public void mouseExited(MouseEvent e) {
-                btn.setBackground(new Color(70, 179, 50));
+                btn.setBackground(new Color(65, 107, 74));
             }
         });
         return btn;

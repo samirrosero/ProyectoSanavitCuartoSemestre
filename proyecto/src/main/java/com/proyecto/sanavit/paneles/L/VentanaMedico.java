@@ -21,6 +21,7 @@ public class VentanaMedico extends JFrame {
     private JButton btnIniciarAtencion, btnFinalizarAtencion, btnCerrarSesion;
     private JTable tablaCita;
     private DefaultTableModel modeloTabla;
+    private BufferedImage imagenPerfil;
 
     private Medico medicoActual;
     private EjecucionCita ejecucionActual;
@@ -49,12 +50,45 @@ public class VentanaMedico extends JFrame {
         lblBienvenida.setForeground(Color.WHITE);
         header.add(lblBienvenida, BorderLayout.WEST);
 
-        // === FOTO PERFIL ===
-        lblFotoPerfil = new JLabel();
+        // === FOTO PERFIL CIRCULAR CON SOMBRA ===
+        lblFotoPerfil = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (imagenPerfil != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                    int size = Math.min(getWidth(), getHeight());
+                    int x = (getWidth() - size) / 2;
+                    int y = (getHeight() - size) / 2;
+
+                    Shape clip = new Ellipse2D.Double(x, y, size, size);
+
+                    // 🔹 Sombra suave
+                    g2.setColor(new Color(0, 0, 0, 60));
+                    g2.fill(new Ellipse2D.Double(x + 3, y + 3, size, size));
+
+                    // 🔹 Imagen circular
+                    g2.setClip(clip);
+                    g2.drawImage(imagenPerfil, x, y, size, size, null);
+
+                    // 🔹 Borde blanco circular
+                    g2.setClip(null);
+                    g2.setStroke(new BasicStroke(4f));
+                    g2.setColor(Color.WHITE);
+                    g2.draw(clip);
+
+                    g2.dispose();
+                }
+            }
+        };
         lblFotoPerfil.setPreferredSize(new Dimension(120, 120));
         lblFotoPerfil.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblFotoPerfil.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3));
-        setFotoPerfil("C:\\ruta\\a\\foto_medico.png"); // Cambia según ruta
+        lblFotoPerfil.setOpaque(false);
+
+        // Cargar imagen inicial
+        setFotoPerfil("C:\\Users\\samir\\Downloads\\usuario.png");
 
         lblFotoPerfil.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -113,7 +147,7 @@ public class VentanaMedico extends JFrame {
         panelCentral.add(infoPanel, BorderLayout.NORTH);
 
         // === TABLA CITAS ===
-        modeloTabla = new DefaultTableModel(new String[] { "ID Cita", "Paciente", "Fecha", "Hora", "Modalidad" }, 0);
+        modeloTabla = new DefaultTableModel(new String[]{"ID Cita", "Paciente", "Fecha", "Hora", "Modalidad"}, 0);
         tablaCita = new JTable(modeloTabla);
         tablaCita.setRowHeight(28);
         tablaCita.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -162,7 +196,6 @@ public class VentanaMedico extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 
-        // 🔹 Efecto hover individual
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(colorHover);
@@ -172,48 +205,35 @@ public class VentanaMedico extends JFrame {
                 btn.setBackground(colorBase);
             }
         });
-
         return btn;
     }
 
     private void setFotoPerfil(String ruta) {
         try {
-            BufferedImage original = ImageIO.read(new File(ruta));
-            int size = Math.min(original.getWidth(), original.getHeight());
-            BufferedImage circular = new BufferedImage(120, 120, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = circular.createGraphics();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            Shape clip = new Ellipse2D.Float(0, 0, 120, 120);
-            g2.setClip(clip);
-            g2.drawImage(original, 0, 0, 120, 120, null);
-            g2.dispose();
-            lblFotoPerfil.setIcon(new ImageIcon(circular));
+            imagenPerfil = ImageIO.read(new File(ruta));
             lblFotoPerfil.repaint();
         } catch (IOException e) {
             System.err.println("Error al cargar imagen: " + e.getMessage());
         }
     }
 
-private void cargarCitasDelMedico() {
-    modeloTabla.setRowCount(0);
-    CitaDao citaDao = new CitaDao();
-    PacienteDao pacienteDao = new PacienteDao();
+    private void cargarCitasDelMedico() {
+        modeloTabla.setRowCount(0);
+        CitaDao citaDao = new CitaDao();
+        PacienteDao pacienteDao = new PacienteDao();
+        List<Cita> citas = citaDao.obtenerCitasPorMedicoYEstado(medicoActual.getIdMedico(), 1, 2);
 
-    // 🔹 Solo mostrar citas Pendientes (1) y Confirmadas (2)
-    List<Cita> citas = citaDao.obtenerCitasPorMedicoYEstado(medicoActual.getIdMedico(), 1, 2);
-
-    for (Cita c : citas) {
-        Paciente p = pacienteDao.obtenerPacientePorId(c.getIdPaciente());
-        modeloTabla.addRow(new Object[]{
-            c.getIdCita(),
-            (p != null ? p.getNombre() : "Desconocido"),
-            c.getFechaCita(),
-            c.getHoraCita(),
-            c.getIdModalidad() == 1 ? "Presencial" : "Virtual"
-        });
+        for (Cita c : citas) {
+            Paciente p = pacienteDao.obtenerPacientePorId(c.getIdPaciente());
+            modeloTabla.addRow(new Object[]{
+                    c.getIdCita(),
+                    (p != null ? p.getNombre() : "Desconocido"),
+                    c.getFechaCita(),
+                    c.getHoraCita(),
+                    c.getIdModalidad() == 1 ? "Presencial" : "Virtual"
+            });
+        }
     }
-}
-
 
     private void iniciarAtencion() {
         int fila = tablaCita.getSelectedRow();
@@ -266,7 +286,6 @@ private void cargarCitasDelMedico() {
         boolean ok = ejecDao.updateEjecucion(ejecucionActual);
 
         if (ok) {
-            // 🔹 Cambiar estado de la cita a “Finalizada”
             CitaDao citaDao = new CitaDao();
             boolean estadoOk = citaDao.actualizarEstadoCita(ejecucionActual.getIdCita(), 4); // 4 = Finalizada
 
@@ -281,10 +300,9 @@ private void cargarCitasDelMedico() {
 
             btnIniciarAtencion.setEnabled(true);
             btnFinalizarAtencion.setEnabled(false);
-            cargarCitasDelMedico(); // 🔄 Refrescar la lista
+            cargarCitasDelMedico();
         } else {
             JOptionPane.showMessageDialog(this, "Error al finalizar atención.");
         }
     }
-
 }
