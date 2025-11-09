@@ -27,19 +27,33 @@ public class VentanaGestorCitas extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // === ENCABEZADO ===
+        // ===== ENCABEZADO =====
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(78, 207, 78));
-        JLabel lblTitulo = new JLabel("Bienvenido, " + usuarioGestor.getNombreUsuario() + " (Gestor de Citas)", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        header.setBackground(new Color(76, 175, 80)); // Verde Sanavit
+        JLabel lblTitulo = new JLabel("👩‍💼 Bienvenido, " + usuarioGestor.getNombreUsuario() + " (Gestor de Citas)", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
 
         JButton btnCerrarSesion = new JButton("Cerrar Sesión");
-        btnCerrarSesion.setBackground(new Color(231, 76, 60));
+        btnCerrarSesion.setBackground(new Color(66, 166, 105));
         btnCerrarSesion.setForeground(Color.WHITE);
+        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        btnCerrarSesion.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Hover efecto botón cerrar sesión
+        btnCerrarSesion.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btnCerrarSesion.setBackground(new Color(192, 57, 43));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                btnCerrarSesion.setBackground(new Color(38, 112, 67));
+            }
+        });
+
         btnCerrarSesion.addActionListener(e -> {
             dispose();
             new Login();
@@ -49,16 +63,21 @@ public class VentanaGestorCitas extends JFrame {
         header.add(btnCerrarSesion, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // === PESTAÑAS ===
+        // ===== PESTAÑAS =====
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Pacientes", crearPanelPacientes());
-        tabs.addTab("Citas", crearPanelCitas());
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tabs.setBackground(Color.WHITE);
+        tabs.setForeground(new Color(60, 120, 60));
+
+        tabs.addTab("👨‍⚕️ Pacientes", crearPanelPacientes());
+        tabs.addTab("📅 Citas", crearPanelCitas());
         add(tabs, BorderLayout.CENTER);
 
+        getContentPane().setBackground(Color.WHITE);
         setVisible(true);
     }
 
-    // PANEL DE PACIENTES
+    // ===== PANEL DE PACIENTES =====
     private JPanel crearPanelPacientes() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -68,19 +87,24 @@ public class VentanaGestorCitas extends JFrame {
         }, 0);
 
         tablaPacientes = new JTable(modeloPacientes);
-        tablaPacientes.setRowHeight(25);
+        tablaPacientes.setRowHeight(28);
+        tablaPacientes.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tablaPacientes.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         panel.add(new JScrollPane(tablaPacientes), BorderLayout.CENTER);
 
-        // === BOTONES ===
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        // ===== BOTONES =====
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
+        botones.setBackground(new Color(245, 245, 245));
 
-        btnNuevoPaciente = crearBoton("Nuevo Paciente", new Color(46, 204, 113));
-        btnEditarPaciente = crearBoton("Editar", new Color(52, 152, 219));
-        btnEliminarPaciente = crearBoton("Eliminar", new Color(231, 76, 60));
-        btnBuscarPaciente = crearBoton("Buscar", new Color(241, 196, 15));
-        btnActualizarPacientes = crearBoton("Actualizar Lista", new Color(155, 89, 182));
+        btnNuevoPaciente = crearBoton("➕ Nuevo Paciente", new Color(46, 204, 113));
+        btnEditarPaciente = crearBoton("✏️ Editar", new Color(66, 166, 105));
+        btnEliminarPaciente = crearBoton("🗑️ Eliminar", new Color(66, 166, 105));
+        btnBuscarPaciente = crearBoton("🔍 Buscar", new Color(66, 166, 105));
+        btnActualizarPacientes = crearBoton("🔄 Actualizar Lista", new Color(66, 166, 105));
 
-        txtBuscarPaciente = new JTextField(15);
+        txtBuscarPaciente = new JTextField(18);
+        txtBuscarPaciente.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtBuscarPaciente.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
 
         botones.add(btnNuevoPaciente);
         botones.add(btnEditarPaciente);
@@ -94,7 +118,7 @@ public class VentanaGestorCitas extends JFrame {
 
         cargarPacientes();
 
-        // ACCIONES
+        // ===== ACCIONES =====
         btnNuevoPaciente.addActionListener(e -> new ModalRegistrarPaciente(this));
         btnActualizarPacientes.addActionListener(e -> cargarPacientes());
         btnBuscarPaciente.addActionListener(e -> buscarPaciente());
@@ -149,7 +173,7 @@ public class VentanaGestorCitas extends JFrame {
         }
     }
 
-    // PANEL DE CITAS
+    // ===== PANEL DE CITAS =====
     private JPanel crearPanelCitas() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -159,14 +183,18 @@ public class VentanaGestorCitas extends JFrame {
         }, 0);
 
         tablaCitas = new JTable(modeloCitas);
-        tablaCitas.setRowHeight(25);
+        tablaCitas.setRowHeight(28);
+        tablaCitas.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tablaCitas.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         panel.add(new JScrollPane(tablaCitas), BorderLayout.CENTER);
 
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        btnAgendarCita = crearBoton("Agendar Cita", new Color(46, 204, 113));
-        btnEditarCita = crearBoton("Editar", new Color(52, 152, 219));
-        btnEliminarCita = crearBoton("Eliminar", new Color(231, 76, 60));
-        btnActualizarCitas = crearBoton("Actualizar Lista", new Color(155, 89, 182));
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
+        botones.setBackground(new Color(245, 245, 245));
+
+        btnAgendarCita = crearBoton("📅 Agendar Cita", new Color(66, 166, 105));
+        btnEditarCita = crearBoton("✏️ Editar", new Color(66, 166, 105));
+        btnEliminarCita = crearBoton("🗑️ Eliminar", new Color(66, 166, 105));
+        btnActualizarCitas = crearBoton("🔄 Actualizar Lista", new Color(66, 166, 105));
 
         botones.add(btnAgendarCita);
         botones.add(btnEditarCita);
@@ -203,14 +231,26 @@ public class VentanaGestorCitas extends JFrame {
         }
     }
 
-    // BOTÓN ESTÉTICO
-    private JButton crearBoton(String texto, Color color) {
+    // ===== BOTÓN ESTÉTICO CON EFECTO HOVER =====
+    private JButton crearBoton(String texto, Color colorBase) {
         JButton btn = new JButton(texto);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setForeground(Color.WHITE);
-        btn.setBackground(color);
+        btn.setBackground(colorBase);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Efecto hover
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(colorBase.darker());
+            }
+
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(colorBase);
+            }
+        });
         return btn;
     }
 
