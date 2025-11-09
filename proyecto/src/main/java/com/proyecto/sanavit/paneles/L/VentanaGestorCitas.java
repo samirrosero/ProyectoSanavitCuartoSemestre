@@ -5,126 +5,102 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Date;
-import java.sql.Time;
 import java.util.List;
 
 public class VentanaGestorCitas extends JFrame {
 
-    private Usuario usuarioActual;
-    private JTabbedPane tabs;
+    private JTable tablaPacientes, tablaCitas;
+    private DefaultTableModel modeloPacientes, modeloCitas;
+    private JButton btnNuevoPaciente, btnEditarPaciente, btnEliminarPaciente, btnBuscarPaciente;
+    private JButton btnAgendarCita, btnEditarCita, btnEliminarCita, btnActualizarCitas, btnActualizarPacientes;
+    private JTextField txtBuscarPaciente;
+    private Usuario usuarioGestor;
+
     private PacienteDao pacienteDAO = new PacienteDao();
     private CitaDao citaDAO = new CitaDao();
-    private MedicoDao medicoDAO = new MedicoDao();
 
-    // === PACIENTES ===
-    private JTable tablaPacientes;
-    private DefaultTableModel modeloPacientes;
-    private JTextField txtBuscarPaciente;
-    private JButton btnNuevoPaciente, btnActualizarPacientes;
-
-    // === CITAS ===
-    private JTable tablaCitas;
-    private DefaultTableModel modeloCitas;
-    private JComboBox<String> comboPaciente, comboMedico, comboModalidad;
-    private JTextField txtFecha, txtHora;
-    private JButton btnAgendar, btnEliminar, btnActualizarCitas;
-
-    public VentanaGestorCitas(Usuario usuarioActual) {
-        this.usuarioActual = usuarioActual;
-
+    public VentanaGestorCitas(Usuario usuarioGestor) {
+        this.usuarioGestor = usuarioGestor;
         setTitle("Gestor de Citas - Sanavit");
         setSize(1000, 700);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // === ENCABEZADO SUPERIOR ===
+        // === ENCABEZADO ===
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(33, 150, 243));
-        header.setPreferredSize(new Dimension(0, 60));
-
-        JLabel lblTitulo = new JLabel("Bienvenido(a), " + usuarioActual.getNombreUsuario() + " - Gestor de Citas", SwingConstants.CENTER);
+        header.setBackground(new Color(78, 207, 78));
+        JLabel lblTitulo = new JLabel("Bienvenido, " + usuarioGestor.getNombreUsuario() + " (Gestor de Citas)", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitulo.setForeground(Color.WHITE);
-        header.add(lblTitulo, BorderLayout.CENTER);
+        lblTitulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
 
         JButton btnCerrarSesion = new JButton("Cerrar Sesión");
-        btnCerrarSesion.setBackground(new Color(244, 67, 54));
+        btnCerrarSesion.setBackground(new Color(231, 76, 60));
         btnCerrarSesion.setForeground(Color.WHITE);
         btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        header.add(btnCerrarSesion, BorderLayout.EAST);
-        add(header, BorderLayout.NORTH);
-
+        btnCerrarSesion.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
         btnCerrarSesion.addActionListener(e -> {
             dispose();
             new Login();
         });
 
-        // === TABS PRINCIPALES ===
-        tabs = new JTabbedPane();
-        tabs.addTab("👤 Pacientes", crearPanelPacientes());
-        tabs.addTab("📅 Citas", crearPanelCitas());
+        header.add(lblTitulo, BorderLayout.CENTER);
+        header.add(btnCerrarSesion, BorderLayout.EAST);
+        add(header, BorderLayout.NORTH);
+
+        // === PESTAÑAS ===
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.addTab("Pacientes", crearPanelPacientes());
+        tabs.addTab("Citas", crearPanelCitas());
         add(tabs, BorderLayout.CENTER);
 
         setVisible(true);
     }
 
-    // ==========================================================
-    // PANEL PACIENTES
-    // ==========================================================
+    // PANEL DE PACIENTES
     private JPanel crearPanelPacientes() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // === Barra superior ===
-        JPanel barra = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        barra.setBackground(Color.WHITE);
-        txtBuscarPaciente = new JTextField(25);
-        JButton btnBuscar = crearBoton("Buscar");
-        btnNuevoPaciente = crearBoton("Registrar Paciente");
-        btnActualizarPacientes = crearBoton("Actualizar");
-
-        barra.add(new JLabel("Buscar por nombre:"));
-        barra.add(txtBuscarPaciente);
-        barra.add(btnBuscar);
-        barra.add(btnNuevoPaciente);
-        barra.add(btnActualizarPacientes);
-        panel.add(barra, BorderLayout.NORTH);
-
-        // === Tabla ===
         modeloPacientes = new DefaultTableModel(new String[]{
-                "ID", "Nombre", "Identificación", "Correo", "Teléfono", "Edad", "Sexo"
+                "ID", "Nombre", "Correo", "Edad", "Teléfono", "Sexo", "Dirección", "Identificación"
         }, 0);
+
         tablaPacientes = new JTable(modeloPacientes);
         tablaPacientes.setRowHeight(25);
         panel.add(new JScrollPane(tablaPacientes), BorderLayout.CENTER);
 
-        // === Acciones ===
-        btnBuscar.addActionListener(e -> buscarPacientes());
-        btnActualizarPacientes.addActionListener(e -> cargarPacientes());
-        btnNuevoPaciente.addActionListener(e -> registrarPaciente());
+        // === BOTONES ===
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+        btnNuevoPaciente = crearBoton("Nuevo Paciente", new Color(46, 204, 113));
+        btnEditarPaciente = crearBoton("Editar", new Color(52, 152, 219));
+        btnEliminarPaciente = crearBoton("Eliminar", new Color(231, 76, 60));
+        btnBuscarPaciente = crearBoton("Buscar", new Color(241, 196, 15));
+        btnActualizarPacientes = crearBoton("Actualizar Lista", new Color(155, 89, 182));
+
+        txtBuscarPaciente = new JTextField(15);
+
+        botones.add(btnNuevoPaciente);
+        botones.add(btnEditarPaciente);
+        botones.add(btnEliminarPaciente);
+        botones.add(new JLabel("Buscar por nombre:"));
+        botones.add(txtBuscarPaciente);
+        botones.add(btnBuscarPaciente);
+        botones.add(btnActualizarPacientes);
+
+        panel.add(botones, BorderLayout.SOUTH);
 
         cargarPacientes();
-        return panel;
-    }
 
-    private void buscarPacientes() {
-        String nombre = txtBuscarPaciente.getText().trim();
-        modeloPacientes.setRowCount(0);
-        if (nombre.isEmpty()) {
-            cargarPacientes();
-            return;
-        }
-        List<Paciente> lista = pacienteDAO.buscarPacientePorNombre(nombre);
-        for (Paciente p : lista) {
-            modeloPacientes.addRow(new Object[]{
-                    p.getIdPaciente(), p.getNombre(), p.getIdentificacion(),
-                    p.getCorreo(), p.getTelefono(), p.getEdad(), p.getSexo()
-            });
-        }
+        // ACCIONES
+        btnNuevoPaciente.addActionListener(e -> new ModalRegistrarPaciente(this));
+        btnActualizarPacientes.addActionListener(e -> cargarPacientes());
+        btnBuscarPaciente.addActionListener(e -> buscarPaciente());
+        btnEliminarPaciente.addActionListener(e -> eliminarPaciente());
+
+        return panel;
     }
 
     private void cargarPacientes() {
@@ -132,134 +108,94 @@ public class VentanaGestorCitas extends JFrame {
         List<Paciente> lista = pacienteDAO.obtenerTodosLosPacientes();
         for (Paciente p : lista) {
             modeloPacientes.addRow(new Object[]{
-                    p.getIdPaciente(), p.getNombre(), p.getIdentificacion(),
-                    p.getCorreo(), p.getTelefono(), p.getEdad(), p.getSexo()
+                    p.getIdPaciente(), p.getNombre(), p.getCorreo(),
+                    p.getEdad(), p.getTelefono(), p.getSexo(),
+                    p.getDireccion(), p.getIdentificacion()
             });
         }
     }
 
-    private void registrarPaciente() {
-        JTextField nombre = new JTextField();
-        JTextField correo = new JTextField();
-        JTextField telefono = new JTextField();
-        JTextField edad = new JTextField();
-        JTextField sexo = new JTextField();
-        JTextField direccion = new JTextField();
-        JTextField identificacion = new JTextField();
+    private void buscarPaciente() {
+        String nombre = txtBuscarPaciente.getText().trim();
+        if (nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese un nombre para buscar.");
+            return;
+        }
+        modeloPacientes.setRowCount(0);
+        List<Paciente> lista = pacienteDAO.buscarPacientePorNombre(nombre);
+        for (Paciente p : lista) {
+            modeloPacientes.addRow(new Object[]{
+                    p.getIdPaciente(), p.getNombre(), p.getCorreo(),
+                    p.getEdad(), p.getTelefono(), p.getSexo(),
+                    p.getDireccion(), p.getIdentificacion()
+            });
+        }
+    }
 
-        JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
-        panel.add(new JLabel("Nombre:")); panel.add(nombre);
-        panel.add(new JLabel("Correo:")); panel.add(correo);
-        panel.add(new JLabel("Teléfono:")); panel.add(telefono);
-        panel.add(new JLabel("Edad:")); panel.add(edad);
-        panel.add(new JLabel("Sexo:")); panel.add(sexo);
-        panel.add(new JLabel("Dirección:")); panel.add(direccion);
-        panel.add(new JLabel("Identificación:")); panel.add(identificacion);
-
-        int res = JOptionPane.showConfirmDialog(this, panel, "Registrar nuevo paciente",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                Paciente p = new Paciente(
-                        0,
-                        nombre.getText(),
-                        correo.getText(),
-                        Integer.parseInt(edad.getText()),
-                        telefono.getText(),
-                        sexo.getText(),
-                        direccion.getText(),
-                        identificacion.getText(),
-                        0
-                );
-                pacienteDAO.insertarPaciente(p);
-                JOptionPane.showMessageDialog(this, "✅ Paciente registrado correctamente.");
+    private void eliminarPaciente() {
+        int fila = tablaPacientes.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un paciente.");
+            return;
+        }
+        int id = (int) modeloPacientes.getValueAt(fila, 0);
+        int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este paciente?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean ok = pacienteDAO.eliminarPaciente(id);
+            if (ok) {
+                JOptionPane.showMessageDialog(this, "Paciente eliminado correctamente.");
                 cargarPacientes();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "⚠️ Error al registrar paciente: " + ex.getMessage());
             }
         }
     }
 
-    // ==========================================================
-    // PANEL CITAS
-    // ==========================================================
+    // PANEL DE CITAS
     private JPanel crearPanelCitas() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // === Formulario ===
-        JPanel form = new JPanel(new GridLayout(2, 4, 10, 10));
-        form.setBackground(Color.WHITE);
-
-        comboPaciente = new JComboBox<>();
-        comboMedico = new JComboBox<>();
-        comboModalidad = new JComboBox<>(new String[]{"Presencial", "Virtual"});
-        txtFecha = new JTextField();
-        txtHora = new JTextField();
-
-        form.add(new JLabel("Paciente:")); form.add(comboPaciente);
-        form.add(new JLabel("Médico:")); form.add(comboMedico);
-        form.add(new JLabel("Fecha (AAAA-MM-DD):")); form.add(txtFecha);
-        form.add(new JLabel("Hora (HH:MM:SS):")); form.add(txtHora);
-        form.add(new JLabel("Modalidad:")); form.add(comboModalidad);
-        panel.add(form, BorderLayout.NORTH);
-
-        // === Tabla ===
         modeloCitas = new DefaultTableModel(new String[]{
                 "ID", "Paciente", "Médico", "Fecha", "Hora", "Modalidad"
         }, 0);
+
         tablaCitas = new JTable(modeloCitas);
         tablaCitas.setRowHeight(25);
         panel.add(new JScrollPane(tablaCitas), BorderLayout.CENTER);
 
-        // === Botones ===
-        JPanel botones = new JPanel();
-        botones.setBackground(Color.WHITE);
-        btnAgendar = crearBoton("Agendar Cita");
-        btnEliminar = crearBoton("Eliminar");
-        btnActualizarCitas = crearBoton("Actualizar");
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        btnAgendarCita = crearBoton("Agendar Cita", new Color(46, 204, 113));
+        btnEditarCita = crearBoton("Editar", new Color(52, 152, 219));
+        btnEliminarCita = crearBoton("Eliminar", new Color(231, 76, 60));
+        btnActualizarCitas = crearBoton("Actualizar Lista", new Color(155, 89, 182));
 
-        botones.add(btnAgendar);
-        botones.add(btnEliminar);
+        botones.add(btnAgendarCita);
+        botones.add(btnEditarCita);
+        botones.add(btnEliminarCita);
         botones.add(btnActualizarCitas);
+
         panel.add(botones, BorderLayout.SOUTH);
 
-        // === Acciones ===
-        btnAgendar.addActionListener(e -> agendarCita());
-        btnEliminar.addActionListener(e -> eliminarCita());
-        btnActualizarCitas.addActionListener(e -> cargarCitas());
-
-        cargarPacientesCombo();
-        cargarMedicosCombo();
         cargarCitas();
+
+        btnActualizarCitas.addActionListener(e -> cargarCitas());
+        btnAgendarCita.addActionListener(e -> new ModalAgendarCita(this));
 
         return panel;
     }
 
-    private void cargarPacientesCombo() {
-        comboPaciente.removeAllItems();
-        for (Paciente p : pacienteDAO.obtenerTodosLosPacientes())
-            comboPaciente.addItem(p.getNombre());
-    }
-
-    private void cargarMedicosCombo() {
-        comboMedico.removeAllItems();
-        for (Medico m : MedicoDao.listarMedicos())
-            comboMedico.addItem(m.getNombre());
-    }
-
     private void cargarCitas() {
         modeloCitas.setRowCount(0);
-        List<Cita> lista = citaDAO.selectCita();
-        for (Cita c : lista) {
+        List<Cita> citas = citaDAO.selectCita();
+        MedicoDao medicoDAO = new MedicoDao();
+        PacienteDao pacienteDAO = new PacienteDao();
+
+        for (Cita c : citas) {
             Paciente p = pacienteDAO.obtenerPacientePorId(c.getIdPaciente());
             Medico m = medicoDAO.obtenerMedicoPorId(c.getIdMedico());
             modeloCitas.addRow(new Object[]{
                     c.getIdCita(),
-                    (p != null ? p.getNombre() : "Desconocido"),
-                    (m != null ? m.getNombre() : "Desconocido"),
+                    p != null ? p.getNombre() : "Desconocido",
+                    m != null ? m.getNombre() : "Desconocido",
                     c.getFechaCita(),
                     c.getHoraCita(),
                     (c.getIdModalidad() == 1 ? "Presencial" : "Virtual")
@@ -267,53 +203,19 @@ public class VentanaGestorCitas extends JFrame {
         }
     }
 
-    private void agendarCita() {
-        try {
-            String pacienteNombre = comboPaciente.getSelectedItem().toString();
-            String medicoNombre = comboMedico.getSelectedItem().toString();
-
-            Paciente paciente = pacienteDAO.buscarPacientePorNombre(pacienteNombre).get(0);
-            Medico medico = medicoDAO.obtenerPorNombre(medicoNombre);
-
-            Date fecha = Date.valueOf(txtFecha.getText());
-            Time hora = Time.valueOf(txtHora.getText());
-            int modalidad = comboModalidad.getSelectedIndex() == 0 ? 1 : 2;
-
-            Cita c = new Cita(0, medico.getIdMedico(), paciente.getIdPaciente(), 1, modalidad, fecha, hora);
-            citaDAO.insertarCita(c);
-
-            JOptionPane.showMessageDialog(this, "✅ Cita agendada correctamente.");
-            cargarCitas();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "⚠️ Error al agendar cita: " + ex.getMessage());
-        }
-    }
-
-    private void eliminarCita() {
-        int fila = tablaCitas.getSelectedRow();
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione una cita para eliminar.");
-            return;
-        }
-        int id = (int) modeloCitas.getValueAt(fila, 0);
-        int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar cita?", "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            citaDAO.deleteCita(id);
-            JOptionPane.showMessageDialog(this, "✅ Cita eliminada correctamente.");
-            cargarCitas();
-        }
-    }
-
-    // ==========================================================
-    // BOTÓN ESTILO SANAVIT
-    // ==========================================================
-    private JButton crearBoton(String texto) {
+    // BOTÓN ESTÉTICO
+    private JButton crearBoton(String texto, Color color) {
         JButton btn = new JButton(texto);
-        btn.setBackground(new Color(33, 150, 243));
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(color);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
         return btn;
+    }
+
+    public static void main(String[] args) {
+        Usuario dummy = new Usuario(1, 3, "gestor_demo", "1234", "gestor de citas");
+        new VentanaGestorCitas(dummy);
     }
 }
