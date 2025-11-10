@@ -34,7 +34,7 @@ public class PanelMedicos extends JPanel {
 
         // === TÍTULO SUPERIOR ===
         JPanel panelSuperior = new JPanel(new BorderLayout());
-        JLabel lblTitulo = new JLabel("🩺 Gestión de Médicos", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Gestión de Médicos", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         panelSuperior.setBackground(new Color(200, 250, 200));

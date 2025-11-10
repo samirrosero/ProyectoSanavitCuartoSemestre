@@ -14,92 +14,90 @@ public class ModalMedico extends JDialog {
 
     public ModalMedico(JFrame parent, Usuario usuarioActual) {
         super(parent, "Registrar Médico - Sanavit", true);
-        setSize(450, 320);
+        setSize(520, 420);
         setLocationRelativeTo(parent);
+        setLayout(new BorderLayout());
 
-        // === PANEL PRINCIPAL CON DEGRADADO ===
-        JPanel panelPrincipal = new JPanel() {
+        // === Fondo degradado ===
+        JPanel fondo = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                GradientPaint gp = new GradientPaint(0, 0, new Color(78, 207, 78), 
-                0, getHeight(), new Color(165, 242, 203)
-                );
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
+                Graphics2D g2 = (Graphics2D) g;
+                GradientPaint gp = new GradientPaint(0, 0, new Color(221, 247, 233),
+                        0, getHeight(), new Color(165, 228, 194));
+                g2.setPaint(gp);
+                g2.fillRect(0, 0, getWidth(), getHeight());
             }
         };
-        panelPrincipal.setLayout(new GridBagLayout());
+        add(fondo, BorderLayout.CENTER);
+
+        // === Tarjeta blanca central ===
+        JPanel tarjeta = new JPanel(new GridBagLayout());
+        tarjeta.setBackground(Color.WHITE);
+        tarjeta.setPreferredSize(new Dimension(400, 320));
+        tarjeta.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 230, 210), 1),
+                BorderFactory.createEmptyBorder(20, 25, 20, 25)
+        ));
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // === TÍTULO ===
+        // === Imagen o logo ===
+        // 🖼️ Aquí puedes colocar tu ícono o imagen de médico
+        JLabel lblImagen = new JLabel(new ImageIcon("ruta/a/tu/imagen_medico.png"));
+        lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        tarjeta.add(lblImagen, gbc);
+
+        // === Título ===
         JLabel lblTitulo = new JLabel("Registro de Médico", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblTitulo.setForeground(new Color(10, 10, 10));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panelPrincipal.add(lblTitulo, gbc);
+        lblTitulo.setForeground(new Color(26, 94, 67));
+        gbc.gridy++;
+        tarjeta.add(lblTitulo, gbc);
 
-        // === CAMPO NOMBRE ===
+        // === Campo nombre ===
         gbc.gridwidth = 1;
-        gbc.gridy++;
-        gbc.gridx = 0;
-        JLabel lblNombre = new JLabel("Nombre:");
-        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblNombre.setForeground(new Color(10, 10, 10));
-        panelPrincipal.add(lblNombre, gbc);
-
+        gbc.gridy++; gbc.gridx = 0;
+        tarjeta.add(crearEtiqueta("Nombre:"), gbc);
         gbc.gridx = 1;
-        txtNombre = new JTextField(20);
-        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNombre.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(102, 187, 106), 1),
-        BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
-        panelPrincipal.add(txtNombre, gbc);
+        txtNombre = crearCampo();
+        tarjeta.add(txtNombre, gbc);
 
-        // === CAMPO ESPECIALIDAD ===
-        gbc.gridy++;
-        gbc.gridx = 0;
-        JLabel lblEspecialidad = new JLabel("Especialidad:");
-        lblEspecialidad.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblEspecialidad.setForeground(new Color(10, 10, 10));
-        panelPrincipal.add(lblEspecialidad, gbc);
-
+        // === Campo especialidad ===
+        gbc.gridy++; gbc.gridx = 0;
+        tarjeta.add(crearEtiqueta("Especialidad:"), gbc);
         gbc.gridx = 1;
         comboEspecialidad = new JComboBox<>(new String[]{
                 "Medicina General", "Pediatría", "Ginecología", "Cardiología", "Odontología", "Oftalmología"
         });
-        comboEspecialidad.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        comboEspecialidad.setBackground(Color.WHITE);
-        comboEspecialidad.setBorder(BorderFactory.createLineBorder(new Color(102, 187, 106), 1));
-        panelPrincipal.add(comboEspecialidad, gbc);
+        estilizarCombo(comboEspecialidad);
+        tarjeta.add(comboEspecialidad, gbc);
 
-        // === BOTÓN GUARDAR ===
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        btnGuardar = crearBoton("Guardar Médico", new Color(31, 194, 111));
-        panelPrincipal.add(btnGuardar, gbc);
+        // === Botón guardar ===
+        gbc.gridy++; gbc.gridx = 0; gbc.gridwidth = 2;
+        btnGuardar = crearBoton("Guardar Médico", new Color(26, 94, 67));
+        tarjeta.add(btnGuardar, gbc);
 
-        // === EVENTO GUARDAR ===
+        fondo.add(tarjeta);
+
+        // === Evento guardar ===
         btnGuardar.addActionListener(e -> {
             String nombre = txtNombre.getText().trim();
             String especialidad = comboEspecialidad.getSelectedItem().toString();
 
             if (nombre.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "⚠️ Debe ingresar el nombre del médico.");
+                JOptionPane.showMessageDialog(this, "⚠️ Ingrese el nombre del médico.");
                 return;
             }
 
             Medico nuevoMedico = new Medico(0, nombre, especialidad, usuarioActual.getIdUsuario());
-            MedicoDao medicoDao = new MedicoDao();
+            MedicoDao dao = new MedicoDao();
 
-            if (medicoDao.insertarMedico(nuevoMedico)) {
+            if (dao.insertarMedico(nuevoMedico)) {
                 JOptionPane.showMessageDialog(this, "✅ Médico registrado con éxito.");
                 dispose();
                 parent.dispose();
@@ -109,54 +107,52 @@ public class ModalMedico extends JDialog {
             }
         });
 
-        add(panelPrincipal);
         setVisible(true);
     }
 
-    // === MÉTODO PARA CREAR BOTONES ESTILIZADOS ===
+    private JLabel crearEtiqueta(String texto) {
+        JLabel lbl = new JLabel(texto);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lbl.setForeground(new Color(46, 64, 46));
+        return lbl;
+    }
+
+    private JTextField crearCampo() {
+        JTextField txt = new JTextField(20);
+        txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txt.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(165, 228, 194), 1),
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)
+        ));
+        return txt;
+    }
+
+    private void estilizarCombo(JComboBox<String> combo) {
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        combo.setBackground(Color.WHITE);
+        combo.setBorder(BorderFactory.createLineBorder(new Color(165, 228, 194), 1));
+    }
+
     private JButton crearBoton(String texto, Color colorBase) {
         JButton btn = new JButton(texto);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btn.setBackground(colorBase);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(colorBase.darker(), 1),
-        BorderFactory.createEmptyBorder(8, 20, 8, 20)
-        ));
-
-        // Bordes redondeados
-        btn.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
-            @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(btn.getBackground());
-                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 25, 25);
-                g2.setColor(btn.getForeground());
-                FontMetrics fm = g2.getFontMetrics();
-                int x = (c.getWidth() - fm.stringWidth(btn.getText())) / 2;
-                int y = (c.getHeight() + fm.getAscent()) / 2 - 3;
-                g2.drawString(btn.getText(), x, y);
-                g2.dispose();
-            }
-        });
-
-        // Hover
         btn.addMouseListener(new MouseAdapter() {
-            @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(colorBase.brighter());
             }
 
-            @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(colorBase);
             }
         });
-
         return btn;
     }
+
     public static void main(String[] args) {
         new ModalMedico(null, null);
     }

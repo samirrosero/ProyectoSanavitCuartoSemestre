@@ -20,7 +20,7 @@ public class VentanaVerCitas extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(15, 15));
-        getContentPane().setBackground(new Color(234, 250, 241)); // Fondo verde muy suave
+        getContentPane().setBackground(new Color(244, 247, 250)); // Fondo verde muy suave
 
         // === ENCABEZADO ===
         JPanel header = new JPanel(new BorderLayout());

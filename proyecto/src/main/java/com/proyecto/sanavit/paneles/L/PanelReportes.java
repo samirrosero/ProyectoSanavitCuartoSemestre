@@ -29,7 +29,7 @@ public class PanelReportes extends JPanel {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // === Título ===
-        JLabel lblTitulo = new JLabel("📊 Panel de Reportes - Sanavit", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Panel de Reportes - Sanavit", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(46, 64, 46)); // Verde oscuro elegante
         contentPanel.add(lblTitulo, BorderLayout.NORTH);

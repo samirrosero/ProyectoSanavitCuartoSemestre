@@ -38,15 +38,15 @@ public class VentanaAdministrador extends JFrame {
         panelLateral.setLayout(new GridLayout(9, 1, 10, 10));
         panelLateral.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        // Botones del menú
-        JButton btnUsuarios = crearBotonMenu("👥 Gestión de Usuarios");
-        JButton btnMedicos = crearBotonMenu("🩺 Médicos");
-        JButton btnPacientes = crearBotonMenu("🧍 Pacientes");
-        JButton btnCitas = crearBotonMenu("📅 Citas");
-        JButton btnHistorias = crearBotonMenu("📚 Historias Clínicas");
-        JButton btnReportes = crearBotonMenu("📊 Reportes");
-        JButton btnBackup = crearBotonMenu("💾 Copia de Seguridad");
-        JButton btnCerrar = crearBotonMenu("🚪 Cerrar Sesión");
+        // Botones del menú con íconos cargados desde resources
+        JButton btnUsuarios = crearBotonMenu("Gestión de Usuarios", "/icons/icons8-grupo-de-usuario-32.png");
+        JButton btnMedicos = crearBotonMenu("Médicos", "/icons/icons8-doctor-32.png");
+        JButton btnPacientes = crearBotonMenu("Pacientes", "/icons/icons8-usuario-32.png");
+        JButton btnCitas = crearBotonMenu("Citas", "/icons/icons8-citas-32.png");
+        JButton btnHistorias = crearBotonMenu("Historias Clínicas", "/icons/icons8-historia-de-la-actividad-32.png");
+        JButton btnReportes = crearBotonMenu("Reportes", "/icons/icons8-gráficos-32.png");
+        JButton btnBackup = crearBotonMenu("Copia de Seguridad", "/icons/icons8-copias-de-seguridad-32.png");
+        JButton btnCerrar = crearBotonMenu("Cerrar Sesión", "/icons/icons8-cerrar-sesión-32.png");
 
         panelLateral.add(btnUsuarios);
         panelLateral.add(btnMedicos);
@@ -87,8 +87,7 @@ public class VentanaAdministrador extends JFrame {
                     this,
                     "✅ Copia de seguridad realizada correctamente.",
                     "Backup del Sistema",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
         });
 
         // Cerrar sesión
@@ -101,8 +100,19 @@ public class VentanaAdministrador extends JFrame {
     }
 
     // === MÉTODO AUXILIAR: Crear botones del menú lateral ===
-    private JButton crearBotonMenu(String texto) {
+    private JButton crearBotonMenu(String texto, String iconPath) {
         JButton boton = new JButton(texto);
+
+        // Cargar ícono desde resources
+        java.net.URL iconURL = getClass().getResource(iconPath);
+        if (iconURL != null) {
+            ImageIcon icon = new ImageIcon(new ImageIcon(iconURL)
+                    .getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
+            boton.setIcon(icon);
+        }
+
+        boton.setHorizontalAlignment(SwingConstants.LEFT);
+        boton.setIconTextGap(10);
         boton.setFocusPainted(false);
         boton.setBackground(new Color(200, 250, 200));
         boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -114,6 +124,7 @@ public class VentanaAdministrador extends JFrame {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 boton.setBackground(new Color(170, 240, 170));
             }
+
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 boton.setBackground(new Color(200, 250, 200));
             }
