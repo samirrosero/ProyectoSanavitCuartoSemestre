@@ -12,41 +12,35 @@ import javax.imageio.ImageIO;
 
 public class VentanaPaciente extends JFrame {
 
-    private JLabel lblFotoPerfil, lblBienvenida;
-    private JButton btnAgendarCita, btnVerHistoriaClinica, btnVerCitas, btnCerrarSesion;
+    private JLabel lblFotoPerfil;
     private BufferedImage imagenPerfil;
+    private JButton btnAgendarCita, btnVerHistoriaClinica, btnVerCitas, btnCerrarSesion;
 
     public VentanaPaciente(Usuario usuarioActual) {
         setTitle("Panel del Paciente - Sanavit");
-        setSize(950, 720);
+        setSize(950, 700);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(244, 247, 250));
+        getContentPane().setBackground(new Color(244, 247, 250)); // Verde menta suave
 
-        // Obtener información del paciente
+        // === Obtener información ===
         PacienteDao pacienteDAO = new PacienteDao();
         Paciente pacienteActual = pacienteDAO.obtenerPacientePorIdUsuario(usuarioActual.getIdUsuario());
+        Portafolio portafolio = new PortafolioDao().obtenerPortafolioPorIdPaciente(pacienteActual.getIdPaciente());
 
-        Portafolio portafolioActual = null;
-        if (pacienteActual != null) {
-            PortafolioDao portafolioDAO = new PortafolioDao();
-            portafolioActual = portafolioDAO.obtenerPortafolioPorIdPaciente(pacienteActual.getIdPaciente());
-        }
+        // === ENCABEZADO ===
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(new Color(65, 158, 91));
+        header.setBorder(BorderFactory.createEmptyBorder(25, 40, 25, 40));
 
-        // ------------------- PANEL SUPERIOR -------------------
-        JPanel panelSuperior = new JPanel(new BorderLayout());
-        panelSuperior.setBackground(new Color(29, 125, 50));
-        panelSuperior.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        JLabel lblTitulo = new JLabel("<html><div style='color:white;'>"
+                + "<h2 style='margin:0;'>Bienvenido(a)</h2>"
+                + "<h1 style='margin:0; font-weight:bold;'>" + pacienteActual.getNombre() + "</h1>"
+                + "</div></html>");
+        header.add(lblTitulo, BorderLayout.WEST);
 
-        // Texto de bienvenida
-        lblBienvenida = new JLabel("<html><span style='font-size:18px;'>Bienvenido(a)</span><br>"
-                + "<b style='font-size:24px;'>" + (pacienteActual != null ? pacienteActual.getNombre() : "") + "</b></html>");
-        lblBienvenida.setForeground(Color.WHITE);
-        lblBienvenida.setVerticalAlignment(SwingConstants.CENTER);
-        panelSuperior.add(lblBienvenida, BorderLayout.WEST);
-
-        // ------------------- FOTO DE PERFIL CIRCULAR -------------------
+        // === FOTO PERFIL ===
         lblFotoPerfil = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -60,40 +54,27 @@ public class VentanaPaciente extends JFrame {
                     int y = (getHeight() - size) / 2;
 
                     Shape clip = new Ellipse2D.Double(x, y, size, size);
-
-                    // Sombra suave
-                    g2.setColor(new Color(0, 0, 0, 60));
-                    g2.fill(new Ellipse2D.Double(x + 3, y + 3, size, size));
-
-                    // Imagen circular
                     g2.setClip(clip);
                     g2.drawImage(imagenPerfil, x, y, size, size, null);
 
-                    // Borde circular blanco
                     g2.setClip(null);
                     g2.setStroke(new BasicStroke(4f));
                     g2.setColor(Color.WHITE);
                     g2.draw(clip);
-
                     g2.dispose();
                 }
             }
         };
         lblFotoPerfil.setPreferredSize(new Dimension(120, 120));
-        lblFotoPerfil.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblFotoPerfil.setOpaque(false);
-
-        // Cargar imagen inicial (puedes dejarla vacía o con una predeterminada)
+        lblFotoPerfil.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setFotoPerfil("C:\\Users\\samir\\Downloads\\usuario.png");
 
-        // Evento para cambiar imagen
         lblFotoPerfil.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 JFileChooser fc = new JFileChooser();
                 if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    setFotoPerfil(file.getAbsolutePath());
+                    setFotoPerfil(fc.getSelectedFile().getAbsolutePath());
                 }
             }
         });
@@ -101,44 +82,71 @@ public class VentanaPaciente extends JFrame {
         JPanel panelFoto = new JPanel();
         panelFoto.setOpaque(false);
         panelFoto.add(lblFotoPerfil);
-        panelSuperior.add(panelFoto, BorderLayout.EAST);
+        header.add(panelFoto, BorderLayout.EAST);
+        add(header, BorderLayout.NORTH);
 
-        add(panelSuperior, BorderLayout.NORTH);
+        // === PANEL CENTRAL (ficha limpia con grid 2 columnas) ===
+        JPanel panelDatos = new JPanel(new GridLayout(2, 1, 15, 15));
+        panelDatos.setOpaque(false);
 
-        // ------------------- PANEL CENTRAL -------------------
-        JPanel panelCentral = new JPanel();
-        panelCentral.setBackground(new Color(128, 191, 141));
-        panelCentral.setLayout(new GridLayout(2, 4, 25, 25));
-        panelCentral.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        // --- Columna izquierda ---
+        JPanel columnaIzquierda = new JPanel(new GridLayout(6, 1, 5, 5));
+        columnaIzquierda.setBackground(Color.WHITE);
+        columnaIzquierda.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
+        columnaIzquierda.add(crearLinea("Nombre:", pacienteActual.getNombre()));
+        columnaIzquierda.add(crearLinea("Identificación:", pacienteActual.getIdentificacion()));
+        columnaIzquierda.add(crearLinea("Correo:", pacienteActual.getCorreo()));
+        columnaIzquierda.add(crearLinea("Teléfono:", pacienteActual.getTelefono()));
+        columnaIzquierda.add(crearLinea("Edad:", String.valueOf(pacienteActual.getEdad())));
+        columnaIzquierda.add(crearLinea("Sexo:", pacienteActual.getSexo()));
 
-        panelCentral.add(crearCard("Nombre", pacienteActual != null ? pacienteActual.getNombre() : ""));
-        panelCentral.add(crearCard("Identificación", pacienteActual != null ? pacienteActual.getIdentificacion() : ""));
-        panelCentral.add(crearCard("Correo", pacienteActual != null ? pacienteActual.getCorreo() : ""));
-        panelCentral.add(crearCard("Teléfono", pacienteActual != null ? pacienteActual.getTelefono() : ""));
-        panelCentral.add(crearCard("Edad", pacienteActual != null ? String.valueOf(pacienteActual.getEdad()) : ""));
-        panelCentral.add(crearCard("Sexo", pacienteActual != null ? pacienteActual.getSexo() : ""));
-        panelCentral.add(crearCard("EPS / Salud", portafolioActual != null ? portafolioActual.getSalud() : ""));
-        panelCentral.add(crearCard("Afiliación", portafolioActual != null ? portafolioActual.getAfiliaciones() : ""));
+        // --- Columna derecha ---
+        JPanel columnaDerecha = new JPanel(new GridLayout(2, 1, 5, 5));
+        columnaDerecha.setBackground(Color.WHITE);
+        columnaDerecha.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
+        columnaDerecha.add(crearLinea("EPS:", portafolio.getSalud()));
+        columnaDerecha.add(crearLinea("Afiliación:", portafolio.getAfiliaciones()));
 
-        add(panelCentral, BorderLayout.CENTER);
+        // --- Panel combinado ---
+        JPanel panelPerfil = new JPanel(new GridLayout(1, 2, 20, 0));
+        panelPerfil.setBackground(Color.WHITE);
+        panelPerfil.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 230, 210), 1),
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
+        panelPerfil.add(columnaIzquierda);
+        panelPerfil.add(columnaDerecha);
 
-        // ------------------- PANEL INFERIOR -------------------
-        JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 15));
-        panelInferior.setBackground(new Color(244, 247, 250));
+        // --- Contenedor con sombra suave ---
+        JPanel contenedorCentral = new JPanel(new GridBagLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setColor(new Color(0, 0, 0, 25));
+                g2.fillRoundRect(10, 10, getWidth() - 20, getHeight() - 20, 25, 25);
+            }
+        };
+        contenedorCentral.setOpaque(false);
+        contenedorCentral.add(panelPerfil);
+        add(contenedorCentral, BorderLayout.CENTER);
+
+        // === BOTONES ===
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        panelBotones.setBackground(new Color(233, 247, 239));
 
         btnAgendarCita = crearBoton("Agendar Cita");
-        btnVerHistoriaClinica = crearBoton("Ver Historia Clínica");
-        btnVerCitas = crearBoton("Ver mis Citas");
+        btnVerHistoriaClinica = crearBoton("Historia Clínica");
+        btnVerCitas = crearBoton("Ver Citas");
         btnCerrarSesion = crearBoton("Cerrar Sesión");
 
-        panelInferior.add(btnAgendarCita);
-        panelInferior.add(btnVerHistoriaClinica);
-        panelInferior.add(btnVerCitas);
-        panelInferior.add(btnCerrarSesion);
+        panelBotones.add(btnAgendarCita);
+        panelBotones.add(btnVerHistoriaClinica);
+        panelBotones.add(btnVerCitas);
+        panelBotones.add(btnCerrarSesion);
+        add(panelBotones, BorderLayout.SOUTH);
 
-        add(panelInferior, BorderLayout.SOUTH);
-
-        // ------------------- ACCIONES -------------------
+        // === ACCIONES ===
         btnAgendarCita.addActionListener(e -> new VentanaAgendarCita(pacienteActual));
         btnVerHistoriaClinica.addActionListener(e -> new VentanaVerHistoriaClinica(pacienteActual));
         btnVerCitas.addActionListener(e -> new VentanaVerCitas(pacienteActual));
@@ -150,70 +158,50 @@ public class VentanaPaciente extends JFrame {
         setVisible(true);
     }
 
-    // ------------------- TARJETAS -------------------
-    private JPanel crearCard(String titulo, String valor) {
-        JPanel card = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    // ---------------------- COMPONENTES AUXILIARES ----------------------
+    private JPanel crearLinea(String label, String valor) {
+        JPanel linea = new JPanel(new BorderLayout());
+        linea.setOpaque(false);
 
-                // Sombra
-                g2.setColor(new Color(0, 0, 0, 20));
-                g2.fillRoundRect(4, 4, getWidth() - 4, getHeight() - 4, 18, 18);
+        JLabel lblCampo = new JLabel(label);
+        lblCampo.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        lblCampo.setForeground(new Color(80, 100, 90));
 
-                // Fondo blanco
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(0, 0, getWidth() - 6, getHeight() - 6, 18, 18);
+        JLabel lblValor = new JLabel(valor);
+        lblValor.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        lblValor.setForeground(new Color(40, 60, 50));
 
-                super.paintComponent(g);
-            }
-        };
-        card.setOpaque(false);
-        card.setLayout(new BorderLayout());
-        card.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        linea.add(lblCampo, BorderLayout.WEST);
+        linea.add(lblValor, BorderLayout.EAST);
 
-        JLabel lblTitulo = new JLabel(titulo);
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblTitulo.setForeground(new Color(100, 100, 100));
+        // Línea divisoria sutil debajo
+        JSeparator sep = new JSeparator();
+        sep.setForeground(new Color(210, 235, 210));
+        linea.add(sep, BorderLayout.SOUTH);
 
-        JLabel lblValor = new JLabel("<html><b style='font-size:14px; color:#333333;'>" + valor + "</b></html>");
-        lblValor.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-        card.add(lblTitulo, BorderLayout.NORTH);
-        card.add(lblValor, BorderLayout.CENTER);
-        return card;
+        return linea;
     }
 
-    // ------------------- CARGAR FOTO -------------------
     private void setFotoPerfil(String ruta) {
         try {
             imagenPerfil = ImageIO.read(new File(ruta));
             lblFotoPerfil.repaint();
         } catch (IOException e) {
-            System.err.println("Error al cargar la imagen: " + e.getMessage());
+            System.err.println("Error al cargar imagen: " + e.getMessage());
         }
     }
 
-    // ------------------- BOTONES -------------------
     private JButton crearBoton(String texto) {
         JButton btn = new JButton(texto);
         btn.setBackground(new Color(65, 107, 74));
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-
-        // Hover
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                btn.setBackground(new Color(68, 128, 80));
-            }
-
-            public void mouseExited(MouseEvent e) {
-                btn.setBackground(new Color(65, 107, 74));
-            }
+            public void mouseEntered(MouseEvent e) { btn.setBackground(new Color(68, 128, 80)); }
+            public void mouseExited(MouseEvent e) { btn.setBackground(new Color(65, 107, 74)); }
         });
         return btn;
     }

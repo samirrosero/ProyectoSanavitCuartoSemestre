@@ -22,7 +22,7 @@ public class VentanaRecetaMedica extends JFrame {
 
         // ===== PANEL TÍTULO =====
         JPanel panelTitulo = new JPanel();
-        panelTitulo.setBackground(new Color(92, 184, 92));
+        panelTitulo.setBackground(new Color(65, 158, 91));
         JLabel lblTitulo = new JLabel("Registrar Receta Médica", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitulo.setForeground(Color.WHITE);

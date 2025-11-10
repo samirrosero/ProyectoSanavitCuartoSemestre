@@ -25,13 +25,13 @@ public class VentanaHistoriaClinica extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        getContentPane().setBackground(new Color(71, 171, 53)); 
+        getContentPane().setBackground(new Color(244, 247, 250)); 
 
         // === PANEL SUPERIOR ===
         JLabel lblTitulo = new JLabel("🩺 Registro de Historia Clínica", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setOpaque(true);
-        lblTitulo.setBackground(new Color(76, 163, 60));
+        lblTitulo.setBackground(new Color(65, 158, 91));
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
         add(lblTitulo, BorderLayout.NORTH);
