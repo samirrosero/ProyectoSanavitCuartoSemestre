@@ -14,11 +14,26 @@
     </properties>
     <dependencies>
     <!-- mysql dependencies -->
+
     <dependency>
     <groupId>com.mysql</groupId>
     <artifactId>mysql-connector-j</artifactId>
     <version>8.0.33</version>
     </dependency>
-    </dependencies>
+
+<dependency>
+    <groupId>org.jfree</groupId>
+    <artifactId>jfreechart</artifactId>
+    <version>1.0.19</version>
+</dependency>
+
+<dependency>
+    <groupId>com.toedter</groupId>
+    <artifactId>jcalendar</artifactId>
+    <version>1.4</version>
+</dependency>
+    
+    </dependencies>    
+    
 
 </project>

@@ -6,120 +6,129 @@ import java.util.List;
 
 public class DocumentoAnexoDao {
 
+    // === INSERTAR DOCUMENTO USANDO PROCEDIMIENTO ===
     public boolean insertarDocumento(DocumentoAnexo d) {
         boolean state = false;
-        String sql = "INSERT INTO documento_anexo (id_historia_clinica, tipo, ruta_archivo) VALUES (?, ?, ?)";
-        try (Connection conn = ConexionDatabase.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pst.setInt(1, d.getIdHistoriaClinica());
-            pst.setString(2, d.getTipo());
-            pst.setString(3, d.getRutaArchivo());
+        String sql = "{CALL sp_insertar_documento(?, ?, ?)}";
 
-            int res = pst.executeUpdate();
-            if (res > 0) {
-                try (ResultSet rs = pst.getGeneratedKeys()) {
+        try (Connection conn = ConexionDatabase.getConnection();
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, d.getIdHistoriaClinica());
+            cs.setString(2, d.getTipo());
+            cs.setString(3, d.getRutaArchivo());
+
+            boolean tieneResultado = cs.execute();
+            if (tieneResultado) {
+                try (ResultSet rs = cs.getResultSet()) {
                     if (rs.next()) {
-                        d.setIdDocumentoAnexo(rs.getInt(1));
+                        d.setIdDocumentoAnexo(rs.getInt("idGenerado"));
                     }
                 }
-                state = true;
             }
+            state = true;
+
         } catch (SQLException e) {
-            System.out.println("Error insertarDocumento: " + e.getMessage());
+            System.out.println("❌ Error insertarDocumento (SP): " + e.getMessage());
         }
         return state;
     }
 
+    // === OBTENER DOCUMENTO POR ID ===
     public DocumentoAnexo obtenerPorId(int idDocumentoAnexo) {
         DocumentoAnexo d = null;
-        String sql = "SELECT * FROM documento_anexo WHERE id_documento = ?";
+        String sql = "{CALL obtener_documento_por_id(?)}";
+
         try (Connection conn = ConexionDatabase.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idDocumentoAnexo);
-            ResultSet rs = pst.executeQuery();
-            if (rs.next()) {
-                d = new DocumentoAnexo(0, 0, null, null);
-                d.setIdDocumentoAnexo(rs.getInt("id_documento"));
-                d.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
-                d.setTipo(rs.getString("tipo"));
-                d.setRutaArchivo(rs.getString("ruta_archivo"));
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idDocumentoAnexo);
+
+            try (ResultSet rs = cs.executeQuery()) {
+                if (rs.next()) {
+                    d = new DocumentoAnexo(
+                        rs.getInt("id_documento"),
+                        rs.getInt("id_historia_clinica"),
+                        rs.getString("tipo"),
+                        rs.getString("ruta_archivo")
+                    );
+                }
             }
 
         } catch (SQLException e) {
-            System.out.println("Error obtenerPorId Documento: " + e.getMessage());
+            System.out.println("❌ Error obtenerPorId (SP): " + e.getMessage());
         }
         return d;
     }
 
+    // === LISTAR DOCUMENTOS POR HISTORIA ===
     public List<DocumentoAnexo> listarDocumentosPorHistoria(int idHistoriaClinica) {
         List<DocumentoAnexo> lista = new ArrayList<>();
-        String sql = "SELECT * FROM documento_anexo WHERE id_historia_clinica = ?";
+        String sql = "{CALL sp_listar_documentos_por_historia(?)}";
+
         try (Connection conn = ConexionDatabase.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idHistoriaClinica);
-            try (ResultSet rs = pst.executeQuery()) {
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idHistoriaClinica);
+
+            try (ResultSet rs = cs.executeQuery()) {
                 while (rs.next()) {
-                    DocumentoAnexo d = new DocumentoAnexo(0, 0, null, null);
-                    d.setIdDocumentoAnexo(rs.getInt("id_documento"));
-                    d.setIdHistoriaClinica(rs.getInt("id_historia_clinica"));
-                    d.setTipo(rs.getString("tipo"));
-                    d.setRutaArchivo(rs.getString("ruta_archivo"));
+                    DocumentoAnexo d = new DocumentoAnexo(
+                        rs.getInt("id_documento"),
+                        rs.getInt("id_historia_clinica"),
+                        rs.getString("tipo"),
+                        rs.getString("ruta_archivo")
+                    );
                     lista.add(d);
                 }
             }
+
         } catch (SQLException e) {
-            System.out.println("Error listarDocumentosPorHistoria: " + e.getMessage());
+            System.out.println("❌ Error listarDocumentosPorHistoria (SP): " + e.getMessage());
         }
+
         return lista;
     }
 
+    // === ACTUALIZAR DOCUMENTO ===
     public boolean updateDocumento(DocumentoAnexo d) {
         boolean state = false;
-        String sql = "UPDATE documento_anexo SET id_historia_clinica=?, tipo=?, ruta_archivo=? WHERE id_documento=?";
+        String sql = "{CALL sp_actualizar_documento(?, ?, ?, ?)}";
+
         try (Connection conn = ConexionDatabase.getConnection();
-                PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, d.getIdHistoriaClinica());
-            pst.setString(2, d.getTipo());
-            pst.setString(3, d.getRutaArchivo());
-            pst.setInt(4, d.getIdDocumentoAnexo());
-            int res = pst.executeUpdate();
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, d.getIdDocumentoAnexo());
+            cs.setInt(2, d.getIdHistoriaClinica());
+            cs.setString(3, d.getTipo());
+            cs.setString(4, d.getRutaArchivo());
+
+            int res = cs.executeUpdate();
             state = res > 0;
+
         } catch (SQLException e) {
-            System.out.println("Error updateDocumento: " + e.getMessage());
+            System.out.println("❌ Error updateDocumento (SP): " + e.getMessage());
         }
+
         return state;
     }
 
+    // === ELIMINAR DOCUMENTO ===
     public boolean deleteDocumento(int idDocumentoAnexo) {
         boolean state = false;
-        Connection connect = null;
-        PreparedStatement pst = null;
-        try {
-            connect = ConexionDatabase.getConnection();
-            if (connect != null) {
-                String sql = "DELETE FROM documento_anexo WHERE id_documento = ?";
-                pst = connect.prepareStatement(sql);
-                pst.setInt(1, idDocumentoAnexo);
-                int res = pst.executeUpdate();
-                state = res > 0;
-            } else {
-                System.out.println("conexion fallida");
-            }
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        } finally {
-            try {
-                if (pst != null) {
-                    pst.close();
-                }
-                if (connect != null) {
-                    connect.close();
-                }
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-            }
+        String sql = "{CALL sp_eliminar_documento(?)}";
 
+        try (Connection conn = ConexionDatabase.getConnection();
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, idDocumentoAnexo);
+            int res = cs.executeUpdate();
+            state = res > 0;
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error deleteDocumento (SP): " + e.getMessage());
         }
+
         return state;
     }
 }

@@ -17,70 +17,157 @@ public class Login extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Fondo principal
-        JPanel fondo = new JPanel(new BorderLayout());
-        fondo.setBackground(new Color(35, 210, 43));
-        setContentPane(fondo);
+        // === PANEL PRINCIPAL DIVIDIDO EN DOS ===
+        JPanel panelPrincipal = new JPanel(new GridLayout(1, 2, 0, 0));
 
-        // Logo superior
-        ImageIcon logo = new ImageIcon("C:\\Users\\samir\\OneDrive\\Escritorio\\OneDrive\\Documentos\\prototipo\\logo.png");
-        JLabel labellogo = new JLabel(logo);
-        labellogo.setHorizontalAlignment(SwingConstants.CENTER);
-        labellogo.setIcon(new ImageIcon(logo.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH)));
-        fondo.add(labellogo, BorderLayout.NORTH);
+        /// === PANEL IZQUIERDO: IMAGEN ===
+        JPanel panelIzquierdo = new JPanel() {
+            private final Image imagen = new ImageIcon(
+                // ✅ Carga la imagen desde resources, sin ruta absoluta
+                getClass().getResource("/images/login.png")
+            ).getImage();
 
-        // Panel de login central
-        JPanel panelLogin = new JPanel(new GridBagLayout());
-        panelLogin.setOpaque(false);
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Escalar la imagen al tamaño del panel
+                g.drawImage(imagen, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        panelIzquierdo.setBackground(Color.WHITE);
+        // === PANEL DERECHO: FORMULARIO ===
+        JPanel panelDerecho = new JPanel(new BorderLayout());
+        panelDerecho.setBackground(Color.WHITE);
+        panelDerecho.setBorder(BorderFactory.createEmptyBorder(60, 80, 60, 80));
+
+        // === ENCABEZADO ===
+        JLabel lblTitulo = new JLabel("Sanavit IPS", SwingConstants.LEFT);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblTitulo.setForeground(new Color(26, 94, 59));
+
+        JLabel lblSubtitulo1 = new JLabel("Salud, naturaleza y vitalidad", SwingConstants.LEFT);
+        lblSubtitulo1.setFont(new Font("Segoe UI", Font.BOLD,16));
+        lblSubtitulo1.setForeground(new Color(26, 94, 59));
+
+
+        JLabel lblSubtitulo2 = new JLabel("Bienvenido(a), por favor inicia sesión");
+        lblSubtitulo2.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        lblSubtitulo2.setForeground(new Color(70, 70, 70));
+
+        JPanel panelEncabezado = new JPanel(new GridLayout(3, 1, 0, 5));
+        panelEncabezado.setBackground(Color.WHITE);
+        panelEncabezado.add(lblTitulo);
+        panelEncabezado.add(lblSubtitulo1);
+        panelEncabezado.add(lblSubtitulo2);
+
+        panelDerecho.add(panelEncabezado, BorderLayout.NORTH);
+
+        // === FORMULARIO DE LOGIN ===
+        JPanel panelFormulario = new JPanel(new GridBagLayout());
+        panelFormulario.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.CENTER;
-
-        // Campos de texto
+        gbc.insets = new Insets(12, 0, 12, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
+
+        // --- Usuario ---
         gbc.gridy = 0;
-        panelLogin.add(new JLabel("Nombre de usuario:"), gbc);
+        JLabel lblUsuario = new JLabel("Nombre de Usuario");
+        lblUsuario.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panelFormulario.add(lblUsuario, gbc);
 
         gbc.gridy++;
         txtUsuario = new JTextField(20);
-        panelLogin.add(txtUsuario, gbc);
+        txtUsuario.setPreferredSize(new Dimension(250, 35));
+        txtUsuario.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtUsuario.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        ));
+        panelFormulario.add(txtUsuario, gbc);
 
+        // --- Contraseña ---
         gbc.gridy++;
-        panelLogin.add(new JLabel("Contraseña:"), gbc);
+        JLabel lblContraseña = new JLabel("Contraseña");
+        lblContraseña.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panelFormulario.add(lblContraseña, gbc);
 
         gbc.gridy++;
         txtContraseña = new JPasswordField(20);
-        panelLogin.add(txtContraseña, gbc);
+        txtContraseña.setPreferredSize(new Dimension(250, 35));
+        txtContraseña.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtContraseña.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1, true),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        ));
+        panelFormulario.add(txtContraseña, gbc);
 
-        // Botones
-        gbc.gridy++; 
+        // --- Checkbox Recordar sesión ---
+        // gbc.gridy++;
+        // JCheckBox chkRecordar = new JCheckBox("Recordar sesión");
+        // chkRecordar.setBackground(Color.WHITE);
+        // chkRecordar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        // chkRecordar.setForeground(new Color(80, 80, 80));
+        // panelFormulario.add(chkRecordar, gbc);
 
-        JPanel panelBotonesSuperior = new JPanel();
-        panelBotonesSuperior.setOpaque(false);
+        // --- Botón Ingresar ---
+        gbc.gridy++;
+        btnIniciar = new JButton("INGRESAR");
+        btnIniciar.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnIniciar.setForeground(Color.WHITE);
+        btnIniciar.setBackground(new Color(26, 94, 59));
+        btnIniciar.setFocusPainted(false);
+        btnIniciar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnIniciar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        panelFormulario.add(btnIniciar, gbc);
 
-        btnIniciar = new JButton("Iniciar Sesión");
-        btnRegistrar = new JButton("Registrarse");
+        // --- Link de registro ---
+        gbc.gridy++;
+        JPanel panelInferior = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        panelInferior.setBackground(Color.WHITE);
+        JLabel lblCuenta = new JLabel("¿No tienes cuenta?");
+        lblCuenta.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblCuenta.setForeground(new Color(90, 90, 90));
 
-        panelBotonesSuperior.add(btnIniciar);
-        panelBotonesSuperior.add(btnRegistrar);
+        btnRegistrar = new JButton("Regístrate");
+        btnRegistrar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnRegistrar.setForeground(new Color(26, 94, 59));
+        btnRegistrar.setBackground(Color.WHITE);
+        btnRegistrar.setBorder(null);
+        btnRegistrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        panelLogin.add(panelBotonesSuperior, gbc);
+        panelInferior.add(lblCuenta);
+        panelInferior.add(btnRegistrar);
+        panelFormulario.add(panelInferior, gbc);
 
-        gbc.gridy++; 
+        panelDerecho.add(panelFormulario, BorderLayout.CENTER);
 
+        // === PIE: Recuperar contraseña ===
+        JPanel panelRecuperar = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelRecuperar.setBackground(Color.WHITE);
         btnRecuperar = new JButton("¿Olvidaste tu contraseña?");
+        btnRecuperar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btnRecuperar.setForeground(new Color(120, 120, 120));
+        btnRecuperar.setBorder(null);
+        btnRecuperar.setBackground(Color.WHITE);
+        btnRecuperar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        panelRecuperar.add(btnRecuperar);
+        panelDerecho.add(panelRecuperar, BorderLayout.SOUTH);
 
-        panelLogin.add(btnRecuperar, gbc);
+        // === AGREGAR PANELES AL PRINCIPAL ===
+        panelPrincipal.add(panelIzquierdo);
+        panelPrincipal.add(panelDerecho);
+        add(panelPrincipal);
 
-        fondo.add(panelLogin, BorderLayout.CENTER);
-
-        // Listeners
+        // === FUNCIONALIDAD ORIGINAL ===
         btnIniciar.addActionListener(e -> iniciarSesion());
         btnRegistrar.addActionListener(e -> abrirRegistro());
         btnRecuperar.addActionListener(e -> mostrarDialogoRecuperacion());
 
         setVisible(true);
     }
+
+    // === MÉTODOS LÓGICOS IGUALES A TU CÓDIGO ORIGINAL ===
 
     private void iniciarSesion() {
         String usuario = txtUsuario.getText().trim();
@@ -101,8 +188,8 @@ public class Login extends JFrame {
             switch (rol) {
                 case "medico" -> abrirVentana(() -> new VentanaMedico(u));
                 case "paciente" -> abrirVentana(() -> new VentanaPaciente(u));
-                // case "gestor" -> abrirVentana(() -> new VentanaGestorCitas(u));
-                // case "administrador" -> abrirVentana(() -> new VentanaAdministrador(u));
+                case "administrador" -> abrirVentana(() -> new VentanaAdministrador());
+                case "gestor de citas" -> abrirVentana(() -> new VentanaGestorCitas(u));
                 default -> JOptionPane.showMessageDialog(this, "Rol no reconocido: '" + rol + "'");
             }
         } else {
@@ -119,7 +206,6 @@ public class Login extends JFrame {
         new RegistroFrame().setVisible(true);
     }
 
-    // 🔐 Nuevo: Recuperación / cambio de contraseña
     private void mostrarDialogoRecuperacion() {
         JTextField txtUsuarioRec = new JTextField();
         JPasswordField txtNueva = new JPasswordField();
