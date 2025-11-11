@@ -246,41 +246,50 @@ public class VentanaAgendarCita extends JFrame {
     }
 
     private void guardar() {
-        try {
-            String pacienteNombre = txtPaciente.getText().trim();
-            String identificacion = txtIdentificacion.getText().trim();
-            String medicoNombre = (String) cmbMedico.getSelectedItem();
-            String horaStr = (String) cmbHora.getSelectedItem();
-            String modalidad = (String) cmbModalidad.getSelectedItem();
-            java.util.Date fechaSeleccionada = dateChooser.getDate();
+    try {
+        String pacienteNombre = txtPaciente.getText().trim();
+        String identificacion = txtIdentificacion.getText().trim();
+        String medicoNombre = (String) cmbMedico.getSelectedItem();
+        String horaStr = (String) cmbHora.getSelectedItem();
+        String modalidad = (String) cmbModalidad.getSelectedItem();
+        java.util.Date fechaSeleccionada = dateChooser.getDate();
 
-            if (pacienteNombre.isEmpty() || identificacion.isEmpty() ||
-                    medicoNombre == null || fechaSeleccionada == null ||
-                    horaStr == null || modalidad == null ||
-                    "Sin horas disponibles".equals(horaStr)) {
-                JOptionPane.showMessageDialog(this, "Complete todos los campos.");
-                return;
-            }
-
-            Medico medico = medicoDAO.obtenerPorNombre(medicoNombre);
-            Paciente paciente = PacienteDao.obtenerPorIdentificacion(identificacion);
-            java.sql.Date fecha = new java.sql.Date(fechaSeleccionada.getTime());
-            java.sql.Time hora = java.sql.Time.valueOf(horaStr + ":00");
-            int idModalidad = modalidad.equalsIgnoreCase("Presencial") ? 1 : 2;
-
-            Cita nueva = new Cita(0, medico.getIdMedico(), paciente.getIdPaciente(),
-                    ID_ESTADO_AGENDADA, idModalidad, fecha, hora);
-
-            if (citaDAO.insertarCita(nueva))
-                JOptionPane.showMessageDialog(this, "✅ Cita agendada correctamente.");
-            else
-                JOptionPane.showMessageDialog(this, "❌ Error al guardar la cita.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        if (pacienteNombre.isEmpty() || identificacion.isEmpty() ||
+                medicoNombre == null || fechaSeleccionada == null ||
+                horaStr == null || modalidad == null ||
+                "Sin horas disponibles".equals(horaStr)) {
+            JOptionPane.showMessageDialog(this, "Complete todos los campos.");
+            return;
         }
+
+        Medico medico = medicoDAO.obtenerPorNombre(medicoNombre);
+        Paciente paciente = PacienteDao.obtenerPorIdentificacion(identificacion);
+        java.sql.Date fecha = new java.sql.Date(fechaSeleccionada.getTime());
+        java.sql.Time hora = java.sql.Time.valueOf(horaStr + ":00");
+        int idModalidad = modalidad.equalsIgnoreCase("Presencial") ? 1 : 2;
+
+        Cita nueva = new Cita(0, medico.getIdMedico(), paciente.getIdPaciente(),
+                ID_ESTADO_AGENDADA, idModalidad, fecha, hora);
+
+        if (citaDAO.insertarCita(nueva)) {
+            // 💬 Mensaje personalizado al guardar correctamente
+            JOptionPane.showMessageDialog(
+                    this,
+                    "✅ Tu cita fue agendada exitosamente.\nRecuerda estar 30 minutos antes.",
+                    "Cita Agendada",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            dispose(); // Cierra la ventana después de agendar (opcional)
+        } else {
+            JOptionPane.showMessageDialog(this, "❌ Error al guardar la cita.");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
     }
+}
+
 
     private void limpiarCampos() {
         cmbEspecialidad.setSelectedIndex(-1);

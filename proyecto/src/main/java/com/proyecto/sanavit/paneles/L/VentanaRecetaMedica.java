@@ -71,7 +71,7 @@ public class VentanaRecetaMedica extends JFrame {
 
         // ===== PANEL BOTÓN GUARDAR =====
         JPanel panelBoton = new JPanel();
-        panelBoton.setBackground(new Color(60, 120, 60));
+        panelBoton.setBackground(new Color(250, 250, 255));
 
         btnGuardar = new JButton("Guardar Receta");
         btnGuardar.setFont(new Font("Segoe UI", Font.BOLD, 15));
