@@ -88,7 +88,16 @@ public class VentanaVerCitas extends JFrame {
             }
         });
 
-        btnCerrar.addActionListener(e -> dispose());
+        btnCerrar.addActionListener(e -> {
+        JOptionPane.showInternalMessageDialog(
+            null,
+            "✔ Tu cita fue agendada exitosamente. \nRecuerda estar 30 minitos antes",
+            "Cita Agendada",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+
+        dispose();
+    });
         panelBoton.add(btnCerrar);
         add(panelBoton, BorderLayout.SOUTH);
 

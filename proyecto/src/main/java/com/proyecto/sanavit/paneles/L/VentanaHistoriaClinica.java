@@ -84,7 +84,7 @@ public class VentanaHistoriaClinica extends JFrame {
         btnVerReceta.setEnabled(false);
 
         // Colores principales
-        Color verde = new Color(39, 174, 96);
+        Color verde = new Color(76, 175, 80);
 
         // Aplicar estilos base
         configurarBoton(btnGuardar, verde);
