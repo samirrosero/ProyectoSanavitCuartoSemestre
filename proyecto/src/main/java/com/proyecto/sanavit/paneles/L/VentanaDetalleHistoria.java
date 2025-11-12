@@ -48,10 +48,10 @@ public class VentanaDetalleHistoria extends JFrame {
         ));
 
         // === Datos del paciente ===
-        panelContenido.add(crearLabel("👤 Nombre: " + paciente.getNombre(), true));
-        panelContenido.add(crearLabel("📧 Correo: " + paciente.getCorreo(), false));
-        panelContenido.add(crearLabel("📞 Teléfono: " + paciente.getTelefono(), false));
-        panelContenido.add(crearLabel("🎂 Edad: " + paciente.getEdad(), false));
+        panelContenido.add(crearLabel("Nombre: " + paciente.getNombre(), true));
+        panelContenido.add(crearLabel("Correo: " + paciente.getCorreo(), false));
+        panelContenido.add(crearLabel("Teléfono: " + paciente.getTelefono(), false));
+        panelContenido.add(crearLabel("Edad: " + paciente.getEdad(), false));
         panelContenido.add(Box.createRigidArea(new Dimension(0, 15)));
 
         // === Médico tratante ===
@@ -69,10 +69,10 @@ public class VentanaDetalleHistoria extends JFrame {
                 }
             }
         } catch (Exception e) {
-            System.out.println("⚠️ Error obteniendo médico: " + e.getMessage());
+            System.out.println("Error obteniendo médico: " + e.getMessage());
         }
 
-        panelContenido.add(crearSeccion("👨‍⚕️ Médico tratante: " + medicoNombre));
+        panelContenido.add(crearSeccion("Médico tratante: " + medicoNombre));
         panelContenido.add(Box.createRigidArea(new Dimension(0, 10)));
 
         // === Datos de la historia clínica ===
@@ -106,7 +106,7 @@ public class VentanaDetalleHistoria extends JFrame {
         boolean encontrada = false;
         for (RecetaMedica r : recetas) {
             if (r.getIdHistoriaClinica() == historia.getIdHistoriaClinica()) {
-                panelContenido.add(crearSeccion("💊 Receta Médica"));
+                panelContenido.add(crearSeccion("Receta Médica"));
                 panelContenido.add(crearLabel("Medicamento: " + r.getMedicamento(), false));
                 panelContenido.add(crearLabel("Indicaciones: " + r.getIndicaciones(), false));
                 encontrada = true;

@@ -227,10 +227,10 @@ public class ModalAgendarCita extends JDialog {
             Cita c = new Cita(0, m.getIdMedico(), p.getIdPaciente(), 1, idModalidad, fechaSql, horaSql);
             boolean ok = citaDAO.insertarCita(c);
             if (ok) {
-                JOptionPane.showMessageDialog(this, "✅ Cita agendada correctamente.");
+                JOptionPane.showMessageDialog(this, "Cita agendada correctamente.");
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al agendar cita.");
+                JOptionPane.showMessageDialog(this, "Error al agendar cita.");
             }
         } catch (Exception e) {
             e.printStackTrace();

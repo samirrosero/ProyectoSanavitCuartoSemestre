@@ -12,12 +12,12 @@ public class VentanaGestorCitas extends JFrame {
     private JTable tablaPacientes, tablaCitas;
     private DefaultTableModel modeloPacientes, modeloCitas;
     private JButton btnNuevoPaciente, btnEditarPaciente, btnEliminarPaciente, btnBuscarPaciente;
-    private JButton btnAgendarCita, btnEditarCita, btnEliminarCita, btnActualizarCitas, btnActualizarPacientes;
+    private JButton btnAgendarCita, btnEditarCita, btnEliminarCita, btnActualizarCitas, btnActualizarPacientes, btnCancelarCita;
     private JTextField txtBuscarPaciente;
     private Usuario usuarioGestor;
 
-    private PacienteDao pacienteDAO = new PacienteDao();
-    private CitaDao citaDAO = new CitaDao();
+    private final PacienteDao pacienteDAO = new PacienteDao();
+    private final CitaDao citaDAO = new CitaDao();
 
     public VentanaGestorCitas(Usuario usuarioGestor) {
         this.usuarioGestor = usuarioGestor;
@@ -68,7 +68,6 @@ public class VentanaGestorCitas extends JFrame {
         tabs.setBackground(Color.WHITE);
         tabs.setForeground(new Color(60, 120, 60));
 
-        // === ÍCONOS ===
         ImageIcon iconPacientes = crearIcono("/icons/icons8-usuario-32.png");
         ImageIcon iconCitas = crearIcono("/icons/icons8-citas-32.png");
 
@@ -76,12 +75,11 @@ public class VentanaGestorCitas extends JFrame {
         tabs.addTab(" Citas", iconCitas, crearPanelCitas());
 
         add(tabs, BorderLayout.CENTER);
-
         getContentPane().setBackground(Color.WHITE);
         setVisible(true);
     }
 
-    // ===== PANEL DE PACIENTES =====
+    // ===== PANEL PACIENTES =====
     private JPanel crearPanelPacientes() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -96,7 +94,6 @@ public class VentanaGestorCitas extends JFrame {
         tablaPacientes.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         panel.add(new JScrollPane(tablaPacientes), BorderLayout.CENTER);
 
-        // ===== BOTONES =====
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
         botones.setBackground(new Color(245, 245, 245));
 
@@ -125,16 +122,24 @@ public class VentanaGestorCitas extends JFrame {
         btnActualizarPacientes.addActionListener(e -> cargarPacientes());
         btnBuscarPaciente.addActionListener(e -> buscarPaciente());
         btnEliminarPaciente.addActionListener(e -> eliminarPaciente());
-        btnEditarPaciente.addActionListener(e -> editarPaciente());
-
+        btnEditarPaciente.addActionListener(e -> new ModalEditarPaciente(this, obtenerPacienteSeleccionado()));
 
         return panel;
     }
 
-    private void cargarPacientes() {
+    private Paciente obtenerPacienteSeleccionado() {
+        int fila = tablaPacientes.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "⚠️ Seleccione un paciente.");
+            return null;
+        }
+        int idPaciente = Integer.parseInt(modeloPacientes.getValueAt(fila, 0).toString());
+        return pacienteDAO.obtenerPacientePorId(idPaciente);
+    }
+
+    public void cargarPacientes() {
         modeloPacientes.setRowCount(0);
-        List<Paciente> lista = pacienteDAO.obtenerTodosLosPacientes();
-        for (Paciente p : lista) {
+        for (Paciente p : pacienteDAO.obtenerTodosLosPacientes()) {
             modeloPacientes.addRow(new Object[]{
                     p.getIdPaciente(), p.getNombre(), p.getCorreo(),
                     p.getEdad(), p.getTelefono(), p.getSexo(),
@@ -143,159 +148,6 @@ public class VentanaGestorCitas extends JFrame {
         }
     }
 
-    private void editarPaciente() {
-    int fila = tablaPacientes.getSelectedRow();
-    if (fila == -1) {
-        JOptionPane.showMessageDialog(this, "⚠️ Seleccione un paciente para editar.");
-        return;
-    }
-
-    // Obtener el paciente seleccionado desde la base de datos
-    int idPaciente = Integer.parseInt(modeloPacientes.getValueAt(fila, 0).toString());
-    Paciente paciente = pacienteDAO.obtenerPacientePorId(idPaciente);
-
-    if (paciente == null) {
-        JOptionPane.showMessageDialog(this, "❌ No se encontró el paciente en la base de datos.");
-        return;
-    }
-
-    // 🌿 Ventana de edición moderna
-    JDialog ventanaEditar = new JDialog(this, "Editar Paciente - Sanavit", true);
-    ventanaEditar.setSize(450, 550);
-    ventanaEditar.setLocationRelativeTo(this);
-    ventanaEditar.setLayout(new BorderLayout());
-    ventanaEditar.setResizable(false);
-
-    // 🟢 ENCABEZADO
-    JPanel encabezado = new JPanel();
-    encabezado.setBackground(new Color(0, 153, 102));
-    encabezado.setPreferredSize(new Dimension(400, 60));
-    JLabel lblTitulo = new JLabel("Editar Paciente");
-    lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-    lblTitulo.setForeground(Color.WHITE);
-    encabezado.add(lblTitulo);
-
-    // 📋 CAMPOS DE FORMULARIO
-    JPanel panelCampos = new JPanel(new GridLayout(7, 2, 10, 12));
-    panelCampos.setBackground(Color.WHITE);
-    panelCampos.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
-
-    JLabel[] etiquetas = {
-        new JLabel("Nombre:"), new JLabel("Correo:"),
-        new JLabel("Edad:"), new JLabel("Teléfono:"),
-        new JLabel("Sexo:"), new JLabel("Dirección:"),
-        new JLabel("Identificación:")
-    };
-
-    JTextField txtNombre = new JTextField(paciente.getNombre());
-    JTextField txtCorreo = new JTextField(paciente.getCorreo());
-    JTextField txtEdad = new JTextField(String.valueOf(paciente.getEdad()));
-    JTextField txtTelefono = new JTextField(paciente.getTelefono());
-    JComboBox<String> cbSexo = new JComboBox<>(new String[]{"Masculino", "Femenino"});
-    cbSexo.setSelectedItem(paciente.getSexo());
-    JTextField txtDireccion = new JTextField(paciente.getDireccion());
-    JTextField txtIdentificacion = new JTextField(paciente.getIdentificacion());
-
-    Font fuente = new Font("Segoe UI", Font.PLAIN, 14);
-    for (JLabel lbl : etiquetas) {
-        lbl.setFont(fuente);
-        lbl.setForeground(new Color(40, 70, 40));
-    }
-
-    JTextField[] campos = {txtNombre, txtCorreo, txtEdad, txtTelefono, txtDireccion, txtIdentificacion};
-    for (JTextField campo : campos) {
-        campo.setFont(fuente);
-        campo.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(180, 220, 180), 1),
-            BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
-    }
-
-    panelCampos.add(etiquetas[0]); panelCampos.add(txtNombre);
-    panelCampos.add(etiquetas[1]); panelCampos.add(txtCorreo);
-    panelCampos.add(etiquetas[2]); panelCampos.add(txtEdad);
-    panelCampos.add(etiquetas[3]); panelCampos.add(txtTelefono);
-    panelCampos.add(etiquetas[4]); panelCampos.add(cbSexo);
-    panelCampos.add(etiquetas[5]); panelCampos.add(txtDireccion);
-    panelCampos.add(etiquetas[6]); panelCampos.add(txtIdentificacion);
-
-    // 🎛️ BOTONES
-    JPanel panelBotones = new JPanel();
-    panelBotones.setBackground(Color.WHITE);
-    panelBotones.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
-
-    JButton btnGuardar = new JButton("Guardar Cambios");
-    JButton btnCancelar = new JButton("Cancelar");
-
-    Color verde = new Color(0, 153, 102);
-
-    btnGuardar.setFont(new Font("Segoe UI", Font.BOLD, 15));
-    btnGuardar.setBackground(verde);
-    btnGuardar.setForeground(Color.WHITE);
-    btnGuardar.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
-    btnGuardar.setFocusPainted(false);
-    btnGuardar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-    btnCancelar.setFont(new Font("Segoe UI", Font.BOLD, 15));
-    btnCancelar.setBackground(verde);
-    btnCancelar.setForeground(Color.WHITE);
-    btnCancelar.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
-    btnCancelar.setFocusPainted(false);
-    btnCancelar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-    // Efecto hover
-    btnGuardar.addMouseListener(new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) { btnGuardar.setBackground(new Color(0, 180, 120)); }
-        public void mouseExited(MouseEvent e) { btnGuardar.setBackground(verde); }
-    });
-    btnCancelar.addMouseListener(new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) { btnCancelar.setBackground(new Color(255, 60, 60)); }
-        public void mouseExited(MouseEvent e) { btnCancelar.setBackground(verde); }
-    });
-
-    panelBotones.add(btnGuardar);
-    panelBotones.add(btnCancelar);
-
-    // 📦 ENSAMBLAR TODO
-    ventanaEditar.add(encabezado, BorderLayout.NORTH);
-    ventanaEditar.add(panelCampos, BorderLayout.CENTER);
-    ventanaEditar.add(panelBotones, BorderLayout.SOUTH);
-
-    // 🧠 FUNCIONALIDAD
-    btnGuardar.addActionListener(e -> {
-        try {
-            paciente.setNombre(txtNombre.getText().trim());
-            paciente.setCorreo(txtCorreo.getText().trim());
-            paciente.setEdad(Integer.parseInt(txtEdad.getText().trim()));
-            paciente.setTelefono(txtTelefono.getText().trim());
-            paciente.setSexo(cbSexo.getSelectedItem().toString());
-            paciente.setDireccion(txtDireccion.getText().trim());
-            paciente.setIdentificacion(txtIdentificacion.getText().trim());
-
-            boolean ok = pacienteDAO.actualizarPaciente(paciente);
-            if (ok) {
-                JOptionPane.showMessageDialog(ventanaEditar, "✅ Paciente actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                ventanaEditar.dispose();
-                cargarPacientes();
-            } else {
-                JOptionPane.showMessageDialog(ventanaEditar, "❌ No se pudo actualizar el paciente.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
-        } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(ventanaEditar, "⚠️ La edad debe ser un número válido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(ventanaEditar, "⚠️ Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-
-    btnCancelar.addActionListener(e -> ventanaEditar.dispose());
-
-    // Mostrar ventana
-    ventanaEditar.setVisible(true);
-}
-
-
-
     private void buscarPaciente() {
         String nombre = txtBuscarPaciente.getText().trim();
         if (nombre.isEmpty()) {
@@ -303,8 +155,7 @@ public class VentanaGestorCitas extends JFrame {
             return;
         }
         modeloPacientes.setRowCount(0);
-        List<Paciente> lista = pacienteDAO.buscarPacientePorNombre(nombre);
-        for (Paciente p : lista) {
+        for (Paciente p : pacienteDAO.buscarPacientePorNombre(nombre)) {
             modeloPacientes.addRow(new Object[]{
                     p.getIdPaciente(), p.getNombre(), p.getCorreo(),
                     p.getEdad(), p.getTelefono(), p.getSexo(),
@@ -321,22 +172,19 @@ public class VentanaGestorCitas extends JFrame {
         }
         int id = (int) modeloPacientes.getValueAt(fila, 0);
         int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este paciente?", "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            boolean ok = pacienteDAO.eliminarPaciente(id);
-            if (ok) {
-                JOptionPane.showMessageDialog(this, "Paciente eliminado correctamente.");
-                cargarPacientes();
-            }
+        if (confirm == JOptionPane.YES_OPTION && pacienteDAO.eliminarPaciente(id)) {
+            JOptionPane.showMessageDialog(this, "Paciente eliminado correctamente.");
+            cargarPacientes();
         }
     }
 
-    // ===== PANEL DE CITAS =====
+    // ===== PANEL CITAS =====
     private JPanel crearPanelCitas() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
         modeloCitas = new DefaultTableModel(new String[]{
-                "ID", "Paciente", "Médico", "Fecha", "Hora", "Modalidad"
+                "ID", "Paciente", "Médico", "Fecha", "Hora", "Modalidad", "Estado"
         }, 0);
 
         tablaCitas = new JTable(modeloCitas);
@@ -350,12 +198,12 @@ public class VentanaGestorCitas extends JFrame {
 
         btnAgendarCita = crearBoton("Agendar Cita", new Color(66, 166, 105));
         btnEditarCita = crearBoton("Editar", new Color(66, 166, 105));
-        btnEliminarCita = crearBoton("Eliminar", new Color(66, 166, 105));
+        btnCancelarCita = crearBoton("Cancelar Cita", new Color(192, 57, 43));
         btnActualizarCitas = crearBoton("Actualizar Lista", new Color(66, 166, 105));
 
         botones.add(btnAgendarCita);
         botones.add(btnEditarCita);
-        botones.add(btnEliminarCita);
+        botones.add(btnCancelarCita);
         botones.add(btnActualizarCitas);
 
         panel.add(botones, BorderLayout.SOUTH);
@@ -363,19 +211,46 @@ public class VentanaGestorCitas extends JFrame {
 
         btnActualizarCitas.addActionListener(e -> cargarCitas());
         btnAgendarCita.addActionListener(e -> new ModalAgendarCita(this));
-        btnEditarCita.addActionListener(e -> editarCita());
-
+        btnEditarCita.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "⚙️ Edición de cita aún no disponible.");
+        });
+        btnCancelarCita.addActionListener(e -> cancelarCita());
 
         return panel;
     }
 
+    private void cancelarCita() {
+        int fila = tablaCitas.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "⚠️ Seleccione una cita para cancelar.");
+            return;
+        }
+
+        int idCita = Integer.parseInt(modeloCitas.getValueAt(fila, 0).toString());
+        String estado = modeloCitas.getValueAt(fila, 6).toString();
+        if (estado.equalsIgnoreCase("Cancelada")) {
+            JOptionPane.showMessageDialog(this, "Esta cita ya está cancelada.");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, "¿Deseas cancelar esta cita?", "Confirmar", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            Cita cita = new Cita();
+            cita.setIdCita(idCita);
+            cita.setIdEstadoCita(2);
+            if (citaDAO.actualizarEstadoCita(cita)) {
+                JOptionPane.showMessageDialog(this, "✅ Cita cancelada correctamente.");
+                cargarCitas();
+            } else {
+                JOptionPane.showMessageDialog(this, "❌ No se pudo cancelar la cita.");
+            }
+        }
+    }
+
     private void cargarCitas() {
         modeloCitas.setRowCount(0);
-        List<Cita> citas = citaDAO.selectCita();
         MedicoDao medicoDAO = new MedicoDao();
-        PacienteDao pacienteDAO = new PacienteDao();
-
-        for (Cita c : citas) {
+        for (Cita c : citaDAO.selectCita()) {
             Paciente p = pacienteDAO.obtenerPacientePorId(c.getIdPaciente());
             Medico m = medicoDAO.obtenerMedicoPorId(c.getIdMedico());
             modeloCitas.addRow(new Object[]{
@@ -384,164 +259,13 @@ public class VentanaGestorCitas extends JFrame {
                     m != null ? m.getNombre() : "Desconocido",
                     c.getFechaCita(),
                     c.getHoraCita(),
-                    (c.getIdModalidad() == 1 ? "Presencial" : "Virtual")
+                    c.getIdModalidad() == 1 ? "Presencial" : "Virtual",
+                    c.getIdEstadoCita() == 1 ? "Activa" : "Cancelada"
             });
         }
     }
 
-private void editarCita() {
-    int fila = tablaCitas.getSelectedRow();
-    if (fila == -1) {
-        JOptionPane.showMessageDialog(this, "⚠️ Seleccione una cita para editar.");
-        return;
-    }
-
-    // Obtener datos actuales desde la tabla
-    int idCita = Integer.parseInt(modeloCitas.getValueAt(fila, 0).toString());
-    String pacienteNombre = modeloCitas.getValueAt(fila, 1).toString();
-    String medicoNombre = modeloCitas.getValueAt(fila, 2).toString();
-    String fechaActual = modeloCitas.getValueAt(fila, 3).toString();
-    String horaActual = modeloCitas.getValueAt(fila, 4).toString();
-    String modalidadActual = modeloCitas.getValueAt(fila, 5).toString();
-
-    // Crear ventana de edición moderna
-    JDialog ventanaEditar = new JDialog(this, "Editar Cita - Sanavit", true);
-    ventanaEditar.setSize(400, 400);
-    ventanaEditar.setLocationRelativeTo(this);
-    ventanaEditar.setLayout(new BorderLayout());
-    ventanaEditar.setResizable(false);
-
-    // 🟢 Encabezado
-    JPanel encabezado = new JPanel();
-    encabezado.setBackground(new Color(0, 153, 102));
-    encabezado.setPreferredSize(new Dimension(400, 60));
-    JLabel lblTitulo = new JLabel("Editar Cita");
-    lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
-    lblTitulo.setForeground(Color.WHITE);
-    encabezado.add(lblTitulo);
-
-    // 📅 Panel central
-    JPanel panelCampos = new JPanel(new GridLayout(3, 2, 10, 10));
-    panelCampos.setBackground(Color.WHITE);
-    panelCampos.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
-
-    JTextField txtFecha = new JTextField(fechaActual);
-    JTextField txtHora = new JTextField(horaActual);
-    JComboBox<String> cbModalidad = new JComboBox<>(new String[]{"Presencial", "Virtual"});
-    cbModalidad.setSelectedItem(modalidadActual);
-
-    panelCampos.add(new JLabel("Nueva Fecha (YYYY-MM-DD):"));
-    panelCampos.add(txtFecha);
-    panelCampos.add(new JLabel("Nueva Hora (HH:MM:SS):"));
-    panelCampos.add(txtHora);
-    panelCampos.add(new JLabel("Modalidad:"));
-    panelCampos.add(cbModalidad);
-
-    // 🎛️ Panel de botones
-    JPanel panelBotones = new JPanel();
-    panelBotones.setBackground(Color.WHITE);
-
-    JButton btnGuardar = new JButton("Guardar Cambios");
-    JButton btnCancelar = new JButton("Cancelar");
-
-    Color colorPrincipal = new Color(0, 153, 102);
-    btnGuardar.setBackground(colorPrincipal);
-    btnGuardar.setForeground(Color.WHITE);
-    btnGuardar.setFocusPainted(false);
-    btnGuardar.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
-    btnGuardar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-    btnCancelar.setBackground(new Color(200, 0, 0));
-    btnCancelar.setForeground(Color.WHITE);
-    btnCancelar.setFocusPainted(false);
-    btnCancelar.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
-    btnCancelar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-    // Efecto hover
-    btnGuardar.addMouseListener(new java.awt.event.MouseAdapter() {
-        public void mouseEntered(java.awt.event.MouseEvent evt) {
-            btnGuardar.setBackground(new Color(0, 153, 102));
-        }
-
-        public void mouseExited(java.awt.event.MouseEvent evt) {
-            btnGuardar.setBackground(colorPrincipal);
-        }
-    });
-
-    btnCancelar.addMouseListener(new java.awt.event.MouseAdapter() {
-        public void mouseEntered(java.awt.event.MouseEvent evt) {
-            btnCancelar.setBackground(new Color(200, 0, 0));
-        }
-
-        public void mouseExited(java.awt.event.MouseEvent evt) {
-            btnCancelar.setBackground(new Color(0, 153, 102));
-        }
-    });
-
-    panelBotones.add(btnGuardar);
-    panelBotones.add(btnCancelar);
-
-    // 📦 Añadir todo a la ventana
-    ventanaEditar.add(encabezado, BorderLayout.NORTH);
-    ventanaEditar.add(panelCampos, BorderLayout.CENTER);
-    ventanaEditar.add(panelBotones, BorderLayout.SOUTH);
-
-    // 🧠 Funcionalidad de botones
-    btnGuardar.addActionListener(e -> {
-        try {
-            String nuevaFecha = txtFecha.getText().trim();
-            String nuevaHora = txtHora.getText().trim();
-            String nuevaModalidad = cbModalidad.getSelectedItem().toString();
-            int idModalidad = nuevaModalidad.equals("Presencial") ? 1 : 2;
-
-            // Obtener paciente y médico desde la BD
-            PacienteDao pacienteDAO = new PacienteDao();
-            MedicoDao medicoDAO = new MedicoDao();
-
-            List<Paciente> pacientes = pacienteDAO.buscarPacientePorNombre(pacienteNombre);
-            Paciente paciente = (pacientes != null && !pacientes.isEmpty()) ? pacientes.get(0) : null;
-            Medico medico = medicoDAO.obtenerPorNombre(medicoNombre);
-
-            if (paciente == null || medico == null) {
-                JOptionPane.showMessageDialog(ventanaEditar, "⚠️ No se encontró al paciente o médico.");
-                return;
-            }
-
-            // Crear objeto Cita
-            Cita cita = new Cita();
-            cita.setIdCita(idCita);
-            cita.setIdMedico(medico.getIdMedico());
-            cita.setIdPaciente(paciente.getIdPaciente());
-            cita.setIdEstadoCita(1);
-            cita.setIdModalidad(idModalidad);
-            cita.setFechaCita(java.sql.Date.valueOf(nuevaFecha));
-            cita.setHoraCita(java.sql.Time.valueOf(nuevaHora));
-
-            // Actualizar BD
-            boolean actualizado = citaDAO.updateCita(cita);
-
-            if (actualizado) {
-                JOptionPane.showMessageDialog(ventanaEditar, "✅ Cita actualizada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                cargarCitas();
-                ventanaEditar.dispose();
-            } else {
-                JOptionPane.showMessageDialog(ventanaEditar, "❌ No se pudo actualizar la cita.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(ventanaEditar, "⚠️ Error: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    });
-
-    btnCancelar.addActionListener(e -> ventanaEditar.dispose());
-
-    // Mostrar ventana
-    ventanaEditar.setVisible(true);
-}
-
-
-
-    // ===== BOTÓN CON EFECTO HOVER =====
+    // ===== UTILIDADES =====
     private JButton crearBoton(String texto, Color colorBase) {
         JButton btn = new JButton(texto);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -558,7 +282,6 @@ private void editarCita() {
         return btn;
     }
 
-    // ===== CARGAR ÍCONO =====
     private ImageIcon crearIcono(String ruta) {
         java.net.URL url = getClass().getResource(ruta);
         if (url != null) {

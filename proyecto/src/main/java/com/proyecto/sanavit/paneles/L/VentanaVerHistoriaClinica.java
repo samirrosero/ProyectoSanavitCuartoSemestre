@@ -22,7 +22,7 @@ public class VentanaVerHistoriaClinica extends JFrame {
         header.setBackground(new Color(65, 158, 91)); // Verde institucional Sanavit
         header.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
 
-        JLabel lblTitulo = new JLabel("📋 Historial Médico del Paciente: " + paciente.getNombre());
+        JLabel lblTitulo = new JLabel("Historial Médico del Paciente: " + paciente.getNombre());
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitulo.setForeground(Color.WHITE);
         header.add(lblTitulo, BorderLayout.WEST);
@@ -62,7 +62,7 @@ public class VentanaVerHistoriaClinica extends JFrame {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("⚠️ Error obteniendo médico: " + e.getMessage());
+                System.out.println("Error obteniendo médico: " + e.getMessage());
             }
 
             modelo.addRow(new Object[]{

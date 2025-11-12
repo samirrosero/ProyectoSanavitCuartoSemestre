@@ -137,7 +137,7 @@ public class VentanaPaciente extends JFrame {
 
         btnAgendarCita = crearBoton("Agendar Cita");
         btnVerHistoriaClinica = crearBoton("Historia Clínica");
-        btnVerCitas = crearBoton("Ver Citas");
+        btnVerCitas = crearBoton("Citas agendadas");
         btnCerrarSesion = crearBoton("Cerrar Sesión");
 
         panelBotones.add(btnAgendarCita);

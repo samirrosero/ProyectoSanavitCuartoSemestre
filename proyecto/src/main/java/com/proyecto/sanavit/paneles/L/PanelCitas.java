@@ -166,7 +166,7 @@ public class PanelCitas extends JPanel {
             Paciente paciente = (pacientes.isEmpty()) ? null : pacientes.get(0);
 
             if (paciente == null || medico == null) {
-                JOptionPane.showMessageDialog(this, "⚠️ No se encontró el paciente o médico seleccionado.");
+                JOptionPane.showMessageDialog(this, "No se encontró el paciente o médico seleccionado.");
                 return;
             }
 
@@ -189,13 +189,13 @@ public class PanelCitas extends JPanel {
 
             boolean ok = citaDAO.insertarCita(nueva);
             if (ok) {
-                JOptionPane.showMessageDialog(this, "✅ Cita registrada correctamente.");
+                JOptionPane.showMessageDialog(this, "Cita registrada correctamente.");
                 cargarCitas();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al registrar cita.");
+                JOptionPane.showMessageDialog(this, "Error al registrar cita.");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "⚠️ Verifique los datos ingresados.");
+            JOptionPane.showMessageDialog(this, " Verifique los datos ingresados.");
             e.printStackTrace();
         }
     }
@@ -241,13 +241,13 @@ public class PanelCitas extends JPanel {
 
             boolean ok = citaDAO.updateCita(actualizada);
             if (ok) {
-                JOptionPane.showMessageDialog(this, "✅ Cita actualizada correctamente.");
+                JOptionPane.showMessageDialog(this, "Cita actualizada correctamente.");
                 cargarCitas();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al actualizar cita.");
+                JOptionPane.showMessageDialog(this, "Error al actualizar cita.");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "⚠️ Error en los datos ingresados.");
+            JOptionPane.showMessageDialog(this, "Error en los datos ingresados.");
             e.printStackTrace();
         }
     }
@@ -265,10 +265,10 @@ public class PanelCitas extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             boolean ok = citaDAO.deleteCita(id);
             if (ok) {
-                JOptionPane.showMessageDialog(this, "✅ Cita eliminada correctamente.");
+                JOptionPane.showMessageDialog(this, "Cita eliminada correctamente.");
                 cargarCitas();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al eliminar cita.");
+                JOptionPane.showMessageDialog(this, "Error al eliminar cita.");
             }
         }
     }

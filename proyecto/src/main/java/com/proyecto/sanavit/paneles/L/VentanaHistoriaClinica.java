@@ -28,7 +28,7 @@ public class VentanaHistoriaClinica extends JFrame {
         getContentPane().setBackground(new Color(244, 247, 250)); 
 
         // === PANEL SUPERIOR ===
-        JLabel lblTitulo = new JLabel("🩺 Registro de Historia Clínica", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Registro de Historia Clínica", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setOpaque(true);
         lblTitulo.setBackground(new Color(65, 158, 91));
@@ -131,10 +131,10 @@ public class VentanaHistoriaClinica extends JFrame {
 
             if (exito) {
                 historiaGuardada = hc;
-                JOptionPane.showMessageDialog(this, "✅ Historia clínica guardada correctamente.");
+                JOptionPane.showMessageDialog(this, "Historia clínica guardada correctamente.");
                 btnVerReceta.setEnabled(true);
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al guardar la historia clínica.");
+                JOptionPane.showMessageDialog(this, " Error al guardar la historia clínica.");
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "⚠️ Error inesperado: " + ex.getMessage());

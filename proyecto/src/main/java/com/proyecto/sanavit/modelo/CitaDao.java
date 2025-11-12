@@ -170,6 +170,20 @@ public List<Cita> obtenerCitasPorMedicoYEstado(int idMedico, int... estados) {
         return lista;
     }
 
+public boolean actualizarEstadoCita(Cita cita) {
+    String sql = "UPDATE cita SET id_estado_cita = ? WHERE id_cita = ?";
+    try (Connection conn = ConexionDatabase.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, cita.getIdEstadoCita());
+        ps.setInt(2, cita.getIdCita());
+        return ps.executeUpdate() > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+
     // === OBTENER CITA POR ID ===
     public Cita obtenerCitaPorId(int idCita) {
         Cita cita = null;
