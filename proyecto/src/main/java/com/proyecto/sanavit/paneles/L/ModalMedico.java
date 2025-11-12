@@ -90,7 +90,7 @@ public class ModalMedico extends JDialog {
             String especialidad = comboEspecialidad.getSelectedItem().toString();
 
             if (nombre.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "⚠️ Ingrese el nombre del médico.");
+                JOptionPane.showMessageDialog(this, "Ingrese el nombre del médico.");
                 return;
             }
 
@@ -98,12 +98,12 @@ public class ModalMedico extends JDialog {
             MedicoDao dao = new MedicoDao();
 
             if (dao.insertarMedico(nuevoMedico)) {
-                JOptionPane.showMessageDialog(this, "✅ Médico registrado con éxito.");
+                JOptionPane.showMessageDialog(this, "Médico registrado con éxito.");
                 dispose();
                 parent.dispose();
                 new Login();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al registrar médico.");
+                JOptionPane.showMessageDialog(this, "Error al registrar médico.");
             }
         });
 

@@ -5,12 +5,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.regex.Pattern;
 
 public class ModalPaciente extends JDialog {
 
     private JTextField txtNombre, txtCorreo, txtEdad, txtTelefono, txtDireccion, txtIdentificacion;
     private JComboBox<String> comboSexo, comboSalud, comboAfiliacion;
     private JButton btnGuardar;
+
+    private final Color COLOR_NORMAL = new Color(165, 228, 194);
+    private final Color COLOR_ERROR = new Color(255, 102, 102);
 
     public ModalPaciente(JFrame parent, Usuario usuarioActual) {
         super(parent, "Registrar Paciente - Sanavit", true);
@@ -49,7 +53,6 @@ public class ModalPaciente extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // === Imagen ===
-        // 🖼️ Aquí puedes poner un ícono o imagen de paciente
         JLabel lblImagen = new JLabel(new ImageIcon("ruta/a/tu/imagen_paciente.png"));
         lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
@@ -110,7 +113,7 @@ public class ModalPaciente extends JDialog {
         gbc.gridx = 1;
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         campo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(165, 228, 194), 1),
+                BorderFactory.createLineBorder(COLOR_NORMAL, 1),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)
         ));
         panel.add(campo, gbc);
@@ -126,7 +129,7 @@ public class ModalPaciente extends JDialog {
     private void estilizarCombo(JComboBox<String> combo) {
         combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         combo.setBackground(Color.WHITE);
-        combo.setBorder(BorderFactory.createLineBorder(new Color(165, 228, 194), 1));
+        combo.setBorder(BorderFactory.createLineBorder(COLOR_NORMAL, 1));
     }
 
     private JButton crearBoton(String texto, Color colorBase) {
@@ -144,7 +147,68 @@ public class ModalPaciente extends JDialog {
         return btn;
     }
 
+    // === VALIDACIONES CON COLORES ===
+    private boolean validarCampos() {
+        boolean valido = true;
+
+        // Restaurar bordes
+        restaurarBorde(txtNombre);
+        restaurarBorde(txtCorreo);
+        restaurarBorde(txtEdad);
+        restaurarBorde(txtTelefono);
+        restaurarBorde(txtDireccion);
+        restaurarBorde(txtIdentificacion);
+
+        String nombre = txtNombre.getText().trim();
+        String correo = txtCorreo.getText().trim();
+        String edadStr = txtEdad.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        String identificacion = txtIdentificacion.getText().trim();
+
+        if (nombre.isEmpty()) { marcarError(txtNombre, "El nombre es obligatorio."); valido = false; }
+        else if (nombre.length() < 3) { marcarError(txtNombre, "El nombre debe tener al menos 3 caracteres."); valido = false; }
+
+        if (correo.isEmpty()) { marcarError(txtCorreo, "El correo es obligatorio."); valido = false; }
+        else if (!Pattern.matches("^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", correo)) { marcarError(txtCorreo, "Correo electrónico inválido."); valido = false; }
+
+        if (edadStr.isEmpty()) { marcarError(txtEdad, "La edad es obligatoria."); valido = false; }
+        else {
+            try {
+                int edad = Integer.parseInt(edadStr);
+                if (edad < 0 || edad > 120) { marcarError(txtEdad, "Edad fuera de rango (0-120)."); valido = false; }
+            } catch (NumberFormatException ex) {
+                marcarError(txtEdad, "Edad inválida, debe ser un número."); valido = false;
+            }
+        }
+
+        if (telefono.isEmpty()) { marcarError(txtTelefono, "El teléfono es obligatorio."); valido = false; }
+        else if (!telefono.matches("\\d{7,10}")) { marcarError(txtTelefono, "Teléfono inválido (solo números de 7 a 10 dígitos)."); valido = false; }
+
+        if (direccion.isEmpty()) { marcarError(txtDireccion, "La dirección es obligatoria."); valido = false; }
+        else if (direccion.length() < 5) { marcarError(txtDireccion, "La dirección debe tener al menos 5 caracteres."); valido = false; }
+
+        if (identificacion.isEmpty()) { marcarError(txtIdentificacion, "La identificación es obligatoria."); valido = false; }
+        else if (!identificacion.matches("\\d{5,15}")) { marcarError(txtIdentificacion, "Identificación inválida (solo números de 5 a 15 dígitos)."); valido = false; }
+
+        return valido;
+    }
+
+    private void marcarError(JTextField campo, String mensaje) {
+        campo.setBorder(BorderFactory.createLineBorder(COLOR_ERROR, 2));
+        JOptionPane.showMessageDialog(this, mensaje, "Error de validación", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private void restaurarBorde(JTextField campo) {
+        campo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(COLOR_NORMAL, 1),
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)
+        ));
+    }
+
     private void guardarPaciente(Usuario usuarioActual, JFrame parent) {
+        if (!validarCampos()) return;
+
         try {
             String nombre = txtNombre.getText().trim();
             String correo = txtCorreo.getText().trim();
@@ -155,11 +219,6 @@ public class ModalPaciente extends JDialog {
             String identificacion = txtIdentificacion.getText().trim();
             String salud = comboSalud.getSelectedItem().toString();
             String afiliacion = comboAfiliacion.getSelectedItem().toString();
-
-            if (nombre.isEmpty() || correo.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "⚠️ Nombre y correo son obligatorios.");
-                return;
-            }
 
             PacienteDao pacienteDao = new PacienteDao();
             Paciente p = new Paciente(0, nombre, correo, edad, telefono, sexo, direccion, identificacion, usuarioActual.getIdUsuario());
@@ -176,12 +235,9 @@ public class ModalPaciente extends JDialog {
                 JOptionPane.showMessageDialog(this, "❌ Error al registrar paciente.");
             }
 
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Edad inválida.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al guardar paciente: " + ex.getMessage());
         }
     }
 
-    public static void main(String[] args) {
-        new ModalPaciente(null, null);
-    }
 }

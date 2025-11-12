@@ -119,10 +119,10 @@ public class VentanaRecetaMedica extends JFrame {
             boolean ok = dao.insertarReceta(receta);
 
             if (ok) {
-                JOptionPane.showMessageDialog(this, "Receta guardada correctamente ✅");
+                JOptionPane.showMessageDialog(this, "Receta guardada correctamente ");
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Error al guardar la receta ❌");
+                JOptionPane.showMessageDialog(this, "Error al guardar la receta ");
             }
 
         } catch (Exception ex) {

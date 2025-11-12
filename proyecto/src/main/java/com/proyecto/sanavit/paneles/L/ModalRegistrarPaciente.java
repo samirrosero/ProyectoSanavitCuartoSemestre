@@ -205,10 +205,10 @@ public class ModalRegistrarPaciente extends JDialog {
             boolean portOK = portafolioDAO.insertarPortafolio(port);
 
             if (pacienteOK) {
-                JOptionPane.showMessageDialog(this, "✅ Paciente registrado correctamente con usuario: " + nombre);
+                JOptionPane.showMessageDialog(this, "Paciente registrado correctamente con usuario: " + nombre);
                 dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al registrar paciente.");
+                JOptionPane.showMessageDialog(this, "Error al registrar paciente.");
             }
 
         } catch (Exception ex) {

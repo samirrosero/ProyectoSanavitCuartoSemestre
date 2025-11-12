@@ -197,13 +197,13 @@ public class PanelHistoriaClinica extends JPanel {
 
             boolean ok = historiaDAO.insertarHistoria(h);
             if (ok) {
-                JOptionPane.showMessageDialog(this, "✅ Historia clínica agregada correctamente.");
+                JOptionPane.showMessageDialog(this, "Historia clínica agregada correctamente.");
                 cargarHistorias();
             } else {
-                JOptionPane.showMessageDialog(this, "❌ Error al agregar historia clínica.");
+                JOptionPane.showMessageDialog(this, "Error al agregar historia clínica.");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "⚠️ Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }
 
