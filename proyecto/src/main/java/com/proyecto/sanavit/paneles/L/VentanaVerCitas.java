@@ -11,20 +11,23 @@ public class VentanaVerCitas extends JFrame {
 
     private JTable tablaCitas;
     private DefaultTableModel modeloTabla;
-    private JButton btnCerrar;
+    private JButton btnCerrar, btnCancelar;
     private final CitaDao citaDAO = new CitaDao();
+    private final Paciente pacienteActual; // 🔹 Guardamos el paciente actual
 
     public VentanaVerCitas(Paciente pacienteActual) {
+        this.pacienteActual = pacienteActual; // lo guardamos para usar después
+
         setTitle("Mis Citas - Sanavit");
         setSize(850, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(15, 15));
-        getContentPane().setBackground(new Color(244, 247, 250)); // Fondo verde muy suave
+        getContentPane().setBackground(new Color(244, 247, 250));
 
         // === ENCABEZADO ===
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(65, 158, 91)); // Verde Sanavit
+        header.setBackground(new Color(65, 158, 91));
         header.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
 
         JLabel lblTitulo = new JLabel("Citas del Paciente: " + pacienteActual.getNombre(), JLabel.LEFT);
@@ -35,12 +38,11 @@ public class VentanaVerCitas extends JFrame {
 
         // === PANEL CENTRAL ===
         JPanel panelCentral = new JPanel(new BorderLayout());
-        panelCentral.setBackground(new Color(198, 232, 197)); // Verde claro
+        panelCentral.setBackground(new Color(198, 232, 197));
         panelCentral.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // === TABLA ===
         modeloTabla = new DefaultTableModel(new String[]{
-            "Fecha", "Hora", "Médico", "Especialidad", "Modalidad", "Estado"
+            "ID", "Fecha", "Hora", "Médico", "Especialidad", "Modalidad", "Estado"
         }, 0);
 
         tablaCitas = new JTable(modeloTabla);
@@ -48,7 +50,7 @@ public class VentanaVerCitas extends JFrame {
         tablaCitas.setRowHeight(30);
         tablaCitas.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tablaCitas.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        tablaCitas.getTableHeader().setBackground(new Color(153, 210, 185)); // Verde pastel
+        tablaCitas.getTableHeader().setBackground(new Color(153, 210, 185));
         tablaCitas.getTableHeader().setForeground(Color.BLACK);
         tablaCitas.setGridColor(new Color(210, 230, 210));
 
@@ -63,10 +65,34 @@ public class VentanaVerCitas extends JFrame {
         panelCentral.add(scroll, BorderLayout.CENTER);
         add(panelCentral, BorderLayout.CENTER);
 
-        // === BOTÓN CERRAR ===
+        // === PANEL DE BOTONES ===
         JPanel panelBoton = new JPanel();
         panelBoton.setBackground(new Color(234, 250, 241));
 
+        // Botón Cancelar Cita
+        btnCancelar = new JButton("Cancelar Cita");
+        btnCancelar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCancelar.setBackground(new Color(66, 166, 105));
+        btnCancelar.setForeground(Color.WHITE);
+        btnCancelar.setFocusPainted(false);
+        btnCancelar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnCancelar.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+
+        btnCancelar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnCancelar.setBackground(new Color(66, 166, 105));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnCancelar.setBackground(new Color(66, 166, 105));
+            }
+        });
+
+        btnCancelar.addActionListener(e -> cancelarCita());
+
+        // Botón Cerrar
         btnCerrar = new JButton("Cerrar");
         btnCerrar.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnCerrar.setBackground(new Color(231, 76, 60));
@@ -75,7 +101,6 @@ public class VentanaVerCitas extends JFrame {
         btnCerrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnCerrar.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 
-        // 🔹 Efecto hover
         btnCerrar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -84,20 +109,21 @@ public class VentanaVerCitas extends JFrame {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                btnCerrar.setBackground(new Color(41, 110, 29));
+                btnCerrar.setBackground(new Color(231, 76, 60));
             }
         });
 
         btnCerrar.addActionListener(e -> {
-        JOptionPane.showInternalMessageDialog(
-            null,
-            "✔ Tu cita fue agendada exitosamente. \nRecuerda estar 30 minitos antes",
-            "Cita Agendada",
-            JOptionPane.INFORMATION_MESSAGE
-        );
+            JOptionPane.showMessageDialog(
+                null,
+                "✔ Tu cita fue agendada exitosamente.\nRecuerda estar 30 minutos antes.",
+                "Cita Agendada",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            dispose();
+        });
 
-        dispose();
-    });
+        panelBoton.add(btnCancelar);
         panelBoton.add(btnCerrar);
         add(panelBoton, BorderLayout.SOUTH);
 
@@ -123,6 +149,7 @@ public class VentanaVerCitas extends JFrame {
                 String estado = citaDAO.obtenerNombreEstado(c.getIdEstadoCita());
 
                 modeloTabla.addRow(new Object[]{
+                    c.getIdCita(),
                     c.getFechaCita(),
                     c.getHoraCita(),
                     nombreMedico,
@@ -137,6 +164,50 @@ public class VentanaVerCitas extends JFrame {
             JOptionPane.showMessageDialog(this,
                     "Error al cargar citas: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ===============================================================
+    // Método para cancelar una cita seleccionada
+    // ===============================================================
+    private void cancelarCita() {
+        int fila = tablaCitas.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "⚠️ Selecciona una cita para cancelar.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int idCita = Integer.parseInt(modeloTabla.getValueAt(fila, 0).toString());
+        String estado = modeloTabla.getValueAt(fila, 6).toString();
+
+        if (estado.equalsIgnoreCase("Cancelada")) {
+            JOptionPane.showMessageDialog(this,
+                    "La cita ya está cancelada.",
+                    "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "¿Seguro que deseas cancelar esta cita?",
+                "Confirmar cancelación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                citaDAO.actualizarEstadoCita(idCita, 3); // 3 = Cancelada
+                JOptionPane.showMessageDialog(this,
+                        "✅ Cita cancelada exitosamente.",
+                        "Cita Cancelada", JOptionPane.INFORMATION_MESSAGE);
+                cargarCitas(pacienteActual.getIdPaciente()); // 🔹 recarga usando el mismo paciente
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                        "Error al cancelar la cita: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }
